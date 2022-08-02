@@ -1,0 +1,7 @@
+name: small_peptides
+channels:
+  - bioconda
+  - conda-forge
+  - defaults
+dependencies:
+  - pytest-workflow=1.6.0
