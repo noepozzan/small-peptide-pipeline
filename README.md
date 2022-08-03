@@ -134,13 +134,13 @@ This sets environment variables that allow you to pull the private MSFragger ima
 
 I have prepared tests to check the integrity of the workflow and its components.
 These can be run as follows:
-	````bash
+	```bash
 	cd <main directory of this project>
 	nextflow run main.nf -profile test,<slurm,slurm_offline>
 	```
 ATTENTION:
 Since even the testing files for this pipeline are quite large, I provide a github repo to pull from.
-	````bash
+	```bash
 	cd <main directory of this project>
 	git clone git@github.com:noepozzan/small_peptide_pipeline_test_data.git
 	mkdir -p data/tests/
