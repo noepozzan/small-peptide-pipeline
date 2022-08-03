@@ -187,14 +187,14 @@ As you see above, this workflow needs 2 profiles:
 While this looks quite straightforward up to this point, make sure to provide the right files for each of the run modes.
 These files have to be provided, as follows:
 
-	In the project's root directory, there is a folder called `conf/`.
-	This folder houses all configuration files necessary to deal with the different run modes.
-	IMPORTANT: If you choose the profile <full>, you have to specify the paths to your files in the `conf/full.config` configuration file.
-	This works for all the other profiles in the same manner.
-	Use your editor of choice to populate these files with appropriate
-	paths. Every config files indicates the variables necessary to run this workflow in the way you want it to.
-	Have a look at the examples in the `conf/` directory to see what the
-	files should look like, specifically:
+In the project's root directory, there is a folder called `conf/`.
+This folder houses all configuration files necessary to deal with the different run modes.
+IMPORTANT: If you choose the profile <full>, you have to specify the paths to your files in the `conf/full.config` configuration file.
+This works for all the other profiles in the same manner.
+Use your editor of choice to populate these files with appropriate
+paths. Every config files indicates the variables necessary to run this workflow in the way you want it to.
+Have a look at the examples in the `conf/` directory to see what the
+files should look like, specifically:
 
     - [slurm.config]
     - [docker.config]
