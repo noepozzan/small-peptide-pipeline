@@ -13,20 +13,34 @@ include { FIX_NAMES } from './subworkflows/fix_names.nf'
 include { PULL_FILES } from './subworkflows/pull_files.nf'
 include { RAWMZML } from './subworkflows/raw_to_mzml.nf'
 
-gtf_ch = channel.fromPath(params.gtf)
-other_RNAs_sequence_ch = channel.fromPath(params.other_RNAs_sequence)
-genome_ch = channel.fromPath(params.genome)
-genome_fai_ch = channel.fromPath(params.genome_fai)
-oligos_ch = channel.fromPath('./data/oligos.txt')
-riboseq_reads_ch = channel.fromPath(params.riboseq_reads)
-proteomics_reads_ch = channel.fromPath(params.proteomics_reads)
+// check if files are present by converting params to channels
+if ( params.run_mode == "test" || params.run_mode == "full" ) {
+    riboseq_reads_ch = channel.fromPath(params.riboseq_reads, checkIfExists: true)
+    proteomics_reads_ch = channel.fromPath(params.proteomics_reads, checkIfExists: true)
+    other_RNAs_sequence_ch = channel.fromPath(params.other_RNAs_sequence, checkIfExists: true)
+    gtf_ch = channel.fromPath(params.gtf, checkIfExists: true)
+    genome_ch = channel.fromPath(params.genome, checkIfExists: true)
+    genome_fai_ch = channel.fromPath(params.genome_fai, checkIfExists: true)
+}
+if ( params.run_mode == "proteomics" ) {
+    proteomics_reads_ch = channel.fromPath(params.proteomics_reads, checkIfExists: true)
+}
+if ( params.run_mode == "ribotish" ) {
+    genome_fai_ch = channel.fromPath(params.genome_fai, checkIfExists: true)
+    gtf_ch = channel.fromPath(params.gtf, checkIfExists: true)
+    genome_ch = channel.fromPath(params.genome, checkIfExists: true)
+    // this input is very special: It is a folder containing a sorted+indexed bam file and its index
+    bam_sort_index_folder_ch = channel.fromPath(params.bam_sort_index_folder, checkIfExists: true)
+}
 
+// this should be replaced by Meric's image
 workflow RAW_TO_MZML {
 
 	RAWMZML()
 
 }
 
+// kind of unncecessary?
 workflow MAP_NAMES {
 
 	csv_file = channel.fromPath("${projectDir}/data/experimental_conditions.csv")
@@ -92,24 +106,28 @@ workflow {
 			rRNA_PIPE.out.other_genes_mapped_sam
 		)
 	}
-    
+   
+    /* 
     if ( params.run_mode == "ribotish" ) {
-        bam_sort_index_folder = channel.fromPath(params.bam_sort_index_folder)
+        bam_sort_index_folder_ch = channel.fromPath(params.bam_sort_index_folder)
     }
-	
+	*/
+
 	if ( params.run_mode == "full" || params.run_mode == "ribotish" ) {
 		RIBOTISH_PIPE(
 			gtf_ch,
-			bam_sort_index_folder,
+			bam_sort_index_folder_ch,
 			genome_ch,
 			genome_fai_ch,
 		)
 		predicted_peptides = RIBOTISH_PIPE.out.speptide_combined
 	}
-
+    
+    */
 	if ( params.run_mode == "test" || params.run_mode == "proteomics" ) {
 		predicted_peptides = channel.fromPath(params.test_database)
 	}
+    /*
 
     if ( params.run_mode == "full" || params.run_mode == "test" || params.run_mode == "proteomics") {
         PHILOSOPHER(
