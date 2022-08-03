@@ -136,16 +136,17 @@ We have prepared several tests to check the integrity of the workflow and its
 components. These can be found in subdirectories of the `tests/` directory. 
 The most critical of these tests enable you to execute the entire workflow on a 
 set of small example input files. Note that for this and other tests to complete
-successfully, [additional dependencies](#installing-non-essential-dependencies) 
-need to be installed. 
-Execute one of the following commands to run the test workflow 
-on your local machine:
+successfully, [additional dependencies](#installing-non-essential-dependencies) need to be installed.
+
 Remember to activate the conda environment!
+
+Execute one of the following commands to run the test workflow on your local machine:
 * Test workflow on local machine with **Singularity**:
 (I need to test this if this works at all on my machine)
 ```bash
 nextflow run main.nf -profile test,docker
 ```
+
 Execute one of the following commands to run the test workflow 
 on a [Slurm][slurm]-managed high-performance computing (HPC) cluster:
 * Test workflow with **Singularity**:
@@ -153,12 +154,6 @@ on a [Slurm][slurm]-managed high-performance computing (HPC) cluster:
 nextflow run main.nf -profile test,<slurm,slurm_offline>
 ```
 
-> **NOTE:** Depending on the configuration of your Slurm installation you may
-> need to adapt file `slurm-config.json` (located directly under `profiles`
-> directory) and the arguments to options `--cores` and `--jobs`
-> in the file `config.yaml` of a respective profile.
-> Consult the manual of your workload manager as well as the section of the
-> Snakemake manual dealing with [profiles].
 
 # Running the workflow on your own samples
 
@@ -203,10 +198,23 @@ files should look like, specifically:
     - For more details and explanations, refer to the [pipeline-documentation]
 
 3. Pick one of the following choices for either local or cluster execution:
+
+> **NOTE:** Depending on the configuration of your Slurm installation you may
+> need to adapt the files under the `conf/` directory 
+> and the arguments to options `memory` and `cpus`
+> in the file `*.config` of the respective profile.
+> Consult the manual of your workload manager as well as the section of the
+> nextflow manual dealing with [profiles].
+
 	slurm: for cluster execution (needs singularity installed)
 	slurm_offline: for cluster execution
-	(this option needs you to first run `bash ...
-	docker: for local execution (needs docker installed)
+	(needs singularity installed and also needs you to first run:
+	````bash
+	cd <main directory of this project>
+	bash data/scripts/pull_containers.sh
+	```
+	)
+	docker: for local execution (needs docker installed and the daemon running)
 
 4. Start your workflow run:
 
@@ -224,13 +232,9 @@ files should look like, specifically:
 	```
 
 [conda]: <https://docs.conda.io/projects/conda/en/latest/index.html>
-[profiles]: <https://snakemake.readthedocs.io/en/stable/executing/cli.html#profiles>
+[profiles]: <https://www.nextflow.io/docs/latest/config.html#config-profiles>
 [mamba]: <https://github.com/mamba-org/mamba>
 [miniconda-installation]: <https://docs.conda.io/en/latest/miniconda.html>
-[rule-graph]: images/rule_graph.svg
-[zarp-logo]: images/zarp_logo.svg
-[zarp-schema]: images/zarp_schema.svg
-[snakemake]: <https://snakemake.readthedocs.io/en/stable/>
 [singularity]: <https://sylabs.io/singularity/>
 [docker]: <https://docker.com/>
 [msfragger]: <https://msfragger.nesvilab.org/>
@@ -241,6 +245,4 @@ files should look like, specifically:
 [slurm.config]: conf/slurm.config
 [docker.config]: conf/docker.config
 [pipeline-documentation]: pipeline_documentation.md
-[sra-tools]: <https://github.com/ncbi/sra-tools>
-[resources.tmpdir]: <https://snakemake.readthedocs.io/en/stable/snakefiles/rules.html?#standard-resources>
 
