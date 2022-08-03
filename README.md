@@ -193,7 +193,8 @@ IMPORTANT: If you choose the profile <full>, you have to specify the paths to yo
 This works for all the other profiles in the same manner.
 Use your editor of choice to populate these files with appropriate
 paths. Every config files indicates the variables necessary to run this workflow in the way you want it to.
-Have a look at the examples in the `conf/` directory to see what the
+
+2. Have a look at the examples in the `conf/` directory to see what the
 files should look like, specifically:
 
     - [slurm.config]
@@ -201,13 +202,13 @@ files should look like, specifically:
 
     - For more details and explanations, refer to the [pipeline-documentation]
 
-2. Pick one of the following choices for either local or cluster execution:
+3. Pick one of the following choices for either local or cluster execution:
 	slurm: for cluster execution (needs singularity installed)
 	slurm_offline: for cluster execution
 	(this option needs you to first run `bash ...
 	docker: for local execution (needs docker installed)
 
-3. Start your workflow run:
+4. Start your workflow run:
 
 	Either, to view the output directly in your terminal:
     ```bash
