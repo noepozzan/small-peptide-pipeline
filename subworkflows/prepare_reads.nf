@@ -4,6 +4,7 @@ nextflow.enable.dsl=2
 
 process TRIM_FIRST_BASES {
 
+    echo true
     label "cutadapt"
 
     publishDir "${params.reads_dir}/trim_first_bases", mode: 'copy', pattern: '*.trimmed_first_bases'
@@ -17,19 +18,34 @@ process TRIM_FIRST_BASES {
 	path '*.log', emit: log
 
     script:
+    if (params.local_run == "docker")
     """
     input=\$(basename ${reads})
     prefix=\$(echo \$input | cut -d '.' -f 1)
 
+    echo "IN DOCKER"
+    sleep 10
     (cutadapt \
 		--cut ${params.cut} \
 		--minimum-length ${params.minimum_length} \
 		${reads} | gzip > \
 		\${prefix}.trimmed_first_bases) \
 		&> \${prefix}_trim_first_bases.log
-
+    sleep 10
     """
+    else
+    """
+    input=\$(basename ${reads})
+    prefix=\$(echo \$input | cut -d '.' -f 1)
 
+    echo "NOT IN DOCKER"
+    (cutadapt \
+        --cut ${params.cut} \
+        --minimum-length ${params.minimum_length} \
+        ${reads} | gzip > \
+        \${prefix}.trimmed_first_bases) \
+        &> \${prefix}_trim_first_bases.log
+    """
 }
 
 process CLIP_READS {
@@ -47,18 +63,30 @@ process CLIP_READS {
 	path '*.log', emit: log
 
     script:
+    if (params.local_run == "docker")
     """
     input=\$(basename ${reads})
     prefix=\$(echo \$input | cut -d '.' -f 1)
 
+    sleep 10
     fastx_clipper \
 		${params.clip_reads_args} \
 		-i <(zcat ${reads}) \
 		-o \${prefix}.pro_clipped \
 		&> \${prefix}_clip_reads.log
-    
+    sleep 10
     """
+    else
+    """
+    input=\$(basename ${reads})
+    prefix=\$(echo \$input | cut -d '.' -f 1)
 
+    fastx_clipper \
+        ${params.clip_reads_args} \
+        -i <(zcat ${reads}) \
+        -o \${prefix}.pro_clipped \
+        &> \${prefix}_clip_reads.log
+    """
 }
 
 
@@ -80,6 +108,22 @@ process TRIM_READS {
 	path '*.log', emit: log
 
     script:
+    if (params.local_run == "docker")
+    """
+    input=\$(basename ${reads})
+    prefix=\$(echo \$input | cut -d '.' -f 1)
+
+    sleep 10
+
+    fastq_quality_trimmer \
+		${params.trim_reads_args} \
+		-i <(zcat ${reads}) \
+		-o \${prefix}.pro_trimmed \
+		&> \${prefix}_trim_reads.log
+
+    sleep 10
+    """
+    else
     """
     input=\$(basename ${reads})
     prefix=\$(echo \$input | cut -d '.' -f 1)
@@ -91,7 +135,6 @@ process TRIM_READS {
 		&> \${prefix}_trim_reads.log
 
     """
-
 }
 
 process FILTER_READS {
@@ -109,6 +152,22 @@ process FILTER_READS {
 	path '*.log', emit: log
 
     script:
+    if (params.local_run == "docker")
+    """
+    input=\$(basename ${reads})
+    prefix=\$(echo \$input | cut -d '.' -f 1)
+
+    sleep 10
+
+    fastq_quality_filter \
+		${params.filter_reads_args} \
+		-i <(zcat ${reads}) \
+		-o \${prefix}.pro_filtered \
+		&> \${prefix}_filter_reads.log
+
+    sleep 10
+    """
+    else
     """
     input=\$(basename ${reads})
     prefix=\$(echo \$input | cut -d '.' -f 1)
@@ -120,7 +179,6 @@ process FILTER_READS {
 		&> \${prefix}_filter_reads.log
 
     """
-
 }
 
 process FASTQ_TO_FASTA {
@@ -138,6 +196,22 @@ process FASTQ_TO_FASTA {
 	path '*.log', emit: log
 
     script:
+    if (params.local_run == "filter")
+    """
+    input=\$(basename ${reads})
+    prefix=\$(echo \$input | cut -d '.' -f 1)
+
+    sleep 10
+
+    fastq_to_fasta \
+		${params.fastq_to_fasta_args} \
+		-i <(zcat ${reads}) \
+		-o \${prefix}.pro_filtered_fasta \
+		&> \${prefix}_fastq_to_fasta.log
+
+    sleep 10
+    """
+    else
     """
     input=\$(basename ${reads})
     prefix=\$(echo \$input | cut -d '.' -f 1)
@@ -147,7 +221,6 @@ process FASTQ_TO_FASTA {
 		-i <(zcat ${reads}) \
 		-o \${prefix}.pro_filtered_fasta \
 		&> \${prefix}_fastq_to_fasta.log
-
     """
 
 }
