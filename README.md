@@ -5,7 +5,7 @@
     <img width="20%" align="left" src=images/esel.webp>
 </div> 
 
-**Small Peptide Pipeline** ([Zavolan-Lab][zavolan-lab] whatever ... Pipeline) is a workflow that allows 
+**Small Peptide Pipeline** ([Zavolan-Lab][zavolan-lab] whatever ... Pipeline) is a workflow that allows you
 to analyze riboseq reads for the existence of small peptides and validating hits on peptidomics data.
 The workflow relies on publicly available bioinformatics tools and currently handles (MERIC?)single-end stranded bulk RNA-seq and label-free peptidomics data.
 The workflow is developed in [Nextflow][nextflow], a widely used workflow management system in the bioinformatics
@@ -17,7 +17,7 @@ After mapping of the ribo-Seq to your reference of choice, potential small pepti
 Additional reports summarise the results of the individual steps and provide useful visualisations.
 
 <div align="center">
-    <img width="60%" src=images/flowchart.png>
+    <img width="80%" src=images/flowchart.png>
 </div> 
 
 
@@ -52,7 +52,7 @@ cd small_peptide_pipeline
 Workflow dependencies can be conveniently installed with the [Conda][conda]
 package manager. We recommend that you install [Miniconda][miniconda-installation] 
 for your system (Linux). Be sure to select the Python 3 option. 
-The workflow was built and tested with `miniconda 4.7.12`.
+The workflow was built and tested with `miniconda 4.13.0`.
 Other versions are not guaranteed to work as expected.
 
 Given that Miniconda has been installed and is available in the current shell the first
@@ -69,31 +69,31 @@ For improved reproducibility and reusability of the workflow,
 each individual step of the workflow runs in its own [Singularity][singularity] or [Docker][docker]
 container.
 As a consequence, running this workflow has very few individual dependencies.
-Since this pipeline depends on many different software tools, only **container execution** is possible. This requires Singularity to be installed on the system where the workflow is executed. 
-As the functional installation of Singularity requires root privileges, and Conda currently only provides Singularity
-for Linux architectures, the installation instructions are slightly different depending on your system/setup:
+Since this pipeline depends on many different software tools, only **container execution** is possible. This requires Singularity or Docker to be installed on the system where the workflow is executed. 
+As the functional installation of Singularity and Docker require root privilege, and Conda currently only provides Singularity for Linux architectures, the installation instructions are slightly different depending on your system/setup:
 
 ### For most users
 
 If you do *not* have root privileges on the machine you want
 to run the workflow on *or* if you do not have a Linux machine, please [install
-Singularity][singularity-install] separately and in privileged mode, depending
+Singularity][singularity-install] or [install Docker][docker-install] separately and in privileged mode, depending
 on your system. You may have to ask an authorized person (e.g., a systems
 administrator) to do that. This will almost certainly be required if you want
 to run the workflow on a high-performance computing (HPC) cluster. 
 
 > **NOTE:**
-> The workflow has been tested with the following Singularity versions:  
->  * `v3.8.5-1.el7`
+> The workflow has been tested with the following versions:  
+>  * `Singularity v3.8.5-1.el7`
+>  * `Docker 20.10.17`
 
-After installing Singularity, install the remaining dependencies with:
+After the installation has completed, install the remaining dependencies with:
 ```bash
 mamba env create -f install/environment.yml
 ```
 
-
 ### As root user on Linux
 
+(NOT RELEVANT RIGHT NOW. ASK MERIC)
 If you have a Linux machine, as well as root privileges, (e.g., if you plan to
 run the workflow on your own computer), you can execute the following command
 to include Singularity in the Conda environment:
@@ -128,12 +128,26 @@ It is important to know that this workflow relies on many external tools.
 One of those is [MSFragger][msfragger].
 Since MSFragger is only free for non-commercial use, you should run
 `source data/scripts/echo_env.sh` from the main dir of this project.
-This sets environment variables that allow you to pull the private MSFragger image from noepozzan's dockerhub repo.
+This sets environment variables that allow you to pull the private MSFragger image from [noepozzan's dockerhub][dockerhub-np] repository.
 
 ## 6. Successful installation tests
 
-We have prepared several tests to check the integrity of the workflow and its
-components. These can be found in subdirectories of the `tests/` directory. 
+I have prepared tests to check the integrity of the workflow and its components.
+These can be run as follows:
+	````bash
+	cd <main directory of this project>
+	nextflow run main.nf -profile test,<slurm,slurm_offline>
+	```
+ATTENTION:
+Since even the testing files for this pipeline are quite large, I provide a github repo to pull from.
+	````bash
+	cd <main directory of this project>
+	git clone git@github.com:noepozzan/small_peptide_pipeline_test_data.git
+	mkdir -p data/tests/
+	mv small_peptide_pipeline_test_data/* data/tests/
+	```
+Once you have done this, you can run the tests shown above.
+
 The most critical of these tests enable you to execute the entire workflow on a 
 set of small example input files. Note that for this and other tests to complete
 successfully, [additional dependencies](#installing-non-essential-dependencies) need to be installed.
@@ -241,6 +255,8 @@ files should look like, specifically:
 [philosopher]: <https://github.com/Nesvilab/philosopher>
 [nextflow]: <https://nextflow.io/>
 [singularity-install]: <https://sylabs.io/guides/3.5/admin-guide/installation.html>
+[docker-install]: <https://docs.docker.com/engine/install/>
+[dockerhub-np]: <https://hub.docker.com/u/noepozzan>
 [ribotish]: <https://bioinformatics.mdanderson.org/public-software/ribo-tish/>
 [slurm]: <https://slurm.schedmd.com/documentation.html>
 [zavolan-lab]: <https://www.biozentrum.unibas.ch/research/researchgroups/overview/unit/zavolan/research-group-mihaela-zavolan/>
