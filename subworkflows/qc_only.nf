@@ -1,37 +1,5 @@
 #!/usr/bin/env nextflow
-
 nextflow.enable.dsl=2
-
-process COUNT_OLIGOS {
-    
-    label "htseq_biopython"
-
-    publishDir "${params.qc_dir}/count_oligos", mode: 'copy', pattern: '*_oligos_counts'
-    publishDir "${params.log_dir}/count_oligos", mode: 'copy', pattern: '*.log'
-
-    input:
-    each(path(reads))
-    path oligos
-    path py_script
-
-    output:
-    path '*_oligos_counts', emit: counts
-	path '*.log', emit: log
-
-    script:
-    """
-    input=\$(basename ${reads})
-    prefix=\$(echo \$input | cut -d '.' -f 1)
-
-    python ${py_script} \
-		--fastq <(gunzip -c ${reads}) \
-        --oligos ${oligos} \
-        --out \${prefix}_oligos_counts \
-		&> \${prefix}_count_oligos.log
-
-    """
-
-}
 
 process COUNT_OVERREPRESENTED_SEQUENCES_OTHER {
     
@@ -297,21 +265,12 @@ process BAM_SORT_AND_INDEX {
 workflow QC_ONLY_PIPE {
 
     take:
-    oligos_ch
 	transcript_id_gene_id_CDS
 	transcripts_mapped_unique_sam
 	bam_bai_folder
 	other_genes_mapped_sam
 
     main:   
-	if ( params.run_count_oligos == "true" ) {
-		COUNT_OLIGOS(
-			reads_ch,
-			oligos_ch,
-			params.count_oligos_script
-		)
-    }
-
     COUNT_OVERREPRESENTED_SEQUENCES_OTHER(
         other_genes_mapped_sam,
         params.find_overrepresented_sequences_script

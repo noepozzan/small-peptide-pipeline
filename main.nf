@@ -99,7 +99,6 @@ workflow {
 		)
 
 		QC_ONLY_PIPE(
-			oligos_ch,
 			ANNOTATE_PIPE.out.transcript_id_gene_id_CDS_tsv,
 			TRANSCRIPTOME_PIPE.out.transcripts_mapped_unique_sam,
 			TRANSCRIPTOME_PIPE.out.bam_bai_folder,
@@ -123,11 +122,11 @@ workflow {
 		predicted_peptides = RIBOTISH_PIPE.out.speptide_combined
 	}
     
-    */
+    /*
 	if ( params.run_mode == "test" || params.run_mode == "proteomics" ) {
 		predicted_peptides = channel.fromPath(params.test_database)
 	}
-    /*
+    */
 
     if ( params.run_mode == "full" || params.run_mode == "test" || params.run_mode == "proteomics") {
         PHILOSOPHER(
@@ -135,7 +134,7 @@ workflow {
             proteomics_reads_ch
         )
     }
-
+    
 /*
 	PHILOSOPHER_PARALLEL(
 		//PHILOSOPHER.out.ionquant,
