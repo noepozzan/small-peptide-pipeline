@@ -4,7 +4,6 @@ nextflow.enable.dsl=2
 
 process TRIM_FIRST_BASES {
 
-    echo true
     label "cutadapt"
 
     publishDir "${params.reads_dir}/trim_first_bases", mode: 'copy', pattern: '*.trimmed_first_bases'
@@ -23,7 +22,6 @@ process TRIM_FIRST_BASES {
     input=\$(basename ${reads})
     prefix=\$(echo \$input | cut -d '.' -f 1)
 
-    echo "IN DOCKER"
     sleep 10
     (cutadapt \
 		--cut ${params.cut} \
@@ -38,7 +36,6 @@ process TRIM_FIRST_BASES {
     input=\$(basename ${reads})
     prefix=\$(echo \$input | cut -d '.' -f 1)
 
-    echo "NOT IN DOCKER"
     (cutadapt \
         --cut ${params.cut} \
         --minimum-length ${params.minimum_length} \

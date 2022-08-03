@@ -22,6 +22,12 @@ if ( params.run_mode == "test" || params.run_mode == "full" ) {
     genome_ch = channel.fromPath(params.genome, checkIfExists: true)
     genome_fai_ch = channel.fromPath(params.genome_fai, checkIfExists: true)
 }
+if ( params.run_mode == "ribotish" ) {
+    bam_sort_index_folder_ch = channel.fromPath(params.bam_sort_index_folder, checkIfExists: true)
+}
+if ( params.run_mode == "test" || params.run_mode == "proteomics" ) {
+    predicted_peptides = channel.fromPath(params.test_database, checkIfExists: true)
+}
 if ( params.run_mode == "proteomics" ) {
     proteomics_reads_ch = channel.fromPath(params.proteomics_reads, checkIfExists: true)
 }
@@ -105,12 +111,6 @@ workflow {
 			rRNA_PIPE.out.other_genes_mapped_sam
 		)
 	}
-   
-    /* 
-    if ( params.run_mode == "ribotish" ) {
-        bam_sort_index_folder_ch = channel.fromPath(params.bam_sort_index_folder)
-    }
-	*/
 
 	if ( params.run_mode == "full" || params.run_mode == "ribotish" ) {
 		RIBOTISH_PIPE(
@@ -122,12 +122,6 @@ workflow {
 		predicted_peptides = RIBOTISH_PIPE.out.speptide_combined
 	}
     
-    /*
-	if ( params.run_mode == "test" || params.run_mode == "proteomics" ) {
-		predicted_peptides = channel.fromPath(params.test_database)
-	}
-    */
-
     if ( params.run_mode == "full" || params.run_mode == "test" || params.run_mode == "proteomics") {
         PHILOSOPHER(
             predicted_peptides,
