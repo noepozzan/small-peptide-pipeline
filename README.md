@@ -29,11 +29,10 @@ Additional reports summarise the results of the individual steps and provide use
 
 The workflow has been tested on:
 - CentOS 7.5
-- Debian 10
-- Ubuntu 16.04, 18.04
+- macOS 12.3.1
 
 > **NOTE:**
-> Currently, we only support **Linux** execution. 
+> Currently, we only support **Mac & Linux** execution. 
 
 
 # Installation
