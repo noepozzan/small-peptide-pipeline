@@ -134,13 +134,16 @@ This sets environment variables that allow you to pull the private MSFragger ima
 
 I have prepared tests to check the integrity of the workflow and its components.
 These can be run as follows:
-	````bash
+	
+	```bash
 	cd <main directory of this project>
 	nextflow run main.nf -profile test,<slurm,slurm_offline>
 	```
+
 ATTENTION:
 Since even the testing files for this pipeline are quite large, I provide a github repo to pull from.
-	````bash
+	
+	```bash
 	cd <main directory of this project>
 	git clone git@github.com:noepozzan/small_peptide_pipeline_test_data.git
 	mkdir -p data/tests/
@@ -175,8 +178,6 @@ If you want to run the workflow on your own files, running it is pretty straight
 
 	```bash
 	cd <project's main directory>
-	```
-	````bash
 	nextflow run main.nf -profile <profile of your choice>,<profile that fits your work environment>
 	```
 
@@ -233,6 +234,7 @@ files should look like, specifically:
 4. Start your workflow run:
 
 	Either, to view the output directly in your terminal:
+
     ```bash
 	nextflow run main.nf -profile <profile of your choice>,<profile that fits your work environment>
     ```
@@ -241,6 +243,7 @@ files should look like, specifically:
 	(practical if you need to leave your computer while still running the pipeline)
 	This option requires you to copy the exact nextflow command you intend to run into the `slurm.script`,
 	which you'll find in the project's main directory.
+
 	```bash
 	sbatch slurm.script
 	```
