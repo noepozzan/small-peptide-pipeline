@@ -134,7 +134,7 @@ This sets environment variables that allow you to pull the private MSFragger ima
 
 I have prepared tests to check the integrity of the workflow and its components.
 These can be run as follows:
-	
+
 	```bash
 	cd <main directory of this project>
 	nextflow run main.nf -profile test,<slurm,slurm_offline>
@@ -142,13 +142,14 @@ These can be run as follows:
 
 ATTENTION:
 Since even the testing files for this pipeline are quite large, I provide a github repo to pull from.
-	
+
 	```bash
 	cd <main directory of this project>
 	git clone git@github.com:noepozzan/small_peptide_pipeline_test_data.git
 	mkdir -p data/tests/
 	mv small_peptide_pipeline_test_data/* data/tests/
 	```
+
 Once you have done this, you can run the tests shown above.
 
 The most critical of these tests enable you to execute the entire workflow on a 
@@ -160,17 +161,18 @@ Remember to activate the conda environment!
 Execute one of the following commands to run the test workflow on your local machine:
 * Test workflow on local machine with **Singularity**:
 (I need to test this if this works at all on my machine)
-```bash
-nextflow run main.nf -profile test,docker
-```
+
+	```bash
+	nextflow run main.nf -profile test,docker
+	```
 
 Execute one of the following commands to run the test workflow 
 on a [Slurm][slurm]-managed high-performance computing (HPC) cluster:
 * Test workflow with **Singularity**:
-```bash
-nextflow run main.nf -profile test,<slurm,slurm_offline>
-```
 
+	```bash
+	nextflow run main.nf -profile test,<slurm,slurm_offline>
+	```
 
 # Running the workflow on your own samples
 
