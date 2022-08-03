@@ -5,6 +5,8 @@
 # ALSO: might have to adapt the config files:
 # I had to add test profiles bc gitlab runner doesn't have slurm installed
 
+mkdir -p ~/.singularity/cache/library
+
 python ${PWD}/data/scripts/pull_containers.py \
 	--config ${PWD}/conf/slurm.config \
 	--out ${PWD}/conf/slurm_offline.config \

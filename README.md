@@ -126,7 +126,8 @@ mamba env update -f install/environment.dev.yml
 
 It is important to know that this workflow relies on many external tools.
 One of those is [MSFragger][msfragger].
-Since MSFragger is only free for non-commercial use, you should run "source data/scripts/echo_env.sh" from the main dir of this project.
+Since MSFragger is only free for non-commercial use, you should run
+`source data/scripts/echo_env.sh` from the main dir of this project.
 This sets environment variables that allow you to pull the private MSFragger image from noepozzan's dockerhub repo.
 
 ## 6. Successful installation tests
