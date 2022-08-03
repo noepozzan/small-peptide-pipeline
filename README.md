@@ -2,7 +2,7 @@
 [![GitHub license](https://img.shields.io/github/license/zavolanlab/zarp?color=orange)](https://github.com/zavolanlab/zarp/blob/dev/LICENSE)
 
 <div align="left">
-    <img width="20%" align="left" src=images/zarp_logo.svg>
+    <img width="20%" align="left" src=images/esel.webp>
 </div> 
 
 **Small Peptide Pipeline** ([Zavolan-Lab][zavolan-lab] whatever ... Pipeline) is a workflow that allows 
@@ -17,7 +17,7 @@ reducing hands-on time for bioinformaticians and giving experimentalists the pos
 Additional reports summarise the results of the individual steps and provide useful visualisations.
 
 <div align="center">
-    <img width="60%" src=images/zarp_schema.png>
+    <img width="60%" src=images/esel.webp>
 </div> 
 
 
@@ -44,7 +44,7 @@ Go to the desired directory/folder on your file system, then clone/get the
 repository and move into the respective directory with:
 
 ```bash
-git clone https://github.com/zavolanlab/small_peptide_pipeline.git
+git clone https://github.com/noepozzan/small_peptide_pipeline.git
 cd small_peptide_pipeline
 ```
 
@@ -70,7 +70,7 @@ For improved reproducibility and reusability of the workflow,
 each individual step of the workflow runs in its own [Singularity][singularity] or [Docker][docker]
 container.
 As a consequence, running this workflow has very few individual dependencies.
-The **container execution** requires Singularity to be installed on the system where the workflow is executed. 
+Since this pipeline depends on many different software tools, only **container execution** is possible. This requires Singularity to be installed on the system where the workflow is executed. 
 As the functional installation of Singularity requires root privileges, and Conda currently only provides Singularity
 for Linux architectures, the installation instructions are slightly different depending on your system/setup:
 
@@ -126,7 +126,7 @@ mamba env update -f install/environment.dev.yml
 ## 5. Before running the tests
 
 It is important to know that this workflow relies on many external tools.
-One of those is [MSFragger][msfragger], which is written and maintained by the [Nesvilab][nesvilab].
+One of those is [MSFragger][msfragger].
 Since MSFragger is only free for non-commercial use, you should run "source data/scripts/echo_env.sh" from the main dir of this project.
 This sets environment variables that allow you to pull the private MSFragger image from noepozzan's dockerhub repo.
 
@@ -196,8 +196,8 @@ These files have to be provided, as follows:
 	Have a look at the examples in the `conf/` directory to see what the
 	files should look like, specifically:
 
-    - [slurm.config](conf/slurm.config)
-    - [docker.config](conf/docker.config)
+    - [slurm.config]
+    - [docker.config]
 
     - For more details and explanations, refer to the [pipeline-documentation]
 
@@ -231,9 +231,14 @@ These files have to be provided, as follows:
 [zarp-schema]: images/zarp_schema.svg
 [snakemake]: <https://snakemake.readthedocs.io/en/stable/>
 [singularity]: <https://sylabs.io/singularity/>
+[docker]: <https://docker.com/>
+[msfragger]: <https://msfragger.nesvilab.org/>
+[nextflow]: <https://nextflow.io/>
 [singularity-install]: <https://sylabs.io/guides/3.5/admin-guide/installation.html>
 [slurm]: <https://slurm.schedmd.com/documentation.html>
 [zavolan-lab]: <https://www.biozentrum.unibas.ch/research/researchgroups/overview/unit/zavolan/research-group-mihaela-zavolan/>
+[slurm.config]: conf/slurm.config
+[docker.config]: conf/docker.config
 [pipeline-documentation]: pipeline_documentation.md
 [sra-tools]: <https://github.com/ncbi/sra-tools>
 [resources.tmpdir]: <https://snakemake.readthedocs.io/en/stable/snakefiles/rules.html?#standard-resources>
