@@ -6,18 +6,18 @@
 </div> 
 
 **Small Peptide Pipeline** ([Zavolan-Lab][zavolan-lab] whatever ... Pipeline) is a workflow that allows 
-users to search for small peptides by analyzing riboseq sequencing libraries and validating hits on peptidomics data. The workflow relies on 
-publicly available bioinformatics tools and currently handles paired-end stranded bulk RNA-seq and label-free peptidomics data.
+to analyze riboseq reads for the existence of small peptides and validating hits on peptidomics data.
+The workflow relies on publicly available bioinformatics tools and currently handles (MERIC?)single-end stranded bulk RNA-seq and label-free peptidomics data.
 The workflow is developed in [Nextflow][nextflow], a widely used workflow management system in the bioinformatics
 community.
 
-According to the current SMAPP implementation, reads are analyzed (pre-processed, aligned, quantified) with state-of-the-art
-tools to give meaningful initial insights into the quality and composition of the given RNA-Seq library,
-reducing hands-on time for bioinformaticians and giving experimentalists the possibility to rapidly assess their data.
+According to the current SMAPP implementation, reads are first pre-processed and then filtered against a library of rRNA.
+Quality control with state-of-the-art tools gives you meaningful initial insights into the quality and composition of your ribo-Seq library.
+After mapping of the ribo-Seq to your reference of choice, potential small peptides can be extracted, mainly using [Ribo-TISH][ribotish]. If you have experimental data that also comprises proteomics files, evaluation of your presumed small peptides is possible with [philosopher][philosopher].
 Additional reports summarise the results of the individual steps and provide useful visualisations.
 
 <div align="center">
-    <img width="60%" src=images/esel.webp>
+    <img width="60%" src=images/flowchart.png>
 </div> 
 
 
@@ -238,8 +238,10 @@ files should look like, specifically:
 [singularity]: <https://sylabs.io/singularity/>
 [docker]: <https://docker.com/>
 [msfragger]: <https://msfragger.nesvilab.org/>
+[philosopher]: <https://github.com/Nesvilab/philosopher>
 [nextflow]: <https://nextflow.io/>
 [singularity-install]: <https://sylabs.io/guides/3.5/admin-guide/installation.html>
+[ribotish]: <https://bioinformatics.mdanderson.org/public-software/ribo-tish/>
 [slurm]: <https://slurm.schedmd.com/documentation.html>
 [zavolan-lab]: <https://www.biozentrum.unibas.ch/research/researchgroups/overview/unit/zavolan/research-group-mihaela-zavolan/>
 [slurm.config]: conf/slurm.config
