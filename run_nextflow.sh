@@ -11,15 +11,9 @@ nextflow run \
 	-profile slurm \
 	-entry RAW_TO_MZML
 
-# for now, instead use this direct python call by running it in the ${projectDir} directory
-# ATTENTION: needs >=python3.7 to run
-# ALSO: might have to adapt the config files:
-# I had to add test profiles bc gitlab runner doesn't have slurm installed
-python ./data/scripts/pull_containers.py \
-	--config ./conf/test_slurm.config \
-	--out ./conf/test_slurm_offline.config \
-	--dest ${HOME}/.singularity/cache/library/
-
+# run this to pull images from image repos to local
+# this ensures error-free execution of the pipeline (atleast at this step, hopefully)
+bash ./data/scripts/pull_containers.sh
 
 # we might also want to pull the newest fasta genome and annotation files:
 # This subworkflow takes a special profile, since it has to run on the login node
