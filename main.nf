@@ -89,7 +89,7 @@ workflow {
             gtf_ch,
             rRNA_PIPE.out.other_genes_unmapped_fasta
         )
-        bam_sort_index_folder = GENOME_PIPE.out.bam_sort_index_folder
+        bam_sort_index_folder_ch = GENOME_PIPE.out.bam_sort_index_folder
     }
 
 	if ( params.run_mode == "full" || params.run_mode == "test" || params.run_mode == "qc" ) {
