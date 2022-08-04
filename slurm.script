@@ -1,0 +1,14 @@
+#!/bin/bash
+ 
+#SBATCH --job-name=nextflow_run
+#SBATCH --cpus-per-task=5
+#SBATCH --mem-per-cpu=40G
+#SBATCH --time=06:00:00
+#SBATCH --qos=6hours
+#SBATCH --output=nextflow_run.o%j
+#SBATCH --error=nextflow_run.e%j
+
+
+nextflow run main.nf -profile <profile of your choice>,<profile that fits your work environment>
+
+
