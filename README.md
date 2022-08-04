@@ -151,6 +151,8 @@ Note that for this and other tests to complete successfully, be sure to have the
 
 Remember to activate the conda environment!
 
+**These tests will take atleast 2 minutes.**
+
 Execute one of the following commands to run the test workflow on your local machine:
 * Test workflow on local machine with **Docker**:
 
