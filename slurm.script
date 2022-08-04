@@ -8,6 +8,7 @@
 #SBATCH --output=nextflow_run.o%j
 #SBATCH --error=nextflow_run.e%j
 
+# feel free to change the parameters to fit your situation
 
 nextflow run main.nf -profile <profile of your choice>,<profile that fits your work environment>
 
