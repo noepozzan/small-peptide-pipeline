@@ -7,9 +7,8 @@
 
 **Small Peptide Pipeline** ([Zavolan-Lab][zavolan-lab] whatever ... Pipeline) is a workflow that allows you
 to analyze riboseq reads for the existence of small peptides and validating hits on peptidomics data.
-The workflow relies on publicly available bioinformatics tools and currently handles (MERIC?)single-end stranded bulk RNA-seq and label-free peptidomics data.
-The workflow is developed in [Nextflow][nextflow], a widely used workflow management system in the bioinformatics
-community.
+The workflow relies on publicly available bioinformatics tools and currently handles (MERIC?) single-end stranded bulk ribo-Seq and label-free peptidomics data.
+The workflow is developed in [Nextflow][nextflow], a widely used workflow management system in the bioinformatics community.
 
 According to the current SMAPP implementation, reads are first pre-processed and then filtered against a library of rRNA.
 Quality control with state-of-the-art tools gives you meaningful initial insights into the quality and composition of your ribo-Seq library.
@@ -28,7 +27,7 @@ Additional reports summarise the results of the individual steps and provide use
 # Requirements
 
 The workflow has been tested on:
-- CentOS 7.5
+- CentOS 7
 - macOS 12.3.1
 
 > **NOTE:**
@@ -109,19 +108,7 @@ Activate the Conda environment with:
 conda activate small_peptides
 ```
 
-# Extra installation steps (optional)
-
-## 5. Non-essential dependencies installation
-
-Most tests have additional dependencies. If you are planning to run tests, you
-will need to install these by executing the following command _in your active
-Conda environment_:
-
-```bash
-mamba env update -f install/environment.dev.yml
-```
-
-## 6. Before running the tests
+## 5. Before running the tests
 
 It is important to know that this workflow relies on many external tools.
 One of those is [MSFragger][msfragger].
@@ -134,33 +121,46 @@ source data/scripts/echo_env.sh
 
 This sets environment variables that allow you to pull the private MSFragger image from [noepozzan's dockerhub][dockerhub-np] repository.
 
+# Extra installation steps (optional)
+
+## 6. Non-essential dependencies installation
+
+Most tests have additional dependencies. If you are planning to run tests, you
+will need to install these by executing the following command _in your active
+Conda environment_:
+
+```bash
+mamba env update -f install/environment.dev.yml
+```
+
 ## 7. Successful installation tests
 
 **ATTENTION:**
-Since even the testing files for this pipeline are quite large, I provide a github repo to pull from.
+Since even the testing files for this pipeline are quite large, I provide a github repo to pull from.  If you do not have `git lfs` installed, please [install it.][git-lfs]
 
 ```bash
+cd ~
+git lfs install --skip-repo
 cd <main directory of this project>
 git clone https://github.com/noepozzan/small_peptide_pipeline_test_data.git
 mkdir -p data/tests/
 mv small_peptide_pipeline_test_data/* data/tests/
+rm -rf small_peptide_pipeline_test_data
 ```
 
-Once you have done this, all the data is in the right place and you are ready to execute the entire workflow on the files.
+This puts the test files in the right place for the tests to pass.  
 Note that for this and other tests to complete successfully, be sure to have the [additional dependencies](#extra-installation-steps-optional) installed.
 
-Remember to activate the conda environment!
+Also, **remember to activate** the [conda](#4-activate-environment) environment and give the tests enough time (between 2 minutes and 5 minutes).
 
-**These tests will take atleast 2 minutes.**
-
-Execute one of the following commands to run the test workflow on your local machine:
+Execute the following command to run the test workflow on your local machine:
 * Test workflow on local machine with **Docker**:
 
 	```bash
 	nextflow run main.nf -profile test,docker
 	```
 
-Execute one of the following commands to run the test workflow 
+Or, execute the following command to run the test workflow 
 on a [Slurm][slurm]-managed high-performance computing (HPC) cluster:
 * Test workflow with **Singularity**:
 
@@ -179,17 +179,18 @@ nextflow run main.nf -profile <profile of your choice>,<profile that fits your w
 
 But before you start, you have to get the configuration right.
 As you see above, this workflow needs 2 profiles:
-	<profile of your choice>:  where you provide the paths to the files and parameters for the tools included in the workflow
-	<profile that fits your work environment>: where you detail the memory and the CPUs of your system
+- `<profile of your choice>`:  where you provide the paths to the files and parameters for the tools included in the workflow
+- `<profile that fits your work environment>`: where you detail the memory and the CPUs of your system
 
-1. You have the choice of running the workflow in different configurations: (substitute one of the below options for the `<profile of choice>` above)
+1. You have the choice of running the workflow in different configurations:  
+(substitute one of the below options for the `<profile of choice>` above)
 
-    - full: to run the full pipeline (this is computationally quite heavy and should be done in cluster environment)
-    - test: to only run the test pipeline with small files
-    - qc: to only run the quality control part of the pipeline
-    - prepare: to prepare the reads
-    - ribotish: to only run [Ribo-TISH][ribotish]
-    - proteomics: to quantify your proteomics files
+- `full`: to run the full pipeline (this is computationally quite heavy and should be done in a cluster environment)
+- `test`: to only run the test pipeline with small files
+- `qc`: to only run the quality control part of the pipeline
+- `prepare`: to prepare the reads
+- `ribotish`: to only run [Ribo-TISH][ribotish]
+- `proteomics`: to quantify your proteomics files
 
 While this looks quite straightforward up to this point, make sure to provide the right files for each of the run modes.
 These files have to be provided, as follows:
@@ -204,22 +205,21 @@ Every config files indicates the variables necessary to run the workflow in the 
 2. Have a look at the examples in the `conf/` directory to see what the
 files should look like, specifically:
 
-    - [full.config]
-    - [slurm.config]
-
-    - For more details and explanations, refer to the [pipeline-documentation]
+- [full.config](conf/full.config)
+- [slurm.config](conf/slurm.config)
+- For more details and explanations, refer to the [pipeline-documentation](pipeline_documentation.md)
 
 3. Pick one of the following choices for either local or cluster execution:
 
-    - slurm: for cluster execution (needs singularity installed)
-    - slurm_offline: for cluster execution (needs singularity installed and also needs you to first run):
-    
-	```bash
-	cd <main directory of this project>
-	bash data/scripts/pull_containers.sh
-	```
-	
-    - docker: for local execution (needs docker installed and the daemon running)
+- slurm: for cluster execution (needs singularity installed)
+- slurm_offline: for cluster execution (needs singularity installed and also needs you to first run):
+
+```bash
+cd <main directory of this project>
+bash data/scripts/pull_containers.sh
+```
+
+- docker: for local execution (needs docker installed and the daemon running)
     
 > **NOTE:** Depending on the configuration of your Slurm installation you may
 > need to adapt the files under the `conf/` directory 
@@ -228,7 +228,7 @@ files should look like, specifically:
 > Consult the manual of your workload manager as well as the section of the
 > nextflow manual dealing with [profiles].
 
-4. Start your workflow run:
+4. Start your workflow run (finally):
 
 	Either, to view the output directly in your terminal:
 
@@ -251,6 +251,7 @@ files should look like, specifically:
 [miniconda-installation]: <https://docs.conda.io/en/latest/miniconda.html>
 [singularity]: <https://sylabs.io/singularity/>
 [docker]: <https://docker.com/>
+[git-lfs]: <https://git-lfs.github.com/>
 [msfragger]: <https://msfragger.nesvilab.org/>
 [philosopher]: <https://github.com/Nesvilab/philosopher>
 [nextflow]: <https://nextflow.io/>
@@ -260,7 +261,4 @@ files should look like, specifically:
 [ribotish]: <https://bioinformatics.mdanderson.org/public-software/ribo-tish/>
 [slurm]: <https://slurm.schedmd.com/documentation.html>
 [zavolan-lab]: <https://www.biozentrum.unibas.ch/research/researchgroups/overview/unit/zavolan/research-group-mihaela-zavolan/>
-[slurm.config]: conf/slurm.config
-[full.config]: conf/full.config
-[pipeline-documentation]: pipeline_documentation.md
 
