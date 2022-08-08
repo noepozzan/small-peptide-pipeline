@@ -46,7 +46,7 @@ git clone https://github.com/noepozzan/small-peptide-pipeline
 cd small-peptide-pipeline
 ```
 
-## 2. Conda and Mamba installation
+## 2. Conda installation
 
 Workflow dependencies can be conveniently installed with the [Conda][conda]
 package manager. We recommend that you install [Miniconda][miniconda-installation] 
@@ -93,8 +93,8 @@ conda activate small_peptides
 
 ## 5. Before running the tests
 
-It is important to know that this workflow relies on many external tools.
-One of those is [MSFragger][msfragger].
+It is important to know that this workflow relies on many external tools. (That is why this pipeline relies on software packaged into containers.)
+One of those is [MSFragger][msfragger].  
 Since MSFragger is only free for non-commercial use, you should run:
 
 ```bash
@@ -102,7 +102,7 @@ cd <main directory of this project>
 source data/scripts/echo_env.sh
 ```
 
-This sets environment variables that allow you to pull the private MSFragger image from [noepozzan's dockerhub][dockerhub-np] repository.
+This sets environment variables that allow you to pull the private MSFragger image from [noepozzan's dockerhub][dockerhub-np] repository.  (If you click on the link, you won't see the image since it's private.)
 
 # Extra installation steps (optional)
 
@@ -118,8 +118,8 @@ conda env update -f install/environment.dev.yml
 
 ## 7. Successful installation tests
 
-**ATTENTION:**
-Since even the testing files for this pipeline are quite large, I provide a github repo to pull from.  If you do not have `git lfs` installed, please [install it][git-lfs] and then run the commands shown below:
+**ATTENTION:**  
+#### 1. Since even the testing files for this pipeline are quite large, I provide a github repo to pull from.  If you do not have `git lfs` installed, please [install it][git-lfs] and then run the commands shown below:
 
 ```bash
 cd ~
@@ -134,32 +134,37 @@ rm -rf small_peptide_pipeline_test_data
 This puts the test files in the right place for the tests to pass.  
 Note that for this and other tests to complete successfully, be sure to have the [additional dependencies](#extra-installation-steps-optional) installed.
 
-Also, **remember to activate** the [conda](#4-activate-environment) environment and give the tests enough time (between 2 and 5 minutes).
+#### 2. **Remember to activate** the [conda](#4-activate-environment) environment and give the tests enough time (between 2 and 5 minutes).
+
+#### 3. The best way to work with [Singularity][singularity] & [Nextflow][nextflow], is to pull the images preemptively. Below, this is achieved by running the `.sh` file. Please give this some time. (~15 minutes)
+
+```bash
+cd <main directory of this project>
+bash data/scripts/pull_containers.sh
+```
+
+#### 4. Running the tests  
 
 Execute the following command to run the test workflow on your local machine:
 * Test workflow with **Docker**:
 
-	```bash
-	nextflow run main.nf -profile test,docker
-	```
+    ```bash
+    nextflow run main.nf -profile test,docker
+    ```
 
 * Test workflow with **Singularity (locally)**:
 
     ```bash
-    nextflow run main.nf -profile test,singularity
+    nextflow run main.nf -profile test,singularity_offline
     ```
 
 Or, execute the following command to run the test workflow 
 on a [Slurm][slurm]-managed high-performance computing (HPC) cluster:
 * Test workflow with **Singularity & Slurm**:
 
-The best way to work with [Singularity][singularity] & [Nextflow][nextflow], is to pull the images preemptively. Below, this is achieved by running the `bash` file. Please give this some time. (~15 minutes)
-
-	```bash
-	cd <main directory of this project>
-	bash data/scripts/pull_containers.sh
-	nextflow run main.nf -profile test,slurm_offline
-	```
+    ```bash
+    nextflow run main.nf -profile test,slurm_offline
+    ```
 
 # Running the workflow on your own samples
 
@@ -177,7 +182,7 @@ You find these files under `conf/params/`.
 - `<profile that fits your work environment>`: Where you detail the memory and the CPUs of your system/environment.  
 You find these files under `conf/envs/`.
 
-1. You have the choice of running the workflow in different configurations:  
+#### 1. You have the choice of running the workflow in different configurations:  
 (substitute one of the below options for the `<profile of choice>` above)
 
 - `full`: to run the full pipeline (this is computationally quite heavy and should be done in a cluster environment)
@@ -185,30 +190,26 @@ You find these files under `conf/envs/`.
 - `qc`: to only run the quality control part of the pipeline
 - `prepare`: to prepare the reads
 - `ribotish`: to only run [Ribo-TISH][ribotish]
-- `proteomics`: to quantify your proteomics files
-
-While this looks quite straightforward up to this point, make sure to provide the right files for each of the run modes.
-These files have to be provided, as follows:
-
-In the project's root directory, there is a folder called `conf/`.
-This folder houses all configuration files necessary to deal with the different run modes.  
+- `proteomics`: to quantify your proteomics (mzML) files
+  
 **IMPORTANT:** The profile you choose must match the `.config` file you adapt.
 So, if you choose the profile `<full>`, you have to specify the paths to your files in the `conf/params/full.config` configuration file.  
-Use your editor of choice to populate these files with appropriate paths.
+Use your editor of choice to populate these files with the correct paths to your own files.
 Every config files indicates the variables necessary to run the workflow in the way you want it to.
 
-2. Have a look at the examples in the `conf/` directory to see what the
+#### 2. Have a look at the examples in the `conf/` directory to see what the
 files should look like, specifically:
 
 - [full.config](conf/params/full.config)
 - [slurm.config](conf/envs/slurm.config)
 - For more details and explanations, refer to the [pipeline-documentation](pipeline_documentation.md)
 
-3. Pick one of the following choices for either local or cluster execution:
+#### 3. Pick one of the following choices for either local or cluster execution:
 
 - slurm: for cluster execution (needs singularity installed)
 - slurm_offline: for cluster execution (needs singularity installed, is the safer way to run. Please try this if above fails)
 - singularity: for local execution (needs singularity installed)
+- singularity_offline: for local execution (needs singularity installed, is the safer way to run. Please try this if above fails)
 - docker: for local execution (needs docker installed and the daemon running)
     
 > **NOTE:** Depending on the configuration of your Slurm installation you may
@@ -218,22 +219,22 @@ files should look like, specifically:
 > Consult the manual of your workload manager as well as the section of the
 > nextflow manual dealing with [profiles].
 
-4. Start your workflow run (finally):
+#### 4. Start your workflow run (finally):
 
-	Either, to view the output directly in your terminal:
+Either, to view the output directly in your terminal:
 
-	```bash
-	nextflow run main.nf -profile <profile of your choice>,<profile that fits your work environment>
-	```
+```bash
+nextflow run main.nf -profile <profile of your choice>,<profile that fits your work environment>
+```
 
-	Or to have the workflow run in the background:  
-	(Practical if you need to leave your computer while still running the pipeline.)  
-	This option requires you to copy the exact nextflow command you intend to run into the `slurm.script`,
-	which you'll find in the project's main directory.
+Or to have the workflow run in the background:  
+(Practical if you need to leave your computer while still running the pipeline.)  
+This option requires you to copy the exact nextflow command you intend to run into the `slurm.script`,
+which you'll find in the project's main directory.
 
-	```bash
-	sbatch slurm.script
-	```
+```bash
+sbatch slurm.script
+```
 
 [conda]: <https://docs.conda.io/projects/conda/en/latest/index.html>
 [profiles]: <https://www.nextflow.io/docs/latest/config.html#config-profiles>
