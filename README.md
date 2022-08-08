@@ -143,7 +143,7 @@ Note that for this and other tests to complete successfully, be sure to have the
 
 #### 2. **Remember to activate** the [conda](#4-activate-environment) environment and give the tests enough time (between 2 and 5 minutes).
 
-#### 3. The best way to work with [Singularity][singularity] & [Nextflow][nextflow], is to pull the images preemptively. Below, this is achieved by running the `.sh` file. Please give this some time. (~15 minutes)
+#### 3. The best way to work with [Singularity][singularity] & [Nextflow][nextflow], is to pull the images preemptively. Below, this is achieved by running the `.sh` file. Please give this some time. (between 5 and 15 minutes)
 
 ```bash
 cd <main directory of this project>
