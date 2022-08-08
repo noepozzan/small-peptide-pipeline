@@ -154,7 +154,7 @@ Note that for this and other tests to complete successfully, be sure to have the
 Also, **remember to activate** the [conda](#4-activate-environment) environment and give the tests enough time (between 2 minutes and 5 minutes).
 
 Execute the following command to run the test workflow on your local machine:
-* Test workflow on local machine with **Docker**:
+* Test workflow with **Docker**:
 
 	```bash
 	nextflow run main.nf -profile test,docker
