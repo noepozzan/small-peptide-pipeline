@@ -8,7 +8,9 @@
 mkdir -p ~/.singularity/cache/library
 
 python ${PWD}/data/scripts/pull_containers.py \
-	--config ${PWD}/conf/slurm.config \
-	--out ${PWD}/conf/slurm_offline.config \
+	--slurm_in ${PWD}/conf/envs/slurm.config \
+	--slurm_out ${PWD}/conf/envs/slurm_offline.config \
+    --singularity_in ${PWD}/conf/envs/singularity.config \
+    --singularity_out ${PWD}/conf/envs/singularity_offline.config \
 	--dest ${HOME}/.singularity/cache/library/
 
