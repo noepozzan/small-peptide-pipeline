@@ -54,13 +54,6 @@ for your system (Linux). Be sure to select the Python 3 option.
 The workflow was built and tested with `miniconda 4.13.0`.
 Other versions are not guaranteed to work as expected.
 
-Given that Miniconda has been installed and is available in the current shell the first
-dependency for SMAPP is the [Mamba][mamba] package manager, which needs to be installed in
-the `base` conda environment with:
-
-```bash
-conda install -y mamba -n base -c conda-forge
-```
 
 ## 3. Dependencies installation
 
@@ -87,7 +80,7 @@ to run the workflow on a high-performance computing (HPC) cluster.
 
 After the installation has completed, install the remaining dependencies with:
 ```bash
-mamba env create -f install/environment.yml
+conda env create -f install/environment.yml
 ```
 
 ## 4. Activate environment
@@ -120,7 +113,7 @@ will need to install these by executing the following command _in your active
 Conda environment_:
 
 ```bash
-mamba env update -f install/environment.dev.yml
+conda env update -f install/environment.dev.yml
 ```
 
 ## 7. Successful installation tests
@@ -160,8 +153,12 @@ Or, execute the following command to run the test workflow
 on a [Slurm][slurm]-managed high-performance computing (HPC) cluster:
 * Test workflow with **Singularity & Slurm**:
 
+The best way to work with [Singularity][singularity] & [Nextflow][nextflow], is to pull the images preemptively. Below, this is achieved by running the `bash` file. Please give this some time. (~15 minutes)
+
 	```bash
-	nextflow run main.nf -profile test,slurm
+	cd <main directory of this project>
+	bash data/scripts/pull_containers.sh
+	nextflow run main.nf -profile test,slurm_offline
 	```
 
 # Running the workflow on your own samples
@@ -210,13 +207,8 @@ files should look like, specifically:
 3. Pick one of the following choices for either local or cluster execution:
 
 - slurm: for cluster execution (needs singularity installed)
-- slurm_offline: for cluster execution (needs singularity installed and also needs you to first run):
-
-```bash
-cd <main directory of this project>
-bash data/scripts/pull_containers.sh
-```
-
+- slurm_offline: for cluster execution (needs singularity installed, is the safer way to run. Please try this if above fails)
+- singularity: for local execution (needs singularity installed)
 - docker: for local execution (needs docker installed and the daemon running)
     
 > **NOTE:** Depending on the configuration of your Slurm installation you may
@@ -245,7 +237,6 @@ bash data/scripts/pull_containers.sh
 
 [conda]: <https://docs.conda.io/projects/conda/en/latest/index.html>
 [profiles]: <https://www.nextflow.io/docs/latest/config.html#config-profiles>
-[mamba]: <https://github.com/mamba-org/mamba>
 [miniconda-installation]: <https://docs.conda.io/en/latest/miniconda.html>
 [singularity]: <https://sylabs.io/singularity/>
 [docker]: <https://docker.com/>
