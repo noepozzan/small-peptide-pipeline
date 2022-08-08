@@ -38,6 +38,13 @@ if ( params.run_mode == "ribotish" ) {
     // this input is very special: It is a folder containing a sorted+indexed bam file and its index
     bam_sort_index_folder_ch = channel.fromPath(params.bam_sort_index_folder, checkIfExists: true)
 }
+if ( params.run_mode == "pull" ) {
+    directory_path = channel.fromPath(params.directory_path, checkIfExists: true)
+    PULL_FILES(
+        directory_path
+    )
+}
+
 
 // this should be replaced by Meric's image
 workflow RAW_TO_MZML {
@@ -61,13 +68,6 @@ workflow MAP_NAMES {
 
 // main workflow that calls all processes in the subworkflows dir
 workflow {
-
-    if ( params.run_mode == "pull" ) {
-        directory_path = channel.fromPath(params.directory_path)
-	    PULL_FILES(
-            directory_path
-        )
-    }
 
     if ( params.run_mode == "full" || params.run_mode == "test" || params.run_mode == "prepare" || params.run_mode == "qc" || params.run_mode == "map to genome") {
         READS_PIPE(

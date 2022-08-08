@@ -1,9 +1,0 @@
-name: small_peptides
-channels:
-  - bioconda
-  - conda-forge
-  - defaults
-dependencies:
-  - nextflow=21.10.6
-  - python=3.7.4
-  - singularity=3.5.2
