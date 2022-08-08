@@ -21,7 +21,7 @@ Additional reports summarise the results of the individual steps and provide use
 
 
 > **Note:** For a more detailed description of each step, please refer to the [workflow
-> documentation][pipeline-documentation].
+> documentation](pipeline_documentation.md).
 
 
 # Requirements
@@ -69,7 +69,7 @@ each individual step of the workflow runs in its own [Singularity][singularity] 
 container.
 As a consequence, running this workflow has very few individual dependencies.
 Since this pipeline depends on many different software tools, only **container execution** is possible. This requires Singularity or Docker to be installed on the system where the workflow is executed. 
-As the functional installation of Singularity and Docker require root privilege, and Conda currently only provides Singularity for Linux architectures, the installation instructions are slightly different depending on your system/setup:
+As the functional installation of Singularity and Docker require root privilege, the installation instructions are slightly different depending on your system/setup:
 
 ### For most users
 
@@ -88,16 +88,6 @@ to run the workflow on a high-performance computing (HPC) cluster.
 After the installation has completed, install the remaining dependencies with:
 ```bash
 mamba env create -f install/environment.yml
-```
-
-### As root user on Linux
-
-If you have a Linux machine, as well as root privileges, (e.g., if you plan to
-run the workflow on your own computer), you can execute the following command
-to include Singularity in the Conda environment:
-
-```bash
-mamba env create -f install/environment.root.yml
 ```
 
 ## 4. Activate environment
@@ -136,7 +126,7 @@ mamba env update -f install/environment.dev.yml
 ## 7. Successful installation tests
 
 **ATTENTION:**
-Since even the testing files for this pipeline are quite large, I provide a github repo to pull from.  If you do not have `git lfs` installed, please [install it.][git-lfs]
+Since even the testing files for this pipeline are quite large, I provide a github repo to pull from.  If you do not have `git lfs` installed, please [install it][git-lfs] and then run the commands shown below:
 
 ```bash
 cd ~
@@ -160,9 +150,15 @@ Execute the following command to run the test workflow on your local machine:
 	nextflow run main.nf -profile test,docker
 	```
 
+* Test workflow with **Singularity (locally)**:
+
+    ```bash
+    nextflow run main.nf -profile test,singularity
+    ```
+
 Or, execute the following command to run the test workflow 
 on a [Slurm][slurm]-managed high-performance computing (HPC) cluster:
-* Test workflow with **Singularity**:
+* Test workflow with **Singularity & Slurm**:
 
 	```bash
 	nextflow run main.nf -profile test,slurm
@@ -179,8 +175,10 @@ nextflow run main.nf -profile <profile of your choice>,<profile that fits your w
 
 But before you start, you have to get the configuration right.
 As you see above, this workflow needs 2 profiles:
-- `<profile of your choice>`:  where you provide the paths to the files and parameters for the tools included in the workflow
-- `<profile that fits your work environment>`: where you detail the memory and the CPUs of your system
+- `<profile of your choice>`:  Where you provide the paths to the files and parameters for the tools included in the workflow.  
+You find these files under `conf/params/`.
+- `<profile that fits your work environment>`: Where you detail the memory and the CPUs of your system/environment.  
+You find these files under `conf/envs/`.
 
 1. You have the choice of running the workflow in different configurations:  
 (substitute one of the below options for the `<profile of choice>` above)
@@ -198,15 +196,15 @@ These files have to be provided, as follows:
 In the project's root directory, there is a folder called `conf/`.
 This folder houses all configuration files necessary to deal with the different run modes.  
 **IMPORTANT:** The profile you choose must match the `.config` file you adapt.
-So, if you choose the profile `<full>`, you have to specify the paths to your files in the `conf/full.config` configuration file.  
+So, if you choose the profile `<full>`, you have to specify the paths to your files in the `conf/params/full.config` configuration file.  
 Use your editor of choice to populate these files with appropriate paths.
 Every config files indicates the variables necessary to run the workflow in the way you want it to.
 
 2. Have a look at the examples in the `conf/` directory to see what the
 files should look like, specifically:
 
-- [full.config](conf/full.config)
-- [slurm.config](conf/slurm.config)
+- [full.config](conf/params/full.config)
+- [slurm.config](conf/envs/slurm.config)
 - For more details and explanations, refer to the [pipeline-documentation](pipeline_documentation.md)
 
 3. Pick one of the following choices for either local or cluster execution:
