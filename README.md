@@ -97,9 +97,16 @@ It is important to know that this workflow relies on many external tools. (That 
 One of those is [MSFragger][msfragger].  
 Since MSFragger is only free for non-commercial use, you should run:
 
+* If you'll be working with **Docker**:
 ```bash
 cd <main directory of this project>
-source data/scripts/echo_env.sh
+source data/scripts/docker_env.sh
+```
+
+* Or, if you will be using **Singularity**:
+```bash
+cd <main directory of this project>
+source data/scripts/singularity_env.sh
 ```
 
 This sets environment variables that allow you to pull the private MSFragger image from [noepozzan's dockerhub][dockerhub-np] repository.  (If you click on the link, you won't see the image since it's private.)
