@@ -151,7 +151,7 @@ rm -rf small_peptide_pipeline_test_data
 This puts the test files in the right place for the tests to pass.  
 Note that for this and other tests to complete successfully, be sure to have the [additional dependencies](#extra-installation-steps-optional) installed.
 
-Also, **remember to activate** the [conda](#4-activate-environment) environment and give the tests enough time (between 2 minutes and 5 minutes).
+Also, **remember to activate** the [conda](#4-activate-environment) environment and give the tests enough time (between 2 and 5 minutes).
 
 Execute the following command to run the test workflow on your local machine:
 * Test workflow with **Docker**:
