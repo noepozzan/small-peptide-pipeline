@@ -53,8 +53,7 @@ on installation and usage please see [here](README.md).
 
 ![rule_graph][rule-graph]
 
-Visual representation of workflow. Automatically prepared with
-[Nextflow][docs-nextflow].
+Visual representation of workflow. Automatically prepared with [Nextflow][docs-nextflow].
 
 ### Preparatory
 
