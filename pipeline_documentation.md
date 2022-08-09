@@ -21,31 +21,28 @@ on installation and usage please see [here](README.md).
 
 | Name | License | Tag line | More info |
 | --- | --- | --- | --- |
-| **ALFA** | [MIT][license-mit] | _"**A**nnotation **L**andscape **F**or **A**ligned reads"_ - _"[...] provides a global overview of features distribution composing NGS dataset(s)"_ | [code][code-alfa] / [manual][docs-alfa] / [publication][pub-alfa] |
 | **bedGraphToBigWig** | [MIT][license-mit] | _"Convert a bedGraph file to bigWig format"_ | [code][code-bedgraphtobigwig] / [manual][code-bedgraphtobigwig] |
 | **bedtools** | [GPLv2][license-gpl2] | _"[...] intersect, merge, count, complement, and shuffle genomic intervals from multiple files in widely-used genomic file formats such as BAM, BED, GFF/GTF, VCF"_ | [code][code-bedtools] / [manual][code-bedtools] |
 | **cutadapt** | [MIT][license-mit] | _"[...] finds and removes adapter sequences, primers, poly-A tails and other types of unwanted sequence from your high-throughput sequencing reads"_ | [code][code-cutadapt] / [manual][docs-cutadapt] / [publication][pub-cutadapt] |
 | **gffread** | [MIT][license-mit] | _"[...] validate, filter, convert and perform various other operations on GFF files"_ | [code][code-gffread] / [manual][docs-gffread] |
 | **FastQC** | [GPLv3][license-gpl3] | _"A quality control analysis tool for high throughput sequencing data"_ | [code][code-fastqc] / [manual][docs-fastqc] |
-| **ImageMagick** | [custom][license-imagemagick]^ | _"[...] create, edit, compose, or convert bitmap images"_ | [code][code-imagemagick] / [manual][docs-imagemagick] |
-| **kallisto** | [BSD-2][license-bsd2] | _"[...] program for quantifying abundances of transcripts from RNA-Seq data, or more generally of target sequences using high-throughput sequencing reads"_ | [code][code-kallisto] / [manual][docs-kallisto] / [publication][pub-kallisto] |
 | **MultiQC** | [GPLv3][license-gpl3] | _"Aggregate results from bioinformatics analyses across many samples into a single report"_ | [code][code-multiqc] / [manual][docs-multiqc] / [publication][pub-multiqc] |
-| **RSeqC** | [GPLv3][license-gpl3] | _"[...] comprehensively evaluate different aspects of RNA-seq experiments, such as sequence quality, GC bias, polymerase chain reaction bias, nucleotide composition bias, sequencing depth, strand specificity, coverage uniformity and read distribution over the genome structure."_ | [code][code-rseqc] / [manual][docs-rseqc] / [publication][pub-rseqc] |
-| **Salmon** | [GPLv3][license-gpl3] | _"Highly-accurate & wicked fast transcript-level quantification from RNA-seq reads using selective alignment"_ | [code][code-salmon] / [manual][docs-salmon] / [publication][pub-salmon] |
 | **SAMtools** | [MIT][license-mit] | _"[...] suite of programs for interacting with high-throughput sequencing data"_ | [code][code-samtools] / [manual][docs-samtools] / [publication][pub-samtools] |
 | **STAR** | [MIT][license-mit] | _"**S**pliced **T**ranscripts **A**lignment to a **R**eference"_ - _"RNA-seq aligner"_ | [code][code-star] / [manual][docs-star] / [publication][pub-star] |
+| **Ribo-TISH** | [GPLv3][license-gpl3] | _"Ribo-TISH: Ribo-seq data-driven Translation Initiation Sites Hunter"_ | [code][code-ribotish] / [manual][docs-ribotish] / [publication][pub-ribotish] |
+| **segemehl** | [GPLv3][license-gpl3] | _"segemehl is a software to map short sequencer reads to reference genomes."_ | [code][code-segemehl] / [manual][docs-segemehl] / [publication][pub-segemehl] |
+| **Philosopher** | [GPLv3][license-gpl3] | _"A complete toolkit for shotgun proteomics data analysis
+"_ | [code][code-philosopher] / [manual][docs-philosopher] / [publication][pub-philosopher] |
+| **MSFragger** | [msfragger licencse][license-msfragger] | _Ultrafast, comprehensive peptide identification for mass spectrometry–based proteomics"_ | [code][code-msfragger] / [manual][docs-msfragger] / [publication][pub-msfragger] |
+
 
 ^ compatible with [GPLv3][license-gpl3]
 
 ## Description of workflow steps
 
-> The workflow consists of three Snakemake files: A main `Snakefile` and an
-> individual Snakemake file for each sequencing mode (single-end and
-> paired-end), as parameters for some tools differ between sequencing modes.
-> The main `Snakefile` contains general steps for the creation of indices and
-> other required files derived from the annotations, steps that are applicable
-> to both sequencing modes, and steps that deal with gathering, summarizing or
-> combining results. Individual steps of the workflow are described briefly, and
+> The workflow consists of multiple Nextflow files: A main `Nextflow` and
+> individual subworkflow files for each configuration mode 
+> The `main.nf` file contains the general steps .... Individual steps of the workflow are described briefly, and
 > links to the respective software manuals are given. Parameters that can be
 > modified by the user (via the samples table) are also described. Descriptions
 > for steps for which individual "rules" exist for single- and paired-end
@@ -57,7 +54,7 @@ on installation and usage please see [here](README.md).
 ![rule_graph][rule-graph]
 
 Visual representation of workflow. Automatically prepared with
-[Snakemake][docs-snakemake].
+[Nextflow][docs-nextflow].
 
 ### Preparatory
 
@@ -667,52 +664,44 @@ Generate pseudoalignments of reads to transcripts with
   - `--single`: Quantify single-end reads **(single-end only)**
   - `--pseudobam`: Save pseudoalignments to transcriptome to BAM file
 
-[code-alfa]: <https://github.com/biocompibens/ALFA>
-[code-bedgraphtobigwig]: <https://github.com/ucscGenomeBrowser/kent>
 [code-bedtools]: <https://github.com/arq5x/bedtools2>
 [code-cutadapt]: <https://github.com/marcelm/cutadapt>
 [code-gffread]: <https://github.com/gpertea/gffread>
 [code-fastqc]: <https://github.com/s-andrews/FastQC>
-[code-imagemagick]: <https://github.com/ImageMagick/ImageMagick/>
-[code-kallisto]: <https://github.com/pachterlab/kallisto>
 [code-multiqc]: <https://github.com/ewels/MultiQC>
-[code-rseqc]: <http://rseqc.sourceforge.net/>
-[code-salmon]: <https://github.com/COMBINE-lab/salmon>
 [code-samtools]: <https://github.com/samtools/samtools>
 [code-star]: <https://github.com/alexdobin/STAR>
-[custom-script-gtf-to-bed12]: <https://github.com/zavolanlab/zgtf>
-[custom-script-tin]: <https://github.com/zavolanlab/tin-score-calculation>
-[custom-script-merge-kallisto]: <https://github.com/zavolanlab/merge_kallisto>
-[custom-script-zpca]: <https://github.com/zavolanlab/zpca>
-[docs-alfa]: <https://github.com/biocompibens/ALFA#manual>
-[docs-bedgraphtobigwig]: <http://hgdownload.soe.ucsc.edu/admin/exe/linux.x86_64/>
+[code-ribotish]: <https://github.com/zhpn1024/ribotish>
+[code-segemehl]: <not known>
+[code-philosopher]: <https://github.com/Nesvilab/philosopher>
+[code-msfragger]: <https://github.com/Nesvilab/MSFragger>
+
 [docs-bedtools]: <https://bedtools.readthedocs.io/en/latest/>
 [docs-cutadapt]: <https://cutadapt.readthedocs.io/en/stable/>
-[docs-cutadapt-m]: <https://cutadapt.readthedocs.io/en/stable/guide.html#filtering-reads>
 [docs-gffread]: <http://ccb.jhu.edu/software/stringtie/gff.shtml#gffread>
 [docs-fastqc]: <http://www.bioinformatics.babraham.ac.uk/projects/fastqc/Help/>
-[docs-imagemagick]: <https://imagemagick.org/>
-[docs-kallisto]: <http://pachterlab.github.io/kallisto/manual.html>
 [docs-multiqc]: <https://multiqc.info/docs/>
-[docs-rseqc]: <http://rseqc.sourceforge.net/#usage-information>
-[docs-salmon]: <https://salmon.readthedocs.io/en/latest/>
-[docs-salmon-selective-alignment]: <https://combine-lab.github.io/alevin-tutorial/2019/selective-alignment/>
 [docs-samtools]: <http://www.htslib.org/doc/samtools.html>
-[docs-snakemake]: <https://snakemake.readthedocs.io/en/stable/>
-[docs-snakemake-target-rule]: <https://snakemake.readthedocs.io/en/stable/tutorial/basics.html#step-7-adding-a-target-rule>
+[docs-nextflow]: <https://www.nextflow.io/docs/latest/index.html>
 [docs-star]: <https://github.com/alexdobin/STAR/blob/master/doc/STARmanual.pdf>
-[docs-star-rpm-norm]: <https://ycl6.gitbooks.io/rna-seq-data-analysis/visualization.html>
+[docs-ribotish]: <https://github.com/zhpn1024/ribotish/blob/master/README.rst>
+[docs-segemehl]: <http://www.bioinf.uni-leipzig.de/Software/segemehl/>
+[docs-philosopher]: <https://github.com/Nesvilab/philosopher/wiki>
+[docs-msfragger]: <https://github.com/Nesvilab/MSFragger/wiki>
+
 [license-bsd2]: <https://opensource.org/licenses/BSD-2-Clause>
 [license-gpl2]: <https://opensource.org/licenses/GPL-2.0>
 [license-gpl3]: <https://opensource.org/licenses/GPL-3.0>
-[license-imagemagick]: <https://github.com/ImageMagick/ImageMagick/blob/master/LICENSE>
 [license-mit]: <https://opensource.org/licenses/MIT>
-[pub-alfa]: <https://doi.org/10.1186/s12864-019-5624-2>
+[license-msfragger]: <http://msfragger-upgrader.nesvilab.org/upgrader/MSFragger-LICENSE.pdf>
+
 [pub-cutadapt]: <https://doi.org/10.14806/ej.17.1.200>
-[pub-kallisto]: <https://doi.org/10.1038/nbt.3519>
 [pub-multiqc]: <https://doi.org/10.1093/bioinformatics/btw354>
-[pub-rseqc]: <https://doi.org/10.1093/bioinformatics/bts356>
-[pub-salmon]: <https://doi.org/10.1038/nmeth.4197>
 [pub-samtools]: <https://doi.org/10.1093/bioinformatics/btp352>
 [pub-star]: <https://doi.org/10.1093/bioinformatics/bts635>
-[rule-graph]: images/rule_graph.svg
+[pub-ribotish]: <https://doi.org/10.1038/s41467-017-01981-8>
+[pub-segemehl]: <https://doi.org/10.1371/journal.pcbi.1000502>
+[pub-philosopher]: <https://doi.org/10.1038/s41592-020-0912-y>
+[pub-msfragger]: <https://doi.org/10.1038/nmeth.4256>
+
+[rule-graph]: images/flowchart.png
