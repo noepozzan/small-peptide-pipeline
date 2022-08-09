@@ -61,14 +61,12 @@ For improved reproducibility and reusability of the workflow,
 each individual step of the workflow runs in its own [Singularity][singularity] or [Docker][docker]
 container.
 As a consequence, running this workflow has very few individual dependencies.
-Since this pipeline depends on many different software tools, only **container execution** is possible. This requires Singularity or Docker to be installed on the system where the workflow is executed. 
 As the functional installation of Singularity and Docker require root privilege, the installation instructions are slightly different depending on your system/setup:
 
-### For most users
+### Singularity and/or Docker installation
 
-If you do *not* have root privileges on the machine you want
-to run the workflow on *or* if you do not have a Linux machine, please [install
-Singularity][singularity-install] or [install Docker][docker-install] separately and in privileged mode, depending
+Please [install Singularity][singularity-install] or
+[install Docker][docker-install] separately and in privileged mode, depending
 on your system. You may have to ask an authorized person (e.g., a systems
 administrator) to do that. This will almost certainly be required if you want
 to run the workflow on a high-performance computing (HPC) cluster. 
@@ -91,9 +89,9 @@ Activate the Conda environment with:
 conda activate small_peptides
 ```
 
-## 5. Before running the tests
+## 5. Before running this pipeline
 
-It is important to know that this workflow relies on many external tools. (That is why this pipeline relies on software packaged into containers.)
+#### 1. This workflow relies on many external tools. (That is why this pipeline relies on software packaged into containers.)
 One of those is [MSFragger][msfragger].  
 Since MSFragger is only free for non-commercial use, you should run:
 
@@ -109,7 +107,18 @@ cd <main directory of this project>
 source data/scripts/singularity_envs.sh
 ```
 
-This sets environment variables that allow you to pull the private MSFragger image from [noepozzan's dockerhub][dockerhub-np] repository.  (If you click on the link, you won't see the image since it's private.)
+This sets environment variables that allow you to pull the private MSFragger image from [noepozzan's dockerhub][dockerhub-np] repository.
+(If you click on the link, you won't see the image since it's private.)
+
+#### 2. The best way to work with [Singularity][singularity] & [Nextflow][nextflow] and avoid errors, is to pull the images preemptively.
+(This will take between 5 and 15 minutes.)
+
+**Attention:** Only run this if you have Singularity installed.
+
+```bash
+cd <main directory of this project>
+bash data/scripts/pull_containers.sh
+```
 
 # Extra installation steps (optional)
 
@@ -125,8 +134,8 @@ conda env update -f install/environment.dev.yml
 
 ## 7. Successful installation tests
 
-**ATTENTION:**  
-#### 1. Since even the testing files for this pipeline are quite large, I provide a github repo to pull from.  If you do not have `git lfs` installed, please [install it][git-lfs] and then run the commands shown below:
+#### 1. Since even the testing files for this pipeline are quite large, I provide a github repo to pull from.  
+If you do not have `git lfs` installed, please [install it][git-lfs] and then run the commands shown below:
 
 ```bash
 cd ~
@@ -143,16 +152,8 @@ Note that for this and other tests to complete successfully, be sure to have the
 
 #### 2. **Remember to activate** the [conda](#4-activate-environment) environment and give the tests enough time (between 2 and 5 minutes).
 
-#### 3. The best way to work with [Singularity][singularity] & [Nextflow][nextflow], is to pull the images preemptively. Below, this is achieved by running the `.sh` file. Please give this some time. (between 5 and 15 minutes)
+#### 3. Execute one of the following commands to run the test workflow:
 
-```bash
-cd <main directory of this project>
-bash data/scripts/pull_containers.sh
-```
-
-#### 4. Running the tests  
-
-Execute the following command to run the test workflow on your local machine:
 * Test workflow with **Docker**:
 
     ```bash
@@ -165,8 +166,7 @@ Execute the following command to run the test workflow on your local machine:
     nextflow run main.nf -profile test,singularity_offline
     ```
 
-Or, execute the following command to run the test workflow 
-on a [Slurm][slurm]-managed high-performance computing (HPC) cluster:
+Or on a [Slurm][slurm]-managed high-performance computing (HPC) cluster:
 * Test workflow with **Singularity & Slurm**:
 
     ```bash
@@ -200,12 +200,11 @@ You find these files under `conf/envs/`.
 - `proteomics`: to quantify your proteomics (mzML) files
   
 **IMPORTANT:** The profile you choose must match the `.config` file you adapt.
-So, if you choose the profile `<full>`, you have to specify the paths to your files in the `conf/params/full.config` configuration file.  
+So, if you choose the profile `full`, you have to specify the paths to your files in the `conf/params/full.config` configuration file.  
 Use your editor of choice to populate these files with the correct paths to your own files.
 Every config files indicates the variables necessary to run the workflow in the way you want it to.
 
-#### 2. Have a look at the examples in the `conf/` directory to see what the
-files should look like, specifically:
+#### 2. Have a look at the examples in the `conf/` directory to see what the files should look like, specifically:
 
 - [full.config](conf/params/full.config)
 - [slurm.config](conf/envs/slurm.config)
@@ -213,16 +212,16 @@ files should look like, specifically:
 
 #### 3. Pick one of the following choices for either local or cluster execution:
 
-- slurm: for cluster execution (needs singularity installed)
-- slurm_offline: for cluster execution (needs singularity installed, is the safer way to run. Please try this if above fails)
-- singularity: for local execution (needs singularity installed)
-- singularity_offline: for local execution (needs singularity installed, is the safer way to run. Please try this if above fails)
-- docker: for local execution (needs docker installed and the daemon running)
+- `slurm`: for cluster execution (needs singularity installed)
+- `slurm_offline`: for cluster execution (needs singularity installed, is the safer way to run. Please try this if above fails)
+- `singularity`: for local execution (needs singularity installed)
+- `singularity_offline`: for local execution (needs singularity installed, is the safer way to run. Please try this if above fails)
+- `docker`: for local execution (needs docker installed and the daemon running)
     
 > **NOTE:** Depending on the configuration of your Slurm installation you may
-> need to adapt the files under the `conf/` directory 
+> need to adapt the files under the `conf/envs/` directory 
 > and the arguments to options `memory` and `cpus`
-> in the file `*.config` of the respective profile.
+> in the `*.config` file of the respective profile.
 > Consult the manual of your workload manager as well as the section of the
 > nextflow manual dealing with [profiles].
 
