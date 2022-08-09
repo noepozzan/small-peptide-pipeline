@@ -66,7 +66,7 @@ process MAP_rRNA_SEGEMEHL {
 }
 
 
-workflow rRNA_PIPE {
+workflow rRNA {
 
     take:
 	genome_ch

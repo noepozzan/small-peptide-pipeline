@@ -130,7 +130,7 @@ process SAM_TO_BAM_SORT_AND_INDEX {
 }
 
 
-workflow TRANSCRIPTOME_PIPE {
+workflow TRANSCRIPTOME {
 
     take:
     longest_pc_transcript_per_gene_fa  

@@ -2,13 +2,13 @@ nextflow.enable.dsl=2
 
 include { PHILOSOPHER } from './subworkflows/philosopher.nf'
 include { PHILOSOPHER_PARALLEL } from './subworkflows/philosopher_parallel.nf'
-include { ANNOTATE_PIPE } from './subworkflows/annotate.nf'
-include { RIBOTISH_PIPE } from './subworkflows/ribotish.nf'
-include { READS_PIPE } from './subworkflows/prepare_reads.nf'
-include { GENOME_PIPE } from './subworkflows/map_genome.nf'
-include { rRNA_PIPE } from './subworkflows/map_rrna.nf'
-include { TRANSCRIPTOME_PIPE } from './subworkflows/map_transcriptome.nf'
-include { QC_ONLY_PIPE } from './subworkflows/qc_only.nf'
+include { ANNOTATE } from './subworkflows/annotate.nf'
+include { RIBOTISH } from './subworkflows/ribotish.nf'
+include { READS } from './subworkflows/prepare_reads.nf'
+include { GENOME } from './subworkflows/map_genome.nf'
+include { rRNA } from './subworkflows/map_rrna.nf'
+include { TRANSCRIPTOME } from './subworkflows/map_transcriptome.nf'
+include { QC } from './subworkflows/qc.nf'
 include { FIX_NAMES } from './subworkflows/fix_names.nf'
 include { PULL_FILES } from './subworkflows/pull_files.nf'
 include { RAWMZML } from './subworkflows/raw_to_mzml.nf'
@@ -70,56 +70,56 @@ workflow MAP_NAMES {
 workflow {
 
     if ( params.run_mode == "full" || params.run_mode == "test" || params.run_mode == "prepare" || params.run_mode == "qc" || params.run_mode == "map to genome") {
-        READS_PIPE(
+        READS(
             riboseq_reads_ch
         )
     }
 
     if ( params.run_mode == "full" || params.run_mode == "test" || params.run_mode == "qc" || params.run_mode == "map to genome") {
-        rRNA_PIPE(
+        rRNA(
             genome_ch,
             other_RNAs_sequence_ch,
-            READS_PIPE.out
+            READS.out
         )
     }
 
     if ( params.run_mode == "full" || params.run_mode == "test" || params.run_mode == "map to genome" ) {
-        GENOME_PIPE(
+        GENOME(
             genome_ch,
             gtf_ch,
-            rRNA_PIPE.out.other_genes_unmapped_fasta
+            rRNA.out.other_genes_unmapped_fasta
         )
-        bam_sort_index_folder_ch = GENOME_PIPE.out.bam_sort_index_folder
+        bam_sort_index_folder_ch = GENOME.out.bam_sort_index_folder
     }
 
 	if ( params.run_mode == "full" || params.run_mode == "test" || params.run_mode == "qc" ) {
-		ANNOTATE_PIPE(
+		ANNOTATE(
 			gtf_ch,
 			other_RNAs_sequence_ch,
 			genome_ch
 		)
 
-		TRANSCRIPTOME_PIPE(
-			ANNOTATE_PIPE.out.longest_pc_transcript_per_gene_fa,
-			rRNA_PIPE.out.other_genes_unmapped_fasta
+		TRANSCRIPTOME(
+			ANNOTATE.out.longest_pc_transcript_per_gene_fa,
+			rRNA.out.other_genes_unmapped_fasta
 		)
 
-		QC_ONLY_PIPE(
-			ANNOTATE_PIPE.out.transcript_id_gene_id_CDS_tsv,
-			TRANSCRIPTOME_PIPE.out.transcripts_mapped_unique_sam,
-			TRANSCRIPTOME_PIPE.out.bam_bai_folder,
-			rRNA_PIPE.out.other_genes_mapped_sam
+		QC(
+			ANNOTATE.out.transcript_id_gene_id_CDS_tsv,
+			TRANSCRIPTOME.out.transcripts_mapped_unique_sam,
+			TRANSCRIPTOME.out.bam_bai_folder,
+			rRNA.out.other_genes_mapped_sam
 		)
 	}
 
 	if ( params.run_mode == "full" || params.run_mode == "ribotish" ) {
-		RIBOTISH_PIPE(
+		RIBOTISH(
 			gtf_ch,
 			bam_sort_index_folder_ch,
 			genome_ch,
 			genome_fai_ch,
 		)
-		predicted_peptides = RIBOTISH_PIPE.out.speptide_combined
+		predicted_peptides = RIBOTISH.out.speptide_combined
 	}
     
     if ( params.run_mode == "full" || params.run_mode == "test" || params.run_mode == "proteomics") {

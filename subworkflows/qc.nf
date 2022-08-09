@@ -262,7 +262,7 @@ process BAM_SORT_AND_INDEX {
 }
 
 
-workflow QC_ONLY_PIPE {
+workflow QC {
 
     take:
 	transcript_id_gene_id_CDS

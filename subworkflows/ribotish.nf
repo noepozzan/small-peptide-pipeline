@@ -199,7 +199,7 @@ process COMBINE {
 }
 
 
-workflow RIBOTISH_PIPE {
+workflow RIBOTISH {
 
     take:
     gtf_ch

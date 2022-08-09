@@ -122,7 +122,7 @@ process SAM_TO_BAM_SORT_AND_INDEX_STAR {
 
 }
 
-workflow GENOME_PIPE {
+workflow GENOME {
 
     take:
 	genome_ch

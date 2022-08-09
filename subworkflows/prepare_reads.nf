@@ -223,7 +223,7 @@ process FASTQ_TO_FASTA {
 }
 
 
-workflow READS_PIPE {
+workflow READS {
 
     take:
     riboseq_reads_ch

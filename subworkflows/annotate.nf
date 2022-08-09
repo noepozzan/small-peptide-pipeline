@@ -112,7 +112,7 @@ process CREATE_BED_CDS_FILE {
 }
 
 
-workflow ANNOTATE_PIPE {
+workflow ANNOTATE {
 
     take:
     gtf_ch
