@@ -42,7 +42,7 @@ process READ_LENGTH_HISTOGRAM {
     
     label "rcrunch_python"
 
-    publishDir "${params.qc_dir}/read_length_histogram", mode: 'copy', pattern: '*'
+    publishDir "${params.qc_dir}/read_length_histogram", mode: 'copy', pattern: '*.dir'
     publishDir "${params.log_dir}/read_length_histogram", mode: 'copy', pattern: '*.log'
 
     input:
@@ -50,7 +50,7 @@ process READ_LENGTH_HISTOGRAM {
     path script_py
 
     output:
-    path '*', emit: hist
+    path '*.dir', emit: hist
 	path '*.log', emit: log
 
     script:
@@ -61,7 +61,7 @@ process READ_LENGTH_HISTOGRAM {
 
     python ${script_py} \
 		--sam ${sam} \
-		--outdir \${prefix} \
+		--outdir \${prefix}.dir \
 		&> \${prefix}_read_length_histogram.log
 
     """
