@@ -61,20 +61,34 @@ Visual representation of workflow. Automatically prepared with [Nextflow][docs-n
 
 ### Preparatory
 
-#### Read sample table
+Since this workflow can be run in different configurations, the requirements differ.
 
-##### Requirements
+After choosing the `profile` that fits your analysis needs, you need to do _2_ things:
+- Most importantly: change the paths to your own files under `conf/params/`
+- Change the environment settings under `conf/envs/`
 
-- tab-separated values (`.tsv`) file
-- first row has to contain parameter names as in [`samples.tsv`](tests/input_files/samples.tsv)
-- first column used as sample identifiers
+#### The files under `conf/params/` look like this:
+
+- The first part of the files is made up of the file path specifications.
+- The second part is made up of the [parameters](#parameters) the tools of the pipeline use.
+- The third part specifies the output paths of your results.
+- The last part contains variables important for the workflow that you probably shouldn't change.
+
+https://github.com/noepozzan/small-peptide-pipeline/blob/4af1760caecbbdf82f1168000edad05b5a7b1003/conf/params/qc.config#L1-L30
+
+#### The files under `conf/envs/` look like this:
+
+- The first part of the files tell the virtualization systems what to do. You probably don't have to change anything about this.
+- The `params` part contains [parameters](#parameters) that will be highlighted below.
+- The first `process` part defines your system specifications of `memory` and `cpus`.
+- The second `process` part contains the specifications for the Docker images used. Please do **not** change this.
+
+https://github.com/noepozzan/small-peptide-pipeline/blob/4af1760caecbbdf82f1168000edad05b5a7b1003/conf/envs/docker.config#L1-L108
+
+### Parameters
 
 Parameter name | Description | Data type(s)
 --- | --- | ---
-sample | Descriptive sample name. <br> **NOTE**: samples split in multiple fastq files (multilane samples), can be automatically merged by using the same ID| `str`
-seqmode | There are two allowed values `pe` (paired-end) and `se` (single-end) according to the protocol used. | `str`
-fq1 | Path of library file in `.fastq.gz` format (or mate 1 read file for paired-end libraries). | `str`
-fq2 | Path of mate 2 read file in `.fastq.gz` format. Value ignored for for single-end libraries. | `str`
 fq1_3p | Required for [Cutadapt](#third-party-software-used). 3' adapter of mate 1. Use value such as `XXXXXXXXXXXXXXX` if no adapter present or if no trimming is desired. | `str`
 fq1_5p | Required for [Cutadapt](#third-party-software-used). 5' adapter of mate 1. Use value such as `XXXXXXXXXXXXXXX` if no adapter present or if no trimming is desired. | `str`
 fq2_5p | Required for [Cutadapt](#third-party-software-used). 5' adapter of mate 2. Use value such as `XXXXXXXXXXXXXXX` if no adapter present or if no trimming is desired. Value ignored for single-end libraries. | `str`
