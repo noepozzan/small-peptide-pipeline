@@ -158,10 +158,6 @@ workflow PULL_FILES {
 		params.directory_path
 	)
 
-	FASTA_INDEX(
-		PULL.out.genome_fasta
-	)
-
 	GFFREAD(
 		PULL.out.gff3
 	)
@@ -170,13 +166,16 @@ workflow PULL_FILES {
         .mix(GFFREAD.out.gtf)
         .set{gtfs_ch}
 
+    /*
     DUPLICATES(
         gtfs_ch,
         params.duplicate_r_script
     )
-	
+	*/
+
     CONCAT(
-        DUPLICATES.out.deduplicated_gtf.collect()
+        //DUPLICATES.out.deduplicated_gtf.collect()
+        gtfs_ch
 	)
 	combined_gtf = CONCAT.out.gtf
 
