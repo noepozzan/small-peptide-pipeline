@@ -20,10 +20,6 @@ if ( params.run_mode == "test" || params.run_mode == "full" ) {
     other_RNAs_sequence_ch = channel.fromPath(params.other_RNAs_sequence, checkIfExists: true)
     gtf_ch = channel.fromPath(params.gtf, checkIfExists: true)
     genome_ch = channel.fromPath(params.genome, checkIfExists: true)
-    genome_fai_ch = channel.fromPath(params.genome_fai, checkIfExists: true)
-}
-if ( params.run_mode == "ribotish" ) {
-    bam_sort_index_folder_ch = channel.fromPath(params.bam_sort_index_folder, checkIfExists: true)
 }
 if ( params.run_mode == "test" || params.run_mode == "proteomics" ) {
     predicted_peptides = channel.fromPath(params.test_database, checkIfExists: true)
@@ -32,17 +28,10 @@ if ( params.run_mode == "proteomics" ) {
     proteomics_reads_ch = channel.fromPath(params.proteomics_reads, checkIfExists: true)
 }
 if ( params.run_mode == "ribotish" ) {
-    genome_fai_ch = channel.fromPath(params.genome_fai, checkIfExists: true)
+    bam_sort_index_folder_ch = channel.fromPath(params.bam_sort_index_folder, checkIfExists: true)
     gtf_ch = channel.fromPath(params.gtf, checkIfExists: true)
     genome_ch = channel.fromPath(params.genome, checkIfExists: true)
-    // this input is very special: It is a folder containing a sorted+indexed bam file and its index
     bam_sort_index_folder_ch = channel.fromPath(params.bam_sort_index_folder, checkIfExists: true)
-}
-if ( params.run_mode == "pull" ) {
-    directory_path = channel.fromPath(params.directory_path, checkIfExists: true)
-    PULL_FILES(
-        directory_path
-    )
 }
 
 
@@ -68,6 +57,10 @@ workflow MAP_NAMES {
 
 // main workflow that calls all processes in the subworkflows dir
 workflow {
+
+    if ( params.run_mode == "pull" ) {
+            PULL_FILES()
+    }
 
     if ( params.run_mode == "full" || params.run_mode == "test" || params.run_mode == "prepare" || params.run_mode == "qc" || params.run_mode == "map to genome") {
         READS(
@@ -116,8 +109,7 @@ workflow {
 		RIBOTISH(
 			gtf_ch,
 			bam_sort_index_folder_ch,
-			genome_ch,
-			genome_fai_ch,
+			genome_ch
 		)
 		predicted_peptides = RIBOTISH.out.speptide_combined
 	}

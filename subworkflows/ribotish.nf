@@ -2,6 +2,30 @@ nextflow.enable.dsl=2
 
 // https://github.com/zhpn1024/ribotish
 
+process FASTA_INDEX {
+
+	label "samtools"
+
+	publishDir "${params.ribotish_dir}/fasta_index", mode: 'copy', pattern: '*.fai'
+	publishDir "${params.log_dir}/fasta_index", mode: 'copy', pattern: '*.log'
+
+	input:
+	path genome_fasta
+
+	output:
+	path "*.fai", emit: fai
+	path "*.log", emit: log
+
+	script:
+	"""
+	samtools faidx \
+		${genome_fasta} \
+		&> fasta_index.log
+
+	"""
+
+}
+
 process RIBOTISH_QUALITY {
 
     label "ribotish"
@@ -205,9 +229,12 @@ workflow RIBOTISH {
     gtf_ch
     bam_sort_index_folder_ch
 	genome_ch
-	genome_fai_ch
 	
     main:
+
+    FASTA_INDEX(
+		genome_ch
+	)
 	
     RIBOTISH_QUALITY(
 		bam_sort_index_folder_ch,
@@ -228,7 +255,7 @@ workflow RIBOTISH {
 
 	GFFREAD(
 		genome_ch,
-		genome_fai_ch,
+        FASTA_INDEX.out.fai,
 		gtf_ch
 	)
 	transcripts_fa = GFFREAD.out.fasta

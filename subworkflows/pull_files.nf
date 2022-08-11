@@ -43,30 +43,6 @@ process PULL {
 
 }
 
-process FASTA_INDEX {
-
-	label "samtools"
-
-	publishDir "${params.pull_dir}/fasta_index", mode: 'copy', pattern: '*.fai'
-	publishDir "${params.log_dir}/fasta_index", mode: 'copy', pattern: '*.log'
-
-	input:
-	path genome_fasta
-
-	output:
-	path "*.fai", emit: fai
-	path "*.log", emit: log
-
-	script:
-	"""
-	samtools faidx \
-		${genome_fasta} \
-		&> fasta_index.log
-
-	"""
-
-}
-
 process GFFREAD {
 
 	label "gffread"
@@ -155,7 +131,6 @@ process MOVE {
 
 	input:
 	path genome_fasta
-	path genome_fai
 	path gene_gtf
 	path noncoding_gtf
 	path combined_gtf
@@ -163,7 +138,6 @@ process MOVE {
 	script:
 	"""
 	cp ${genome_fasta} ${params.genome}
-	cp ${genome_fai} ${params.genome_fai}
 	cp ${gene_gtf} ${params.gtf}
 	cp ${noncoding_gtf} ${params.rnacentral_gtf}
 	cp ${combined_gtf} ${params.combined_gtf}
@@ -173,9 +147,6 @@ process MOVE {
 
 workflow PULL_FILES {
 
-	take:
-	directory_path
-
 	main:
 	// this subworkflow pulls gtf, gff3 and fasta files from the web
 	// and converts gff3 files to gtf, then concatenates the gtf files
@@ -184,7 +155,7 @@ workflow PULL_FILES {
 	// and writes this to the nextflow.config file
 
 	PULL(
-		directory_path
+		params.directory_path
 	)
 
 	FASTA_INDEX(
@@ -211,7 +182,6 @@ workflow PULL_FILES {
 
 	MOVE(
 		PULL.out.genome_fasta,
-        FASTA_INDEX.out.fai,
         PULL.out.gtf,
         GFFREAD.out.gtf,
 		combined_gtf
