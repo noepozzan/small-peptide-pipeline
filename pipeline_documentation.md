@@ -10,7 +10,7 @@ on installation and usage please see [here](README.md).
 - [Description of workflow steps](#description-of-workflow-steps)
   - [Rule graph](#rule-graph)
   - [Preparatory](#preparatory)
-    - [Read sample table](#read-sample-table)
+    - [Understanding the config files](#understanding-the-config-files)
   - [Subworklows](#subworklows)
     - [`annotate`](#annotate)
     - [`qc`](#qc)
@@ -61,6 +61,8 @@ Visual representation of workflow. Automatically prepared with [Nextflow][docs-n
 
 ### Preparatory
 
+#### Understanding the `.config` files
+
 Since this workflow can be run in different configurations, the requirements differ.
 
 After choosing the `profile` that fits your analysis needs, you need to do _2_ things:
@@ -69,10 +71,10 @@ After choosing the `profile` that fits your analysis needs, you need to do _2_ t
 
 #### The files under `conf/params/` look like this:
 
-- The first part of the files is made up of the file path specifications.
-- The second part is made up of the [parameters](#parameters) the tools of the pipeline use.
-- The third part specifies the output paths of your results.
-- The last part contains variables important for the workflow that you probably shouldn't change.
+- The first `params` part of the files is made up of the file path specifications.
+- The second `params` part is made up of the [parameters](#parameters) the tools of the pipeline use.
+- The third `params` part specifies the output paths of your results.
+- The last `params` part contains variables important for the workflow that you probably shouldn't change.
 
 https://github.com/noepozzan/small-peptide-pipeline/blob/4af1760caecbbdf82f1168000edad05b5a7b1003/conf/params/qc.config#L1-L30
 
@@ -87,8 +89,20 @@ https://github.com/noepozzan/small-peptide-pipeline/blob/4af1760caecbbdf82f11680
 
 ### Parameters
 
+Parameters are found in the `conf` and the `nextflow.config`.
+As explained earlier, each `profile` file contains the parameters necessary to run the workflow.
+The `nextflow.config` contains very few parameters that should probably not be changed.
+
+The table below will hopefully give you some deeper understanding of all parameters used:
+
 Parameter name | Description | Data type(s)
 --- | --- | ---
+riboseq_reads | Main ribosome sequencing fastq.gz files | `str`
+proteomics_reads | Main proteomics mzML files | `str`
+gtf | Main gene annotation file in gene transfer format | `str`
+other_RNAs_sequence | Fasta file of rRNA library to be used for filtering out riboseq noise | `str`
+genome | Fasta genome file to be used as your reference genome | `str`
+  
 fq1_3p | Required for [Cutadapt](#third-party-software-used). 3' adapter of mate 1. Use value such as `XXXXXXXXXXXXXXX` if no adapter present or if no trimming is desired. | `str`
 fq1_5p | Required for [Cutadapt](#third-party-software-used). 5' adapter of mate 1. Use value such as `XXXXXXXXXXXXXXX` if no adapter present or if no trimming is desired. | `str`
 fq2_5p | Required for [Cutadapt](#third-party-software-used). 5' adapter of mate 2. Use value such as `XXXXXXXXXXXXXXX` if no adapter present or if no trimming is desired. Value ignored for single-end libraries. | `str`
