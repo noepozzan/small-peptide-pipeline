@@ -35,7 +35,7 @@ process STAR_INDEX_GENOME {
 process MAP_GENOME_STAR {
 
     label "star"
-	label 'mappping'
+	label 'mapping'
 
     publishDir "${params.map_dir}/map_genome_star", mode: 'copy', pattern: "*.Aligned.out.sam"
 	publishDir "${params.map_dir}/map_genome_star", mode: 'copy', pattern: "*.Unmapped*"
