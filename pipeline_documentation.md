@@ -38,9 +38,8 @@ on installation and usage please see [here](README.md).
 | **segemehl** | [GPLv3][license-gpl3] | _"segemehl is a software to map short sequencer reads to reference genomes."_ | [code][code-segemehl] / [manual][docs-segemehl] / [publication][pub-segemehl] |
 | **Philosopher** | [GPLv3][license-gpl3] | _"A complete toolkit for shotgun proteomics data analysis"_ | [code][code-philosopher] / [manual][docs-philosopher] / [publication][pub-philosopher] |
 | **MSFragger** | [msfragger licencse][license-msfragger] | _"Ultrafast, comprehensive peptide identification for mass spectrometry–based proteomics"_ | [code][code-msfragger] / [manual][docs-msfragger] / [publication][pub-msfragger] |
+| **FASTX** | [GPLv3][license-gpl3] | _"The FASTX-Toolkit is a collection of command line tools for Short-Reads FASTA/FASTQ files preprocessing."_ | [code][code-fastx] / [manual][docs-fastx] / [publication][pub-fastx] |
 
-
-^ compatible with [GPLv3][license-gpl3]
 
 ## Description of workflow steps
 
@@ -102,55 +101,68 @@ proteomics_reads | Main proteomics mzML files | `str`
 gtf | Main gene annotation file in gene transfer format | `str`
 other_RNAs_sequence | Fasta file of rRNA library to be used for filtering out riboseq noise | `str`
 genome | Fasta genome file to be used as your reference genome | `str`
-  
-fq1_3p | Required for [Cutadapt](#third-party-software-used). 3' adapter of mate 1. Use value such as `XXXXXXXXXXXXXXX` if no adapter present or if no trimming is desired. | `str`
-fq1_5p | Required for [Cutadapt](#third-party-software-used). 5' adapter of mate 1. Use value such as `XXXXXXXXXXXXXXX` if no adapter present or if no trimming is desired. | `str`
-fq2_5p | Required for [Cutadapt](#third-party-software-used). 5' adapter of mate 2. Use value such as `XXXXXXXXXXXXXXX` if no adapter present or if no trimming is desired. Value ignored for single-end libraries. | `str`
-fq1_polya3p | Required for [Cutadapt](#third-party-software-used). Stretch of `A`s or `T`s, depending on read orientation. Trimmed from the 3' end of the read. Use value such as `XXXXXXXXXXXXXXX` if no poly(A) stretch present or if no trimming is desired. | `str`
-fq1_polya5p | Required for [Cutadapt](#third-party-software-used). Stretch of `A`s or `T`s, depending on read orientation. Trimmed from the 5' end of the read. Use value such as `XXXXXXXXXXXXXXX` if no poly(A) stretch present or if no trimming is desired. | `str`
-index_size | Required for [STAR](#third-party-software-used). Ideally the maximum read length minus 1. (`max(ReadLength)-1`). Values lower than maximum read length may result in lower mapping accuracy, while higher values may result in longer processing times. | `int`
-kmer | Required for [Salmon](#third-party-software-used). Default value of 31 usually works fine for reads of 75 bp or longer. Consider using lower values if poor mapping is observed. | `int`
-organism | Name or identifier of organism or organism-specific genome resource version. Has to correspond to the naming of provided genome and gene annotation files and directories, like "ORGANISM" in the path below. <br> **Example:** `GRCh38` | `str`
-gtf | Required for [STAR](#third-party-software-used). Path to gene annotation `.gtf` file. File needs to be in subdirectory corresponding to `organism` field. <br> **Example:** `/path/to/GRCh38/gene_annotations.gtf` | `str`
-genome | Required for [STAR](#third-party-software-used). Path to genome `.fa` file. File needs to be in subdirectory corresponding to `organism` field. <br> **Example:** `/path/to/GRCh38/genome.fa` | `str`
-sd | Required for [kallisto](#third-party-software-used) and [Salmon](#third-party-software-used), but **only** for single-end libraries. Estimated standard deviation of fragment length distribution. Can be assessed from, e.g., BioAnalyzer profiles | `int`
 
+The rest of the parameters are either important for the logic of the workflow or are input parameters to tools run by the pipeline.
+These are the default parameters that are sure to work with the pipeline. The tools used for analying the data our way obviously contain way more parameters. If you are familiar with the tools, feel free to change these parameters or pass them other parameters, too!
+If you want to know more about the tools (and the specific version you are running thereof), you may do the following:
 
-### Sequencing mode-independent
+```bash
+singularity shell ~/.singularity/cache/library/<tool you are running>
+<tool you are running> -h
+```
 
-#### `start`
+Parameter name | Description | Process | Data type(s)
+--- | --- | --- | ---
+singularity_store | Specifies path of the folder where singularity images get stored | General | `str`
+cut | Required for [Cutadapt](#third-party-software-used), _Remove bases from each read (first read only if paired). If LENGTH is positive, remove bases from the beginning._ | from `TRIM_FIRST_BASES` process in `subworkflows/prepare_reads.nf` | `int`
+minimum_length | Required for [Cutadapt](#third-party-software-used), _Discard reads shorter than LENGTH. Default: 0_ | from `TRIM_FIRST_BASES` process in `subworkflows/prepare_reads.nf` | `int`
+clip_reads_args | Required for [FASTX](#third-party-software-used), contains parameters described right below (tool used: fastx_clipper)| from `CLIP_READS` process in `subworkflows/prepare_reads.n` | `multiple`
+-v | Required for [FASTX](#third-party-software-used), _Verbose - report number of sequences._ | from `CLIP_READS` process in `subworkflows/prepare_reads.n` | `none`
+-n | Required for [FASTX](#third-party-software-used), _discard sequences shorter than N nucleotides. default is 5._ | from `CLIP_READS` process in `subworkflows/prepare_reads.n` | `int`
+-l | Required for [FASTX](#third-party-software-used), _keep sequences with unknown (N) nucleotides. default is to discard such sequences._ | from `CLIP_READS` process in `subworkflows/prepare_reads.n` | `none`
+-c | Required for [FASTX](#third-party-software-used), _Discard non-clipped sequences (i.e. - keep only sequences which contained the adapter)._ | from `CLIP_READS` process in `subworkflows/prepare_reads.n` | `none`
+-z | Required for [FASTX](#third-party-software-used), _Compress output with GZIP._ | from `CLIP_READS` process in `subworkflows/prepare_reads.n` | `none`
+-a | Required for [FASTX](#third-party-software-used), _ADAPTER string. default is CCTTAAGG (dummy adapter)._ | from `CLIP_READS` process in `subworkflows/prepare_reads.n` | `str`
+trim_reads_args | Required for [FASTX](#third_party_software_used), contains parameters described right below (tool used: fastq_quality_trimmer) | from `TRIM_READS` process in `subworkflows/prepare_reads.nf` | `multiple`
+-v | Required for [FASTX](#third-party-software-used), _Verbose - report number of sequences._ | from `TRIM_READS` process in `subworkflows/prepare_reads.n` | `none`
+-l | Required for [FASTX](#third-party-software-used), _Minimum length - sequences shorter than this (after trimming) will be discarded. Default = 0 = no minimum length._ | from `TRIM_READS` process in `subworkflows/prepare_reads.n` | `int`
+-t | Required for [FASTX](#third-party-software-used), _Quality threshold - nucleotides with lower quality will be trimmed (from the end of the sequence)._ | from `TRIM_READS` process in `subworkflows/prepare_reads.n` | `int`
+-z | Required for [FASTX](#third-party-software-used), _Compress output with GZIP._ | from `TRIM_READS` process in `subworkflows/prepare_reads.n` | `none`
+filter_reads_args | Required for [FASTX](#third_party_software_used), contains parameters described right below (tool used: fastq_quality_filter) | from `FILTER_READS` process in `subworkflows/prepare_reads.nf` | `multiple`
+-v | Required for [FASTX](#third-party-software-used), _Verbose - report number of sequences._ | from `FILTER_READS` process in `subworkflows/prepare_reads.n` | `none`
+-q | Required for [FASTX](#third-party-software-used), _Minimum quality score to keep._ | from `FILTER_READS` process in `subworkflows/prepare_reads.n` | `int`
+-p | Required for [FASTX](#third-party-software-used), _Minimum percent of bases that must have [-q] quality._ | from `FILTER_READS` process in `subworkflows/prepare_reads.n` | `int`
+-z | Required for [FASTX](#third-party-software-used), _Compress output with GZIP._ | from `FILTER_READS` process in `subworkflows/prepare_reads.n` | `none`
+fastq_to_fasta_args | Required for [FASTX](#third_party_software_used), contains parameters described right below (tool used: fastq_to_fasta) | from `FASTQ_TO_FASTA` process in `subworkflows/prepare_reads.nf` | `multiple`
+-v | Required for [FASTX](#third-party-software-used), _Verbose - report number of sequences._ | from `FASTQ_TO_FASTA` process in `subworkflows/prepare_reads.n` | `none`
+-n | Required for [FASTX](#third-party-software-used), _keep sequences with unknown (N) nucleotides. Default is to discard such sequences._ | from `FASTQ_TO_FASTA` process in `subworkflows/prepare_reads.n` | `none`
+-r | Required for [FASTX](#third-party-software-used), _Rename sequence identifiers to numbers._ | from `FASTQ_TO_FASTA` process in `subworkflows/prepare_reads.n` | `none`
+segemehl_args | Required for [segemehl](#third_party_software_used), contains parameters described right below (tool used: segemehl.x) | from `MAP_TRANSCRIPTOME_SEGEMEHL` process in `subworkflows/map_transcriptome.nf` and `MAP_rRNA_SEGEMEHL` in `subworkflows/map_rrna.nf` | `multiple`
+--silent | Required for [segemehl](#third_party_software_used), _shut up!_ | from `MAP_TRANSCRIPTOME_SEGEMEHL` process in `subworkflows/map_transcriptome.nf` and `MAP_rRNA_SEGEMEHL` in `subworkflows/map_rrna.nf` | `none`
+--accuracy | Required for [segemehl](#third_party_software_used), _min percentage of matches per read in semi-global alignment (default:90)_ | from `MAP_TRANSCRIPTOME_SEGEMEHL` process in `subworkflows/map_transcriptome.nf` and `MAP_rRNA_SEGEMEHL` in `subworkflows/map_rrna.nf` | `int`
+--threads | Required for [segemehl](#third_party_software_used), _ start <n> threads (default:1)_ | from `MAP_TRANSCRIPTOME_SEGEMEHL` process in `subworkflows/map_transcriptome.nf` and `MAP_rRNA_SEGEMEHL` in `subworkflows/map_rrna.nf` | `int`
+star_map_threads | Required for [STAR](#third_party_software_used), _int: number of threads to run STAR_ | from `MAP_GENOME_STAR` process in `subworkflows/map_genome.nf` | `int`
+check_peridocitiy_codnum | Required for [python script](#third_party_software_used), _Input codon coverage_ | from `CHECK_PERIODICITY` process in `subworkflows/qc.nf` | `int`
+riboseq_mode | Required for [Ribo-TISH](#third_party_software_used), _choose `regular` if you have ordinary riboseq bam files, choose `TI` if you have TIS enriched riboseq bam files_ | from `RIBOTISH_QUALITY` and `RIBOTISH_PREDICT` in `subworkflows/ribotish.nf` | `str`
+ribotish_quality_th | Required for [Ribo-TISH](#third_party_software_used), _Threshold for quality (default: 0.5)_ | from `RIBOTISH_QUALITY` in `subworkflows/ribotish.nf` | `float`
+ribotish_predict_mode | Required for [Ribo-TISH](#third_party_software_used), _if `longest` chosen: Only report longest possible ORF results_ | from `RIBOTISH_PREDICT` in `subworkflows/ribotish.nf` | `str`
+workspace | Required for [Philosopher](#third_party_software_used), _parameter is used for copying files to the right place_ | from multiple processes in `subworkflows/ribotish.nf` | `str`
+peptideprophet_args | Required for [Philosopher](#third_party_software_used), contains parameters described right below (tool used: philosopher peptideprophet) | from `PEPTIDEPROPHET` process in `subworkflows/philosopher.nf` | `multiple`
+--combine | Required for [Philosopher](#third_party_software_used), _combine the results from PeptideProphet into a single result file_ | from `PEPTIDEPROPHET` process in `subworkflows/philosopher.nf` | `none`
+--decoy | Required for [Philosopher](#third_party_software_used), _semi-supervised mode, protein name prefix to identify decoy entries_ | from `PEPTIDEPROPHET` process in `subworkflows/philosopher.nf` | `str`
+--ppm | Required for [Philosopher](#third_party_software_used), _use ppm mass error instead of Daltons for mass modeling_ | from `PEPTIDEPROPHET` process in `subworkflows/philosopher.nf` | `none`
+--accmass | Required for [Philosopher](#third_party_software_used), _use accurate mass model binning_ | from `PEPTIDEPROPHET` process in `subworkflows/philosopher.nf` | `none`
+--expectscore | Required for [Philosopher](#third_party_software_used), _use expectation value as the only contributor to the f-value for modeling_ | from `PEPTIDEPROPHET` process in `subworkflows/philosopher.nf` | `none`
+--nonparam | Required for [Philosopher](#third_party_software_used), _use semi-parametric modeling, must be used in conjunction with --decoy option_ | from `PEPTIDEPROPHET` process in `subworkflows/philosopher.nf` | `none`
+philosopher_filter_args | Required for [Philosopher](#third_party_software_used), contains parameters described right below (tool used: philosopher filter) | from `FILTER_FDR` process in `subworkflows/philosopher.nf` | `multiple`
+--psm | Required for [Philosopher](#third_party_software_used), _psm FDR level (default 0.01)_ | from `FILTER_FDR` process in `subworkflows/philosopher.nf` | `float`
+--ion | Required for [Philosopher](#third_party_software_used), _peptide ion FDR level (default 0.01)_ | from `FILTER_FDR` process in `subworkflows/philosopher.nf` | `float`
+--pep | Required for [Philosopher](#third_party_software_used), _peptide FDR level (default 0.01)_ | from `FILTER_FDR` process in `subworkflows/philosopher.nf` | `float`
+--prot | Required for [Philosopher](#third_party_software_used), _protein FDR level (default 0.01)_ | from `FILTER_FDR` process in `subworkflows/philosopher.nf` | `float`
+--picked | Required for [Philosopher](#third_party_software_used), _apply the picked FDR algorithm before the protein scoring_ | from `FILTER_FDR` process in `subworkflows/philosopher.nf` | `none`
+--tag | Required for [Philosopher](#third_party_software_used), _decoy tag (default "rev_")_ | from `FILTER_FDR` process in `subworkflows/philosopher.nf` | `str`
 
-Copy and rename read files.
-
-> Local rule
-
-- **Input**
-  - Reads file (`.fastq.gz`)
-- **Output**
-  - Reads file, copied, renamed (`.fastq.gz`); used in [**fastqc**](#fastqc) and
-    [**remove_adapters_cutadapt**](#remove_adapters_cutadapt)
-
-#### `create_index_star`
-
-Create index for [**STAR**](#third-party-software-used) short read aligner.
-
-> Indices need only be generated once for each combination of genome, set of
-> annotations and index size.
-
-- **Input**
-  - Genome sequence file (`.fasta`)
-  - Gene annotation file (`.gtf`)
-- **Parameters**
-  - **samples.tsv**
-    - `--sjdbOverhang`: maximum read length - 1; lower values may reduce accuracy, higher values may increase STAR runtime; specify in sample table column `index_size`
-- **Output**
-  - STAR index; used in [**map_genome_star**](#map_genome_star)
-  - Index includes files:
-    - Chromosome length table `chrNameLength.txt`; used in
-      [**generate_alfa_index**](#generate_alfa_index) and
-      [**prepare_bigWig**](#prepare_bigwig)
-    - Chromosome name list `chrName.txt`; used in
-      [**create_index_salmon**](#create_index_salmon)
+### `full`
 
 #### `extract_transcriptome`
 
@@ -165,19 +177,6 @@ Create transcriptome from genome and gene annotations with
     [**concatenate_transcriptome_and_genome**](#concatenate_transcriptome_and_genome)
     and [**create_index_kallisto**](#create_index_kallisto)
 
-#### `concatenate_transcriptome_and_genome`
-
-Concatenate reference transcriptome and genome.
-
-> Required by [Salmon][docs-salmon-selective-alignment]
-
-- **Input**
-  - Genome sequence file (`.fasta`)
-  - Transcriptome sequence file (`.fasta`); from
-    [**extract_transcriptome**](#extract_transcriptome)
-- **Output**
-  - Transcriptome genome reference file (`.fasta`); used in
-    [**create_index_salmon**](#create_index_salmon)
 
 #### `create_index_salmon`
 
@@ -204,62 +203,6 @@ Create index for [**Salmon**](#third-party-software-used) quantification.
 - **Output**
   - Salmon index; used in [**quantification_salmon**](#quantification_salmon)
 
-#### `create_index_kallisto`
-
-Create index for [**kallisto**](#third-party-software-used) quantification.
-
-> The default kmer size of 31 is used in this workflow and is not configurable
-> by the user.
-
-- **Input**
-  - Transcriptome sequence file (`.fasta`); from
-    [**extract_transcriptome**](#extract_transcriptome)
-- **Output**
-  - kallisto index; used in
-    [**genome_quantification_kallisto**](#genome_quantification_kallisto)
-
-#### `extract_transcripts_as_bed12`
-
-Convert transcripts from `.gtf` to extended 12-column `.bed` format with
-[custom-script][custom-script-gtf-to-bed12]. Note that the default transcript type setting is used, which is "protein_coding".
-
-- **Input**
-  - Gene annotation file (`.gtf`)
-- **Output**
-  - Transcript annotations file (12-column `.bed`); used in
-    [**calculate_TIN_scores**](#calculate_tin_scores)
-
-#### `fastqc`
-
-Prepare quality control report for reads library with
-[**FastQC**](#third-party-software-used).
-
-- **Input**
-  - Reads file (`.fastq.gz`); from [**start**](#start)
-- **Output**
-  - FastQC output directory with report (`.txt`) and figures (`.png`); used in
-    [**multiqc_report**](#multiqc_report)
-
-#### `fastqc_trimmed`
-
-Prepare quality control report for trimmed reads (after adapter and poly(A)-tail removal) with [**FastQC**](#third-party-software-used).
-
-- **Input**
-  - Reads file (`.fastq.gz`); from [**remove_polya_cutadapt**](#remove_polya_cutadapt)
-- **Output**
-  - FastQC output directory with report (`.txt`) and figures (`.png`); used in
-    [**multiqc_report**](#multiqc_report)
-
-#### `sort_genomic_alignment_samtools`
-
-Sort BAM file with [**SAMtools**](#third-party-software-used).
-
-> Sort a genome aligned BAM file.
-
-- **Input**
-  - Alignemnts file (`.bam`); from [**map_genome_star**](#map_genome_star)
-- **Output**
-  - Alignemnts file (`.bam`); used in [**index_genomic_alignment_samtools**](#index_genomic_alignment_samtools) & [**star_rpm**](#star_rpm) & [**calculate_TIN_scores**](#calculate_tin_scores)
 
 #### `index_genomic_alignment_samtools`
 
@@ -297,210 +240,6 @@ Create stranded bedGraph coverage (`.bg`) with
   - Coverage file (`.bg`); used in [**multiqc_report**](#multiqc_report) and
     [**rename_star_rpm_for_alfa**](#rename_star_rpm_for_alfa)
 
-#### `rename_star_rpm_for_alfa`
-
-Rename and copy stranded bedGraph coverage tracks such that they comply with
-[**ALFA**](#third-party-software-used).
-
-> Local rule
->
-> Renaming to `plus.bg` and `minus.bg` depends on library orientation, which is
-> provided by user in sample table column `libtype`.
-
-- **Input**
-  - Coverage file (`.bg`); from [**star_rpm**](#star_rpm)
-- **Output**
-  - Coverage file, renamed (`.bg`); used in [**alfa_qc**](#alfa_qc) and
-    [**sort_bed_4_big**](#sort_bed_4_big)
-
-#### `sort_bed_4_big`
-
-Sort bedGraph files with [**bedtools**](#third-party-software-used).
-
-- **Input**
-  - Coverage files, renamed (`.bg`); from
-    [**rename_star_rpm_for_alfa**](#rename_star_rpm_for_alfa)
-- **Output**
-  - Coverage files, sorted (`.bg`); used in [**prepare_bigWig**](#prepare_bigwig)
-
-#### `prepare_bigWig`
-
-Generate bigWig from bedGraph with
-[**bedGraphToBigWig**](#third-party-software-used).
-
-- **Input**
-  - Coverage files, sorted (`.bg`); from [**sort_bed_4_big**](#sort_bed_4_big)
-  - Chromosome length table `chrNameLength.txt`; from
-    [**create_index_star**](#create_index_star)
-- **Output**
-  - Coverage files, one per strand and sample (`.bw`); used in
-    [**finish**](#finish)
-
-#### `calculate_TIN_scores`
-
-Calculates the Transcript Integrity Number (TIN) for each transcript with
-[custom script][custom-script-tin] based on
-[**RSeqC**](#third-party-software-used).
-
-> TIN is conceptually similar to RIN (RNA integrity number) but provides
-> transcript-level measurement of RNA quality and is more sensitive for
-> low-quality RNA samples.
->
-> - TIN score of a transcript reflects RNA integrity of the transcript
-> - Median TIN score across all transcripts reflects RNA integrity of library
-> - TIN ranges from 0 (the worst) to 100 (the best)
-> - A TIN of 60 means that 60% of the transcript would have been covered if
->   the read coverage were uniform
-> - A TIN of 0 will be assigned if the transcript has no coverage or coverage
->   is below threshold
-
-- **Input**
-  - Alignments file (`.bam`); from [**sort_genomic_alignment_samtools**](#sort_genomic_alignment_samtools)
-  - BAM index file (`.bam.bai`); from
-    [**index_genomic_alignment_samtools**](#index_genomic_alignment_samtools)
-  - Transcript annotations file (12-column `.bed`); from
-    [**extract_transcripts_as_bed12**](#extract_transcripts_as_bed12)
-- **Parameters**
-  - **rule_config.yaml**
-    - `-c 0`: minimum number of read mapped to a transcript (default 10)
-- **Output**
-  - TIN score table (custom `tsv`); used in
-    [**merge_TIN_scores**](#merge_tin_scores)
-  
-
-#### `salmon_quantmerge_genes`
-
-Merge gene-level expression estimates for all samples with
-[**Salmon**](#third-party-software-used).
-
-> Rule is run once per sequencing mode
-
-- **Input**
-  - Gene expression tables (custom `.tsv`) for samples of same sequencing mode;
-    from [**quantification_salmon**](#quantification_salmon)
-- **Output**
-  - Gene TPM table (custom `.tsv`); used in
-    [**multiqc_report**](#multiqc_report)
-  - Gene read count table (custom `.tsv`); used in
-    [**pca_salmon**](#pca_salmon) and [**pca_kallisto**](#pca_kallisto)
-
-#### `salmon_quantmerge_transcripts`
-
-Merge transcript-level expression estimates for all samples with
-[**Salmon**](#third-party-software-used).
-
-> Rule is run once per sequencing mode
-
-- **Input**
-  - Transcript expression tables (custom `.tsv`) for samples of same sequencing
-    mode; from [**quantification_salmon**](#quantification_salmon)
-- **Output**
-  - Transcript TPM table (custom `.tsv`); used in
-    [**multiqc_report**](#multiqc_report)
-  - Transcript read count table (custom `.tsv`); used in
-    [**pca_salmon**](#pca_salmon) and [**pca_kallisto**](#pca_kallisto)
-
-#### `kallisto_merge_genes`
-
-Merge gene-level expression estimates for all samples with 
-[custom script][custom-script-merge-kallisto].
-
-> Rule is run once per sequencing mode
-
-- **Input**
-  - Transcript expression tables (custom `.h5`) for samples of same sequencing
-    mode; from [**genome_quantification_kallisto**](#genome_quantification_kallisto) 
-  - Gene annotation file (custom `.gtf`)
-- **Output**
-  - Gene TPM table (custom `.tsv`)
-  - Gene read count table (custom `.tsv`)
-  - Mapping gene/transcript IDs table (custom `.tsv`)
-- **Non-configurable & non-default**
-  - `-txOut FALSE`: gene-level summarization (default would be transcript level) 
-
-#### `kallisto_merge_transcripts`
-
-Merge transcript-level expression estimates for all samples with 
-[custom script][custom-script-merge-kallisto].
-
-> Rule is run once per sequencing mode
-
-- **Input**
-  - Transcript expression tables (custom `.h5`) for samples of same sequencing
-    mode; from [**genome_quantification_kallisto**](#genome_quantification_kallisto) 
-- **Output**
-  - Transcript TPM table (custom `.tsv`)
-  - Transcript read count table (custom `.tsv`)
-
-#### `pca_kallisto`
-
-Run PCA analysis on kallisto genes and transcripts with [custom script][custom-script-zpca].
-
-> Rule is run one time for transcript estimates and one time for genes estimates
-
-- **Input**
-  - Transcript/Genes TPM table (custom `.tsv`)
-- **Output**
-  - Directory with PCA plots, scree plot and top loading scores.
-
-#### `pca_salmon`
-
-Run PCA analysis on salmon genes and transcripts with [custom script][custom-script-zpca].
-
-> Rule is run one time for transcript estimates and one time for genes estimates
-
-- **Input**
-  - Transcript/Genes TPM table (custom `.tsv`)
-- **Output**
-  - Directory with PCA plots, scree plot and top loading scores.
-
-
-#### `generate_alfa_index`
-
-Create index for [**ALFA**](#third-party-software-used).
-
-- **Input**
-  - Gene annotation file (`.gtf`)
-  - Chromosome length table `chrNameLength.txt`; from
-    [**create_index_star**](#create_index_star)
-- **Output**
-  - ALFA index; stranded and unstranded; used in
-    [**alfa_qc**](#alfa_qc)
-
-#### `alfa_qc`
-
-Annotate alignments with [**ALFA**](#third-party-software-used).
-
-> For details on output plots, see [ALFA documentation][docs-alfa].   
-> Note: the read orientation of a sample will be inferred from salmon `libtype` specified in `samples.tsv`
-
-- **Input**
-  - Coverage files, renamed (`.bg`); from
-    [**rename_star_rpm_for_alfa**](#rename_star_rpm_for_alfa)
-  - ALFA index, stranded; from [**generate_alfa_index**](#generate_alfa_index)
-- **Parameters**
-
-- **Output**
-  - Figures for biotypes and feature categories (`.pdf`)
-  - Feature counts table (custom `.tsv`); used in
-    [**alfa_qc_all_samples**](#alfa_qc_all_samples)
-
-#### `prepare_multiqc_config`
-
-Prepare config file for [**MultiQC**](#third-party-software-used).
-
-> Local rule
-
-- **Input**
-  - Directories created during
-    [**prepare_files_for_report**](#prepare_files_for_report)
-- **Parameters**
-  All parameters for this rule have to be specified in main `config.yaml`
-  - `--intro-text`
-  - `--custom-logo`
-  - `--url`
-- **Output**
-  - Config file (`.yaml`); used in [**multiqc_report**](#multiqc_report)
 
 #### `multiqc_report`
 
@@ -531,84 +270,6 @@ Prepare interactive report from results and logs with
 - **Output**
   - Directory with automatically generated `.html` report
 
-#### `finish`
-
-Target rule as required by [Snakemake][docs-snakemake-target-rule].
-
-> Local rule
-
-- **Input**
-  - MultiQC report; from [**multiqc_report**](#multiqc_report)
-  - Coverage files, one per strand and sample (`.bw`); used in
-    [**prepare_bigWig**](#prepare_bigwig)
-
-
-
-### Sequencing mode-specific
-
-> Steps described here have two variants, one with the specified names for
-> samples prepared with a single-end sequencing protocol, one with `pe_`
-> prepended to the specified name for samples prepared with a paired-end
-> sequencing protocol.
-
-#### `remove_adapters_cutadapt`
-
-Remove adapter sequences from reads with
-[**Cutadapt**](#third-party-software-used).
-
-- **Input**
-  - Reads file (`.fastq.gz`); from [**start**](#start)
-- **Parameters**
-  - **samples.tsv**
-    - Adapters to be removed; specify in sample table columns `fq1_3p`, `fq1_5p`,
-    `fq2_3p`, `fq2_5p`
-  - **rule_config.yaml:**
-    - `-m 10`: Discard processed reads that are shorter than 10 nt. If
-    specified in `rule_config.yaml`, it will override ZARP's default value of
-    `m=1` for this parameter. Note that this is different from `cutadapt`'s
-    default behavior (`m=0`), which leads to empty reads being retained,
-    causing problems in downstream applications in ZARP. We thus strongly
-    recommend to **not** set the value of `m` to `0`! Refer to `cutadapt`'s
-    [documentation][docs-cutadapt-m] for more information on the `m`
-    parameter.
-    - `-n 2`: search for all the given adapter sequences repeatedly, either until
-    no adapter match was found or until 2 rounds have been performed. (default 1)
-
-- **Output**
-  - Reads file (`.fastq.gz`); used in
-    [**remove_polya_cutadapt**](#remove_polya_cutadapt)
-
-
-
-#### `remove_polya_cutadapt`
-
-Remove poly(A) tails from reads with
-[**Cutadapt**](#third-party-software-used).
-
-- **Input**
-  - Reads file (`.fastq.gz`); from
-    [**remove_adapters_cutadapt**](#remove_adapters_cutadapt)
-- **Parameters**
-  - **samples.tsv**
-    - Poly(A) stretches to be removed; specify in sample table columns `fq1_polya` and `fq2_polya`
-  - **rule_config.yaml**
-    - `-m 10`: Discard processed reads that are shorter than 10 nt. If
-    specified in `rule_config.yaml`, it will override ZARP's default value of
-    `m=1` for this parameter. Note that this is different from `cutadapt`'s
-    default behavior (`m=0`), which leads to empty reads being retained,
-    causing problems in downstream applications in ZARP. We thus strongly
-    recommend to **not** set the value of `m` to `0`! Refer to `cutadapt`'s
-    [documentation][docs-cutadapt-m] for more information on the `m`
-    parameter.
-    - `-O 1`: minimal overlap of 1 (default: 3)
-- **Output**
-  - Reads file (`.fastq.gz`); used in
-    [**genome_quantification_kallisto**](#genome_quantification_kallisto),
-    [**map_genome_star**](#map_genome_star) and
-    [**quantification_salmon**](#quantification_salmon)
-
-
-
 #### `map_genome_star`
 
 Align short reads to reference genome and/or transcriptome with
@@ -635,56 +296,6 @@ Align short reads to reference genome and/or transcriptome with
   - `--outSAMtype=BAM Unsorted`: type of SAM/BAM output (default SAM)
   - `--outSAMattrRGline`: ID:rnaseq_pipeline SM: *sampleID*
 
-#### `quantification_salmon`
-
-Estimate transcript- and gene-level expression with
-[**Salmon**](#third-party-software-used).
-
-- **Input**
-  - Reads file (`.fastq.gz`); from
-    [**remove_polya_cutadapt**](#remove_polya_cutadapt)
-  - Filtered annotation file (`.gtf`)
-  - Index; from [**create_index_salmon**](#create_index_salmon)
-- **Parameters**
-  - **samples.tsv**
-    - `libType`: see [Salmon manual][docs-salmon] for allowed values; specify in sample table column `libtype`
-    - `--fldMean`: mean of distribution of fragment lengths; specify in sample table column `mean` **(single-end only)**
-    - `--fldSD`: standard deviation of distribution of fragment lengths; specify in sample table column `sd` **(single-end only)**
-  - **rule_config.yaml**
-    - `--seqBias`: [correct for sequence specific
-    biases](https://salmon.readthedocs.io/en/latest/salmon.html#seqbias)
-    - `--validateMappings`: enables selective alignment of the sequencing reads when mapping them to the transcriptome; this can improve both the sensitivity and specificity of mapping and, as a result, can [improve quantification accuracy](https://salmon.readthedocs.io/en/latest/salmon.html#validatemappings).
-    - `--writeUnmappedNames`: write out the names of reads (or mates in paired-end reads) that do not map to the transcriptome. For paired-end this gives flags that indicate how a read failed to map **(paired-end only)**
-- **Output**
-  - Gene expression table (`quant.sf`); used in
-    [**salmon_quantmerge_genes**](#salmon_quantmerge_genes)
-  - Transcript expression table ( `quant.sf`); used in
-    [**salmon_quantmerge_transcripts**](#salmon_quantmerge_transcripts)
-  - `meta_info.json`
-  - `flenDist.txt`
-  
-
-#### `genome_quantification_kallisto`
-
-Generate pseudoalignments of reads to transcripts with
-[**kallisto**](#third-party-software-used).
-> Note: the kallisto strandedness parameter will be inferred from salmon `libtype` specified in `samples.tsv`
-
-- **Input**
-  - Reads file (`.fastq.gz`); from
-    [**remove_polya_cutadapt**](#remove_polya_cutadapt)
-  - Index; from [**create_index_kallisto**](#create_index_kallisto)
-- **Parameters**
-  - **samples.tsv**
-    - `-l`: mean of distribution of fragment lengths; specify in sample table column `mean` **(single-end only)**
-    - `-s`: standard deviation of distribution of fragment lengths; specify in sample table column `sd` **(single-end only)**
-- **Output**
-  - Pseudoalignments file (`.sam`) and
-  - abundance (`.h5`) 
-  used in [**kallisto_merge_genes**](#kallisto_merge_genes)
-- **Non-configurable & non-default**
-  - `--single`: Quantify single-end reads **(single-end only)**
-  - `--pseudobam`: Save pseudoalignments to transcriptome to BAM file
 
 [code-bedtools]: <https://github.com/arq5x/bedtools2>
 [code-cutadapt]: <https://github.com/marcelm/cutadapt>
@@ -697,6 +308,7 @@ Generate pseudoalignments of reads to transcripts with
 [code-segemehl]: <not known>
 [code-philosopher]: <https://github.com/Nesvilab/philosopher>
 [code-msfragger]: <https://github.com/Nesvilab/MSFragger>
+[code-fastx]: <not known>
 
 [docs-bedtools]: <https://bedtools.readthedocs.io/en/latest/>
 [docs-cutadapt]: <https://cutadapt.readthedocs.io/en/stable/>
@@ -710,6 +322,7 @@ Generate pseudoalignments of reads to transcripts with
 [docs-segemehl]: <http://www.bioinf.uni-leipzig.de/Software/segemehl/>
 [docs-philosopher]: <https://github.com/Nesvilab/philosopher/wiki>
 [docs-msfragger]: <https://github.com/Nesvilab/MSFragger/wiki>
+[docs-fastx]: <http://hannonlab.cshl.edu/fastx_toolkit/>
 
 [license-bsd2]: <https://opensource.org/licenses/BSD-2-Clause>
 [license-gpl2]: <https://opensource.org/licenses/GPL-2.0>
@@ -725,5 +338,6 @@ Generate pseudoalignments of reads to transcripts with
 [pub-segemehl]: <https://doi.org/10.1371/journal.pcbi.1000502>
 [pub-philosopher]: <https://doi.org/10.1038/s41592-020-0912-y>
 [pub-msfragger]: <https://doi.org/10.1038/nmeth.4256>
+[pub-fastx]: <not known>
 
 [rule-graph]: images/flowchart.png
