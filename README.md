@@ -19,15 +19,13 @@ Additional reports summarise the results of the individual steps and provide use
     <img width="80%" src=images/flowchart.png>
 </div> 
 
-
 > **Note:** For a more detailed description of each step, please refer to the [workflow
 > documentation](pipeline_documentation.md).
-
 
 # Requirements
 
 The workflow has been tested on:
-- CentOS 7
+- CentOS 7 & 7.9
 - macOS 12.3.1
 
 > **NOTE:**
