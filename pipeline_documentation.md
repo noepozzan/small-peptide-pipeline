@@ -158,6 +158,7 @@ peptideprophet_args | Required for [Philosopher](#third_party_software_used), co
 --ppm | Required for [Philosopher](#third_party_software_used), _use ppm mass error instead of Daltons for mass modeling_ | from `PEPTIDEPROPHET` process in `subworkflows/philosopher.nf` | `none`
 --accmass | Required for [Philosopher](#third_party_software_used), _use accurate mass model binning_ | from `PEPTIDEPROPHET` process in `subworkflows/philosopher.nf` | `none`
 --expectscore | Required for [Philosopher](#third_party_software_used), _use expectation value as the only contributor to the f-value for modeling_ | from `PEPTIDEPROPHET` process in `subworkflows/philosopher.nf` | `none`
+--decoyprobs | Required for [Philosopher](#third_party_software_used), _compute possible non-zero probabilities for decoy entries on the last iteration_ | from `PEPTIDEPROPHET` process in `subworkflows/philosopher.nf` | `none`
 --nonparam | Required for [Philosopher](#third_party_software_used), _use semi-parametric modeling, must be used in conjunction with --decoy option_ | from `PEPTIDEPROPHET` process in `subworkflows/philosopher.nf` | `none`
 philosopher_filter_args | Required for [Philosopher](#third_party_software_used), contains parameters described right below (tool used: philosopher filter) | from `FILTER_FDR` process in `subworkflows/philosopher.nf` | `multiple`
 --psm | Required for [Philosopher](#third_party_software_used), _psm FDR level (default 0.01)_ | from `FILTER_FDR` process in `subworkflows/philosopher.nf` | `float`
@@ -188,8 +189,7 @@ This subworfklow is made up of 6 nextflow processes.
 As inputs, it takes a gtf file, a fasta genome file and folders containing both an indexed+sorted bam file and its index (from [**GENOME**](#genome)).
 As output, the workflow returns a fasta file with the predicted peptides found by ribosome sequencing.
   
-Higher level parameter: `riboseq_mode`
-If you have the right data and want to predict translation inititation sites (TIS), please select "TI" for the parameter `riboseq_mode`.
+If you have the right data and want to predict translation inititation sites (TIS), please select "TI" for the parameter `riboseq_mode`.  
 If you have regular ribosome sequencing data and want to predict open reading frames, please select "regular" for the parameter `riboseq_mode`.
 
 #### `FASTA_INDEX`
@@ -284,8 +284,17 @@ Validates the peptide assignment
   - (`.pepXML`) file containing hits; from [**MSFRAGGER**](#msfragger)
 - **Output**
   - `.xml` file containing validated peptides; used in [**PROTEINPROPHET**](#proteinprophet) and [**FILTER_FDR**](#filter_fdr)
+- **Non-configurable & non-default**
+  - `--combine`: _combine the results from PeptideProphet into a single result file_ 
+  - `--decoy`: _semi-supervised mode, protein name prefix to identify decoy entries_
+  - `--ppm`: _use ppm mass error instead of Daltons for mass modeling_
+  - `--accmass`: _use accurate mass model binning_
+  - `--expectscore`: _use expectation value as the only contributor to the f-value for modeling_
+  - `--decoyprobs`: _compute possible non-zero probabilities for decoy entries on the last iteration_
+  - `--nonparam`: _use semi-parametric modeling, must be used in conjunction with --decoy option_
+
 #### `PROTEINPROPHET`
-Performs protein inference (skipped, if you are interested in peptides)
+Performs protein inference (skipped for now in our case since we are only interested in peptides)
 - **Input**
   - `.xml` file containing validated peptides; from [**PEPTIDEPROPHET**](#peptideprophet)
 - **Output**
@@ -295,8 +304,16 @@ Filter the hits by specifying cutoff FDR value
 - **Input**
   - `.xml` file containing validated peptides; from [**PEPTIDEPROPHET**](#peptideprophet)
   - `.xml` file containing validated proteins; from [**PROTEINPROPHET**](#proteinprophet)
+- **Parameters**
+  - `--psm`: _psm FDR level (default 0.01)_
+  - `--ion`: _peptide ion FDR level (default 0.01)_
+  - `--pep`: _peptide FDR level (default 0.01)_
+  - `--prot`: _protein FDR level (default 0.01)_
 - **Output**
   - pseudo output (since results of process get written into hidden dir); used in [**FREEQUANT**](#freequant)
+- **Non-configurable & non-default**
+  - `--picked`: _apply the picked FDR algorithm before the protein scoring_
+  - `--tag`: _decoy tag (default "rev\_")_
 #### `FREEQUANT`
 Quantification using MS1 peak intensities
 - **Input**
