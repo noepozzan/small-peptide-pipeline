@@ -21,7 +21,6 @@ on installation and usage please see [here](README.md).
     - [`PREPARE`](#prepare)
     - [`GENOME`](#genome)
     - [`rRNA`](#rrna)
-    - [`TRANSCRIPTOME`](#transcriptome)
     - [`RIBOTISH`](#ribotish)
     - [`PHILOSOPHER`](#philosopher)
 
@@ -152,7 +151,7 @@ check_peridocitiy_codnum | Required for [python script](#third_party_software_us
 riboseq_mode | Required for [Ribo-TISH](#third_party_software_used), _choose `regular` if you have ordinary riboseq bam files, choose `TI` if you have TIS enriched riboseq bam files_ | from `RIBOTISH_QUALITY` and `RIBOTISH_PREDICT` in `subworkflows/ribotish.nf` | `str`
 ribotish_quality_th | Required for [Ribo-TISH](#third_party_software_used), _Threshold for quality (default: 0.5)_ | from `RIBOTISH_QUALITY` in `subworkflows/ribotish.nf` | `float`
 ribotish_predict_mode | Required for [Ribo-TISH](#third_party_software_used), _if `longest` chosen: Only report longest possible ORF results_ | from `RIBOTISH_PREDICT` in `subworkflows/ribotish.nf` | `str`
-workspace | Required for [Philosopher](#third_party_software_used), _parameter is used for copying files to the right place_ | from multiple processes in `subworkflows/ribotish.nf` | `str`
+workspace | Required for [Philosopher](#third_party_software_used), _path where you want [Philosopher](#third_party_software_used) to do its tasks_ | from multiple processes in `subworkflows/ribotish.nf` | `str`
 peptideprophet_args | Required for [Philosopher](#third_party_software_used), contains parameters described right below (tool used: philosopher peptideprophet) | from `PEPTIDEPROPHET` process in `subworkflows/philosopher.nf` | `multiple`
 --combine | Required for [Philosopher](#third_party_software_used), _combine the results from PeptideProphet into a single result file_ | from `PEPTIDEPROPHET` process in `subworkflows/philosopher.nf` | `none`
 --decoy | Required for [Philosopher](#third_party_software_used), _semi-supervised mode, protein name prefix to identify decoy entries_ | from `PEPTIDEPROPHET` process in `subworkflows/philosopher.nf` | `str`
@@ -188,6 +187,11 @@ This is the `test` workflow and it contains all of the subworkflows listed begin
 This subworfklow is made up of 6 nextflow processes.
 As inputs, it takes a gtf file, a fasta genome file and folders containing both an indexed+sorted bam file and its index (from [**GENOME**](#genome)).
 As output, the workflow returns a fasta file with the predicted peptides found by ribosome sequencing.
+  
+Higher level parameter: `riboseq_mode`
+If you have the right data and want to predict translation inititation sites (TIS), please select "TI" for the parameter `riboseq_mode`.
+If you have regular ribosome sequencing data and want to predict open reading frames, please select "regular" for the parameter `riboseq_mode`.
+
 #### `FASTA_INDEX`
 Create genome index using [**SAMtools**](#third-party-software-used).
 - **Input**
@@ -199,6 +203,8 @@ Create the ribosome offsets to determine the proper position of the ribosome on 
 - **Input**
   - Folders containing both an indexed+sorted bam file and its index; from [**GENOME**](#genome)
   - GTF file (`.gtf`)
+- **Parameters**
+  - `ribotish_quality_th`: _Threshold for quality (default: 0.5)_
 - **Output**
   - offsets; used in [**RIBOTISH_PREDICT**](#ribotish_predict)
 #### `RIBOTISH_PREDICT`
@@ -208,6 +214,8 @@ Go from bam files of aligned ribosome sequencing reads to new, short peptides.
   - offsets: from [**RIBOTISH_QUALITY**](#ribotish_quality)
   - GTF file (`.gtf`)
   - Genome sequence file (`.fa`)
+- **Parameters**
+  - `ribotish_predict_mode`: _if `longest` chosen: Only report longest possible ORF results_
 - **Output**
   - predicted peptides in nucleotide fasta format; used in [**SORF_TO_PEPTIDE**](#sorf_to_peptide)
 #### `GFFREAD`
@@ -241,6 +249,8 @@ As output, the workflow returns a csv file containing the proteomics-validated s
 Initializes a physical directory with a hidden folder which is needed for [**Philosopher**](#third-party-software-used) to work.
 - **Input**
   - predicted peptides; from [**COMBINE**](#combine), works as pseudo input to make pipeline run in the right order
+- **Parameters**
+  - `workspace`: _path where you want [Philosopher](#third_party_software_used) to do its tasks_
 - **Output**
   - pseudo output; to be used in [**DATABASE**](#database)
 #### `DATABASE`
@@ -257,6 +267,8 @@ Generate a parameter file necessary for [**MSFRAGGER**](#msfragger) and change s
   - python script to change params
 - **Output**
   - msfragger parameter file with changed params; used in [**MSFRAGGER**](#msfragger)
+- **Non-configurable & non-default**
+  - `calibrate_mass = 0`: _"[...] speed up the search even more."_
 #### `MSFRAGGER`
 Search fasta database against mzML spectra for peptides that appear in both ("hits").
 - **Input**
@@ -277,18 +289,33 @@ Performs protein inference (skipped, if you are interested in peptides)
 - **Input**
   - `.xml` file containing validated peptides; from [**PEPTIDEPROPHET**](#peptideprophet)
 - **Output**
+  - `.xml` file containing validated proteins; used in [**FILTER_FDR**](#filter_fdr)
 #### `FILTER_FDR`
+Filter the hits by specifying cutoff FDR value
 - **Input**
+  - `.xml` file containing validated peptides; from [**PEPTIDEPROPHET**](#peptideprophet)
+  - `.xml` file containing validated proteins; from [**PROTEINPROPHET**](#proteinprophet)
 - **Output**
+  - pseudo output (since results of process get written into hidden dir); used in [**FREEQUANT**](#freequant)
 #### `FREEQUANT`
+Quantification using MS1 peak intensities
 - **Input**
+  - pseudo input; from [**FILTER_FDR**](#filter_fdr)
 - **Output**
+  - pseudo output; used in [**REPORT**](#report)
 #### `REPORT`
+Inspect the results
 - **Input**
+  - pseudo input; from [**FREEQUANT**](#freequant)
 - **Output**
+  - result files of philosopher (*.tsv, msstats.csv, ..)
 #### `IONQUANT`
+Quantification of MS1-precursor intensity
 - **Input**
+  - pseudo input; from [**REPORT**](#report)
+  - `.xml` files containing hits; from [**MSFRAGGER**](#msfragger)
 - **Output**
+  - `.csv` files containing quantified hits
 
 #### `map_genome_star`
 
