@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 _version__ = "0.1"
-__author__ = "Michi Jackson"
+__author__ = "Noe Pozzan"
 __contact__ = "noe.pozzan@stud.unibas.ch"
 __doc__ = "Parse a parameter file and change some parameters."
 

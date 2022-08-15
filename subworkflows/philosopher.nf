@@ -157,7 +157,6 @@ process PEPTIDEPROPHET {
 	cd ${params.workspace}
 	philosopher peptideprophet \
 		${params.peptideprophet_args} \
-		--combine \
 		--database ${db} \
 		*.pepXML \
 		&> peptideprophet.log
@@ -403,7 +402,7 @@ workflow PHILOSOPHER {
 	// set output channels from this workflow
 	// set output variables from this workflow
 	report = REPORT.out.msstats
-    msfragger_params = GENERATE_CHANGE_PARAMS.out.params
+    //msfragger_params = GENERATE_CHANGE_PARAMS.out.params
     ionquant = IONQUANT.out.quant_csv
 
 }

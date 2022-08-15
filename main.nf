@@ -4,7 +4,7 @@ include { PHILOSOPHER } from './subworkflows/philosopher.nf'
 include { PHILOSOPHER_PARALLEL } from './subworkflows/philosopher_parallel.nf'
 include { ANNOTATE } from './subworkflows/annotate.nf'
 include { RIBOTISH } from './subworkflows/ribotish.nf'
-include { READS } from './subworkflows/prepare_reads.nf'
+include { PREPARE } from './subworkflows/prepare_reads.nf'
 include { GENOME } from './subworkflows/map_genome.nf'
 include { rRNA } from './subworkflows/map_rrna.nf'
 include { TRANSCRIPTOME } from './subworkflows/map_transcriptome.nf'
@@ -28,7 +28,6 @@ if ( params.run_mode == "proteomics" ) {
     proteomics_reads_ch = channel.fromPath(params.proteomics_reads, checkIfExists: true)
 }
 if ( params.run_mode == "ribotish" ) {
-    bam_sort_index_folder_ch = channel.fromPath(params.bam_sort_index_folder, checkIfExists: true)
     gtf_ch = channel.fromPath(params.gtf, checkIfExists: true)
     genome_ch = channel.fromPath(params.genome, checkIfExists: true)
     bam_sort_index_folder_ch = channel.fromPath(params.bam_sort_index_folder, checkIfExists: true)
@@ -63,7 +62,7 @@ workflow {
     }
 
     if ( params.run_mode == "full" || params.run_mode == "test" || params.run_mode == "prepare" || params.run_mode == "qc" || params.run_mode == "map to genome") {
-        READS(
+        PREPARE(
             riboseq_reads_ch
         )
     }
@@ -72,7 +71,7 @@ workflow {
         rRNA(
             genome_ch,
             other_RNAs_sequence_ch,
-            READS.out
+            PREPARE.out
         )
     }
 
