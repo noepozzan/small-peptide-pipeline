@@ -186,127 +186,109 @@ This is the `test` workflow and it contains all of the subworkflows listed begin
 ### `TRANSCRIPTOME`
 ### `RIBOTISH`
 This subworfklow is made up of 6 nextflow processes.
-As inputs, it takes a gtf file, a fasta genome file and folders containing both an indexed+sorted bam file and its index.
+As inputs, it takes a gtf file, a fasta genome file and folders containing both an indexed+sorted bam file and its index (from [**GENOME**](#genome)).
 As output, the workflow returns a fasta file with the predicted peptides found by ribosome sequencing.
 #### `FASTA_INDEX`
 Create genome index using [**SAMtools**](#third-party-software-used).
 - **Input**
-  - Genome sequence file (`.fasta`)
+  - Genome sequence file (`.fa`)
 - **Output**
   - Genome index file (`.fai`); used in [**GFFREAD**](#gffread)
 #### `RIBOTISH_QUALITY`
+Create the ribosome offsets to determine the proper position of the ribosome on the reads. Uses [**Ribo-TISH**](#third-party-software-used)
+- **Input**
+  - Folders containing both an indexed+sorted bam file and its index; from [**GENOME**](#genome)
+  - GTF file (`.gtf`)
+- **Output**
+  - offsets; used in [**RIBOTISH_PREDICT**](#ribotish_predict)
 #### `RIBOTISH_PREDICT`
+Go from bam files of aligned ribosome sequencing reads to new, short peptides.
+- **Input**
+  - Folders containing both an indexed+sorted bam file and its index; from [**GENOME**](#genome)
+  - offsets: from [**RIBOTISH_QUALITY**](#ribotish_quality)
+  - GTF file (`.gtf`)
+  - Genome sequence file (`.fa`)
+- **Output**
+  - predicted peptides in nucleotide fasta format; used in [**SORF_TO_PEPTIDE**](#sorf_to_peptide)
 #### `GFFREAD`
+Extract the transcriptome using [**GFFREAD**](#third-party-software-used)
+- **Input**
+  - Genome sequence file (`.fa`)
+  - Genome index file (`.fai`); from [**FASTA_INDEX**](#fasta_index)
+  - GTF file (`.gtf`)
+- **Output**
+  - Extracted transcripts in tabular format; used in [**SORF_TO_PEPTIDE**](#sorf_to_peptide)
 #### `SORF_TO_PEPTIDE`
+Translates the short open reading frames into peptide sequences.
+- **Input**
+  - predicted peptides in nucleotide fasta format; from [**RIBOTISH_PREDICT**](#ribotish_predict)
+  - Extracted transcripts in fasta format; from [**GFFREAD**](#gffread)
+  - script for sorf to peptide translation
+- **Output**
+  - predicted peptides in fasta aa format; used in [**COMBINE**](#combine)
 #### `COMBINE`
+Collect different files of predicted peptides into 1, using simple bash
+- **Input**
+  - predicted peptides in fasta aa format; from [**SORF_TO_PEPTIDE**](#sorf_to_peptide)
+- **Output**
+  - combined predicted peptides in aa format: used in [**PHILOSOPHER**](#philosopher)
 
 ### `PHILOSOPHER`
-
-#### `extract_transcriptome`
-
-Create transcriptome from genome and gene annotations with
-[**SAMtools**](#third-party-software-used).
-
+This subworfklow is made up of 10 nextflow processes.
+As inputs, it takes the predicted peptides in aa format (from [**COMBINE**](#combine)) and mzML proteomics spectra files.
+As output, the workflow returns a csv file containing the proteomics-validated small peptides initially found by ribosome sequencing.
+#### `WORKSPACE`
+Initializes a physical directory with a hidden folder which is needed for [**Philosopher**](#third-party-software-used) to work.
 - **Input**
-  - Genome sequence file (`.fasta`)
-  - Gene annotation file (`.gtf`)
+  - predicted peptides; from [**COMBINE**](#combine), works as pseudo input to make pipeline run in the right order
 - **Output**
-  - Transcriptome sequence file (`.fasta`); used in
-    [**concatenate_transcriptome_and_genome**](#concatenate_transcriptome_and_genome)
-    and [**create_index_kallisto**](#create_index_kallisto)
-
-
-#### `create_index_salmon`
-
-Create index for [**Salmon**](#third-party-software-used) quantification.
-
-> Required if Salmon is to be used in "mapping-based" mode.
->create_index_salmon
-> Index is built using an auxiliary k-mer hash over k-mers of a specified
-> length (default: 31). While the mapping algorithms will make use of
-> arbitrarily long matches between the query and reference, the selected k-mer
-> size will act as the minimum acceptable length for a valid match. Thus, a
-> smaller value of k may slightly improve sensitivty. Empirically, the default
-> value of k = 31 seems to work well for reads of 75 bp or longer. For shorter
-> reads, consider using a smaller k.
-
+  - pseudo output; to be used in [**DATABASE**](#database)
+#### `DATABASE`
+Add decoys and contaminants to predicted peptides fasta file and format it for philosopher
 - **Input**
-  - Transcriptome genome reference file (`.fasta`); from
-    [**concatenate_transcriptome_and_genome**](#concatenate_transcriptome_and_genome)
-  - Chromosome name list `chrName.txt`; from
-    [**create_index_star**](#create_index_star)
-- **Parameters**
-  - **samples.tsv**
-    - `--kmerLen`: k-mer length; specify in sample table column `kmer`
+  - Pseudo input from [**WORKSPACE**](#workspace)
+  - predicted peptides; from [**COMBINE**](#combine)
 - **Output**
-  - Salmon index; used in [**quantification_salmon**](#quantification_salmon)
-
-
-#### `index_genomic_alignment_samtools`
-
-Index BAM file with [**SAMtools**](#third-party-software-used).
-
-> Indexing a genome sorted BAM file allows one to quickly extract alignments
-> overlapping particular genomic regions. Moreover, indexing is required by
-> genome viewers such as IGV so that the viewers can quickly display alignments
-> in a genomic region of interest.
-
+  - philosopher database fasta file (`.fas`); used in [**GENERATE_CHANGE_PARAMS**](#generate_change_params), [**MSFRAGGER**](#msfragger) and [**PEPTIDEPROPHET**](#peptideprophet)
+#### `GENERATE_CHANGE_PARAMS`
+Generate a parameter file necessary for [**MSFRAGGER**](#msfragger) and change some parameters using a python script
 - **Input**
-  - Alignemnts file (`.bam`); from [**sort_genomic_alignment_samtools**](#sort_genomic_alignment_samtools)
+  - database fasta file; from [**DATABASE**](#database)
+  - python script to change params
 - **Output**
-  - BAM index file (`.bam.bai`); used in [**star_rpm**](#star_rpm) &
-    [**calculate_TIN_scores**](#calculate_tin_scores)
-
-#### `star_rpm`
-
-Create stranded bedGraph coverage (`.bg`) with
-[**STAR**](#third-party-software-used).
-
-> Uses STAR's [RPM normalization][docs-star-rpm-norm] functionality.
->
-> STAR RPM uses SAM flags to correctly tell where the read and its mate mapped
-> to. That is, if mate 1 is mapped to the plus strand, then mate 2 is mapped to
-> the minus strand, and STAR will count mate 1 and mate 2 to the plus strand.
-> This is in contrast to `bedtools genomecov -bg -split`, where a mate is
-> assigned to a strand irrespective of its corresponding mate.
-
+  - msfragger parameter file with changed params; used in [**MSFRAGGER**](#msfragger)
+#### `MSFRAGGER`
+Search fasta database against mzML spectra for peptides that appear in both ("hits").
 - **Input**
-  - Alignments file (`.bam`); from [**sort_genomic_alignment_samtools**](#sort_genomic_alignment_samtools)
-  - BAM index file (`.bam.bai`); from
-    [**index_genomic_alignment_samtools**](#index_genomic_alignment_samtools)
+  - database fasta file; from [**DATABASE**](#database)
+  - msfragger parameter file; from  [**GENERATE_CHANGE_PARAMS**](#generate_change_params)
+  - mzML proteomics spectra files
 - **Output**
-  - Coverage file (`.bg`); used in [**multiqc_report**](#multiqc_report) and
-    [**rename_star_rpm_for_alfa**](#rename_star_rpm_for_alfa)
-
-
-#### `multiqc_report`
-
-Prepare interactive report from results and logs with
-[**MultiQC**](#third-party-software-used).
-
+  - (`.pepXML`) file containing hits; used in [**PEPTIDEPROPHET**](#peptideprophet) and [**IONQUANT**](#ionquant)
+#### `PEPTIDEPROPHET`
+Validates the peptide assignment
 - **Input**
-  - Config file (`.yaml`); from
-    [**prepare_multiqc_config**](#prepare_multiqc_config)
-  - ALFA plot, combined (`.png`); from
-    [**alfa_concat_results**](#alfa_concat_results)
-  - Coverage file (`.bg`); from [**star_rpm**](#star_rpm)
-  - FastQC output directory with report (`.txt`) and figures (`.png`); from
-    [**fastqc**](#fastqc)
-  - Gene TPM table (custom `.tsv`); from
-    [**salmon_quantmerge_genes**](#salmon_quantmerge_genes)
-  - Gene read count table (custom `.tsv`); from
-    [**salmon_quantmerge_genes**](#salmon_quantmerge_genes)
-  - Pseudoalignments file (`.sam`); from
-    [**genome_quantification_kallisto**](#genome_quantification_kallisto)
-  - TIN score box plots (`.pdf` and `.png`); from
-    [**plot_TIN_scores**](#plot_tin_scores)
-  - Transcript TPM table (custom `.tsv`); from
-    [**salmon_quantmerge_transcripts**](#salmon_quantmerge_transcripts)
-  - Transcript read count table (custom `.tsv`); from
-    [**salmon_quantmerge_transcripts**](#salmon_quantmerge_transcripts)
-
+  - database fasta file; from [**DATABASE**](#database)
+  - (`.pepXML`) file containing hits; from [**MSFRAGGER**](#msfragger)
 - **Output**
-  - Directory with automatically generated `.html` report
+  - `.xml` file containing validated peptides; used in [**PROTEINPROPHET**](#proteinprophet) and [**FILTER_FDR**](#filter_fdr)
+#### `PROTEINPROPHET`
+Performs protein inference (skipped, if you are interested in peptides)
+- **Input**
+  - `.xml` file containing validated peptides; from [**PEPTIDEPROPHET**](#peptideprophet)
+- **Output**
+#### `FILTER_FDR`
+- **Input**
+- **Output**
+#### `FREEQUANT`
+- **Input**
+- **Output**
+#### `REPORT`
+- **Input**
+- **Output**
+#### `IONQUANT`
+- **Input**
+- **Output**
 
 #### `map_genome_star`
 
@@ -333,7 +315,14 @@ Align short reads to reference genome and/or transcriptome with
   - `--outStd=BAM_Unsorted`: which output will be directed to `STDOUT` (default 'Log')
   - `--outSAMtype=BAM Unsorted`: type of SAM/BAM output (default SAM)
   - `--outSAMattrRGline`: ID:rnaseq_pipeline SM: *sampleID*
+  
+## FAQ
 
+If you get an error message that looks like gibberish to you, have a look at the frequently asked questions below:
+  
+#### gzip: unexpected end of file
+If your workflow run fails with the the error message containing this bit, please just restart your workflow run.
+Nextflow seems to sometimes just be over-hasty and begin a process before having properly received the whole file to work on.
 
 [code-bedtools]: <https://github.com/arq5x/bedtools2>
 [code-cutadapt]: <https://github.com/marcelm/cutadapt>
