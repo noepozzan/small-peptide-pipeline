@@ -9,17 +9,21 @@ on installation and usage please see [here](README.md).
 - [Third-party software used](#third-party-software-used)
 - [Description of workflow steps](#description-of-workflow-steps)
   - [Rule graph](#rule-graph)
-  - [Preparatory](#preparatory)
-    - [Understanding the config files](#understanding-the-config-files)
+  - [Understanding the config files](#understanding-the-config-files)
+  - [Parameters](#parameters)
+    - [Input Files](#input-files)
+    - [Parameter table](#parameter-table)
   - [Subworklows](#subworklows)
-    - [`annotate`](#annotate)
-    - [`qc`](#qc)
-    - [`prepare`](#prepare)
-    - [`map_genome`](#map_genome)
-    - [`map_rrna`](#map_rrna)
-    - [`map_transcriptome`](#map_transcriptome)
-    - [`ribotish`](#ribotish)
-    - [`philosopher`](#philosopher)
+    - [`FULL`](#full)
+    - [`TEST`](#test)
+    - [`ANNOTATE`](#annotate)
+    - [`QC`](#qc)
+    - [`PREPARE`](#prepare)
+    - [`GENOME`](#genome)
+    - [`rRNA`](#rrna)
+    - [`TRANSCRIPTOME`](#transcriptome)
+    - [`RIBOTISH`](#ribotish)
+    - [`PHILOSOPHER`](#philosopher)
 
 ## Third-party software used
 
@@ -58,9 +62,7 @@ on installation and usage please see [here](README.md).
 
 Visual representation of workflow. Automatically prepared with [Nextflow][docs-nextflow].
 
-### Preparatory
-
-#### Understanding the `.config` files
+## Understanding the `.config` files
 
 Since this workflow can be run in different configurations, the requirements differ.
 
@@ -86,13 +88,15 @@ https://github.com/noepozzan/small-peptide-pipeline/blob/4af1760caecbbdf82f11680
 
 https://github.com/noepozzan/small-peptide-pipeline/blob/4af1760caecbbdf82f1168000edad05b5a7b1003/conf/envs/docker.config#L1-L108
 
-### Parameters
+## Parameters
 
 Parameters are found in the `conf` and the `nextflow.config`.
 As explained earlier, each `profile` file contains the parameters necessary to run the workflow.
 The `nextflow.config` contains very few parameters that should probably not be changed.
 
 The table below will hopefully give you some deeper understanding of all parameters used:
+
+### Input Files
 
 Parameter name | Description | Data type(s)
 --- | --- | ---
@@ -110,6 +114,8 @@ If you want to know more about the tools (and the specific version you are runni
 singularity shell ~/.singularity/cache/library/<tool you are running>
 <tool you are running> -h
 ```
+
+### Parameter table
 
 Parameter name | Description | Process | Data type(s)
 --- | --- | --- | ---
@@ -161,13 +167,45 @@ philosopher_filter_args | Required for [Philosopher](#third_party_software_used)
 --prot | Required for [Philosopher](#third_party_software_used), _protein FDR level (default 0.01)_ | from `FILTER_FDR` process in `subworkflows/philosopher.nf` | `float`
 --picked | Required for [Philosopher](#third_party_software_used), _apply the picked FDR algorithm before the protein scoring_ | from `FILTER_FDR` process in `subworkflows/philosopher.nf` | `none`
 --tag | Required for [Philosopher](#third_party_software_used), _decoy tag (default "rev_")_ | from `FILTER_FDR` process in `subworkflows/philosopher.nf` | `str`
+  
+## Subworkflows
 
+Subworkflows are parts of the larger, complete workflow that do one of the tasks of the larger worfklow.
+They may be considered as being a self-contained unit of the larger workflow and may thus be used independently of it.
+  
 ### `full`
+This is the `full` workflow and it contains all of the subworkflows listed beginning from [`PREPARE`](#prepare) in the specified order.
+### `test`
+This is the `test` workflow and it contains all of the subworkflows listed beginning from [`PREPARE`](#prepare) in the specified order, but **NOT** including the `RIBOTISH`(#ribotish) subworkflow, since this tool cannot be tested with small data.
+
+
+### `PREPARE`
+### `rRNA`
+### `GENOME`
+### `QC`
+### `TRANSCRIPTOME`
+### `RIBOTISH`
+This subworfklow is made up of 6 nextflow processes.
+As inputs, it takes a gtf file, a fasta genome file and folders containing both an indexed+sorted bam file and its index.
+As output, the workflow returns a fasta file with the predicted peptides found by ribosome sequencing.
+#### `FASTA_INDEX`
+Create genome index using [**SAMtools**](#third-party-software-used).
+- **Input**
+  - Genome sequence file (`.fasta`)
+- **Output**
+  - Genome index file (`.fai`); used in [**GFFREAD**](#gffread)
+#### `RIBOTISH_QUALITY`
+#### `RIBOTISH_PREDICT`
+#### `GFFREAD`
+#### `SORF_TO_PEPTIDE`
+#### `COMBINE`
+
+### `PHILOSOPHER`
 
 #### `extract_transcriptome`
 
 Create transcriptome from genome and gene annotations with
-[**gffread**](#third-party-software-used).
+[**SAMtools**](#third-party-software-used).
 
 - **Input**
   - Genome sequence file (`.fasta`)
