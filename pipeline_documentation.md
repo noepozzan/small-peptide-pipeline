@@ -13,14 +13,17 @@ on installation and usage please see [here](README.md).
   - [Parameters](#parameters)
     - [Input Files](#input-files)
     - [Parameter table](#parameter-table)
-  - [Subworklows](#subworklows)
-    - [`FULL`](#full)
-    - [`TEST`](#test)
-    - [`PREPARE`](#prepare)
-    - [`GENOME`](#genome)
-    - [`QC`](#qc)
-    - [`RIBOTISH`](#ribotish)
-    - [`PROTEOMICS`](#PROTEOMICS)
+  - [Profiles](#profiles)
+    - [`full`](#full)
+    - [`test`](#test)
+    - [`proteomics`](#proteomics)
+    - [`prepare`](#prepare)
+    - [`genome_map`](#genome)
+    - [`qc`](#qc)
+    - [`ribotish`](#ribotish)
+  - [Subworkflows](#subworkflows)
+    - [`PREPARE`](#PREPARE)
+- [FAQ](#faq)
 
 ## Third-party software used
 
@@ -143,7 +146,7 @@ fastq_to_fasta_args | Required for [FASTX](#third_party_software_used), contains
 segemehl_args | Required for [segemehl](#third_party_software_used), contains parameters described right below (tool used: segemehl.x) | from `MAP_TRANSCRIPTOME_SEGEMEHL` process in `subworkflows/map_transcriptome.nf` and `MAP_rRNA_SEGEMEHL` in `subworkflows/map_rrna.nf` | `multiple`
 --silent | Required for [segemehl](#third_party_software_used), _shut up!_ | from `MAP_TRANSCRIPTOME_SEGEMEHL` process in `subworkflows/map_transcriptome.nf` and `MAP_rRNA_SEGEMEHL` in `subworkflows/map_rrna.nf` | `none`
 --accuracy | Required for [segemehl](#third_party_software_used), _min percentage of matches per read in semi-global alignment (default:90)_ | from `MAP_TRANSCRIPTOME_SEGEMEHL` process in `subworkflows/map_transcriptome.nf` and `MAP_rRNA_SEGEMEHL` in `subworkflows/map_rrna.nf` | `int`
---threads | Required for [segemehl](#third_party_software_used), _ start <n> threads (default:1)_ | from `MAP_TRANSCRIPTOME_SEGEMEHL` process in `subworkflows/map_transcriptome.nf` and `MAP_rRNA_SEGEMEHL` in `subworkflows/map_rrna.nf` | `int`
+--threads | Required for [segemehl](#third_party_software_used), _start <n> threads (default:1)_ | from `MAP_TRANSCRIPTOME_SEGEMEHL` process in `subworkflows/map_transcriptome.nf` and `MAP_rRNA_SEGEMEHL` in `subworkflows/map_rrna.nf` | `int`
 star_map_threads | Required for [STAR](#third_party_software_used), _int: number of threads to run STAR_ | from `MAP_GENOME_STAR` process in `subworkflows/map_genome.nf` | `int`
 check_peridocitiy_codnum | Required for [python script](#third_party_software_used), _Input codon coverage_ | from `CHECK_PERIODICITY` process in `subworkflows/qc.nf` | `int`
 riboseq_mode | Required for [Ribo-TISH](#third_party_software_used), _choose `regular` if you have ordinary riboseq bam files, choose `TI` if you have TIS enriched riboseq bam files_ | from `RIBOTISH_QUALITY` and `RIBOTISH_PREDICT` in `subworkflows/ribotish.nf` | `str`
@@ -166,11 +169,9 @@ philosopher_filter_args | Required for [Philosopher](#third_party_software_used)
 --picked | Required for [Philosopher](#third_party_software_used), _apply the picked FDR algorithm before the protein scoring_ | from `FILTER_FDR` process in `subworkflows/philosopher.nf` | `none`
 --tag | Required for [Philosopher](#third_party_software_used), _decoy tag (default "rev_")_ | from `FILTER_FDR` process in `subworkflows/philosopher.nf` | `str`
   
-## Profiles and subworkflows
+## Profiles
 
-Subworkflows are parts of the larger, complete workflow that do one of the tasks of the larger worfklow.
-They may be considered as being a self-contained unit of the larger workflow and may thus be used independently of it.
-Different combinations of subworkflows make up the profiles.
+Different combinations of subworkflows make up the profiles. Profiles are the units of the pipeline that are reasonable to run by themselves since they do some bioinformatic process of interest, such as preparing reads or performing quality control.
   
 ### `full`
 This profile contains all of the subworkflows in the order they are listed, beginning from [`PREPARE`](#prepare).
@@ -193,8 +194,12 @@ This profile contains the [`PREPARE`](#prepare), [`rRNA`](#rrna) and [`GENOME`](
 ### `qc`
 This profile contains the [`PREPARE`](#prepare), [`rRNA`](#rrna), [`ANNOTATE`](#annotate), [`TRANSCRIPTOME`](#transcriptome) and [`QC`](#qc) subworkflows.
 
-### `PREPARE`
+## Subworkflows
 
+Subworkflows are parts of the larger, complete workflow that do one of the tasks of the larger worfklow.
+They may be considered as being a self-contained unit of the larger workflow and may thus be used independently of it.
+  
+### `PREPARE`
 This subworkflow is made up of 5 [Nextflow](#third-party-software-used) processes.
 It takes the `.fastq.gz` files you've gotten back from your ribosome sequencing experiments as input and returns trimmed, clipped and filtered `.fasta` files.
   
@@ -261,10 +266,100 @@ _"Convert FASTQ files to FASTA files."_
   - trimmed and filtered riboseq fasta files without adapters; used in [**rRNA**](#rrna), 
   
 ### `rRNA`
+This subworkflow is made up of 2 [Nextflow](#third-party-software-used) processes.
+It takes the trimmed and filtered riboseq fasta file from [**PREPARE**](#prepare) as input and returns mapped and unmapped reads against a reference of rRNA.
+
+#### `SEGEMEHL_INDEX_rRNA`
+Index rRNA reference fasta file
+- **Input**
+  - rRNA reference fasta file
+- **Output**
+  - rRNA reference index; used in [**MAP_rRNA_SEGEMEHL**](#map_rrna_segemehl)
+
+#### `MAP_rRNA_SEGEMEHL`
+Map prepared riboseq reads to rRNA reference
+- **Input**
+  - prepared fasta reads; from [**PREPARE**](#prepare)
+  - rRNA reference index; from [**SEGEMEHL_INDEX_rRNA**](#segemehl_index_rrna)
+  - rRNA reference fasta file
+- **Parameters**
+  - `--silent`: _shut up!_
+  - `--accuracy`: _min percentage of matches per read in semi-global alignment (default:90)_
+  - `--threads`: _start <n> threads (default:1)_
+- **Output**
+  - Reads mapped to rRNA reference
+  - Reads unmapped to rRNA reference; used in [**GENOME**](#genome), [`TRANSCRIPTOME`](#transcriptome) and [`QC`](#qc)
 
 ### `GENOME`
+This subworkflow is made up of 3 [Nextflow](#third-party-software-used) processes.
+It takes the unmapped reads from [**rRNA**](#rna), the reference genome and a genome annotation file as inputs and returns mapped and unmapped reads against the genome.
+  
+#### `STAR_INDEX_GENOME`
+Index genome
+- **Input**
+  - reference genome
+- **Parameters**
+  - `star_map_threads`: _int: number of threads to run STAR_
+- **Output**
+  - genome index; used in [**MAP_GENOME_STAR**](#map_genome_star)
+
+#### `MAP_GENOME_STAR`
+Map the reads that didn't map to any rRNA to the genome
+- **Input**
+  - Reads unmapped to rRNA reference; from [**rRNA**](#rrna)
+  - genome index; from [**STAR_INDEX_GENOME**](#star_index_genome)
+  - genome annotation (`.gtf`)
+- **Parameters**
+  - `star_map_threads`: _int: number of threads to run STAR_
+- **Output**
+  - Reads mapped to genome; used in [**SAM_TO_BAM_SORT_AND_INDEX_STAR**](#sam_to_bam_sort_and_index_star)
+- **Non-configurable & non-default**
+  - `--outSAMattributes All`
+  - `--quantMode GeneCounts`
+  - `--outReadsUnmapped Fastx`
+
+#### `SAM_TO_BAM_SORT_AND_INDEX_STAR`
+Compress sam files to bam, then sort and index them and pack these sorted bam+index into folders for easier downstream handling
+- **Input**
+  - Reads mapped to genome; from [**MAP_GENOME_STAR**](#map_genome_star)
+- **Output**
+  - sorted bam and its index in folder; used in [**RIBOTISH**](#ribotish)
 
 ### `ANNOTATE`
+This subworkflow is made up of 4 [Nextflow](#third-party-software-used) processes.
+It takes the rRNA reference, the reference genome and a genome annotation file as inputs and returns a fasta file containing the longest transcripts and a tsv file containing "transcript id, gene id, CDS"(MERIC?)
+  
+#### `SELECT_LONGEST_CODING_TRANSCRIPT`
+Python script that selects longest coding transcript per gene
+- **Input**
+  - genome annotation file (`.gtf`)
+  - python script
+- **Output**
+  - gtf file containing only the longest coding transcript for each gene; used in [**EXTRACT_TRANSCRIPT_SEQUENCES**](#extract_transcript_sequences) and [**CREATE_TAB_DELIMITED_CDS_FILE**](#create_tab_delimited_cds_file)
+
+#### `EXTRACT_TRANSCRIPT_SEQUENCES`
+Extracts the longest transcripts for each gene into a fasta file
+- **Input**
+  - gtf file containing only the longest coding transcript for each gene; from [**SELECT_LONGEST_CODING_TRANSCRIPT**](#select_longest_coding_transcript)
+  - reference genome
+- **Output**
+  - fasta file containing longest coding transcript for each gene; used in [**TRANSCRIPTOME**](#transcriptome) and [**CREATE_TAB_DELIMITED_CDS_FILE**](#create_tab_delimited_cds_file)
+  
+#### `CREATE_TAB_DELIMITED_CDS_FILE`
+Generate transcript id, gene id, CDS table
+- **Input**
+  - gtf file containing only the longest coding transcript for each gene; from [**SELECT_LONGEST_CODING_TRANSCRIPT**](#select_longest_coding_transcript)
+  - fasta file containing longest coding transcript for each gene; from [**EXTRACT_TRANSCRIPT_SEQUENCES**](#extract_transcript_sequences)
+  - python script
+- **Output**
+  - tsv file containing transcript id, gene id, CDS; used in [**CREATE_BED_CDS_FILE**](#create_bed_cds_file) and [**QC**](#qc)
+
+#### `CREATE_BED_CDS_FILE`
+Reorder above tsv file to be in `.bed` format
+- **Input**
+  - tsv file containing transcript id, gene id, CDS; from [**CREATE_TAB_DELIMITED_CDS_FILE**](#create_tab_delimited_cds_file)
+- **Output**
+  - bed file containing transcript id, CDS, gene id
   
 ### `TRANSCRIPTOME`
   
