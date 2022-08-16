@@ -16,13 +16,11 @@ on installation and usage please see [here](README.md).
   - [Subworklows](#subworklows)
     - [`FULL`](#full)
     - [`TEST`](#test)
-    - [`ANNOTATE`](#annotate)
-    - [`QC`](#qc)
     - [`PREPARE`](#prepare)
     - [`GENOME`](#genome)
-    - [`rRNA`](#rrna)
+    - [`QC`](#qc)
     - [`RIBOTISH`](#ribotish)
-    - [`PHILOSOPHER`](#philosopher)
+    - [`PROTEOMICS`](#PROTEOMICS)
 
 ## Third-party software used
 
@@ -168,23 +166,112 @@ philosopher_filter_args | Required for [Philosopher](#third_party_software_used)
 --picked | Required for [Philosopher](#third_party_software_used), _apply the picked FDR algorithm before the protein scoring_ | from `FILTER_FDR` process in `subworkflows/philosopher.nf` | `none`
 --tag | Required for [Philosopher](#third_party_software_used), _decoy tag (default "rev_")_ | from `FILTER_FDR` process in `subworkflows/philosopher.nf` | `str`
   
-## Subworkflows
+## Profiles and subworkflows
 
 Subworkflows are parts of the larger, complete workflow that do one of the tasks of the larger worfklow.
 They may be considered as being a self-contained unit of the larger workflow and may thus be used independently of it.
+Different combinations of subworkflows make up the profiles.
   
 ### `full`
-This is the `full` workflow and it contains all of the subworkflows listed beginning from [`PREPARE`](#prepare) in the specified order.
-### `test`
-This is the `test` workflow and it contains all of the subworkflows listed beginning from [`PREPARE`](#prepare) in the specified order, but **NOT** including the `RIBOTISH`(#ribotish) subworkflow, since this tool cannot be tested with small data.
+This profile contains all of the subworkflows in the order they are listed, beginning from [`PREPARE`](#prepare).
 
+### `test`
+This profile contains all of the subworkflows in the order they are listed, beginning from [`PREPARE`](#prepare), but **WITHOUT** the [**RIBOTISH**](#ribotish) subworkflow, since this tool cannot be tested with small data.
+
+### `proteomics`
+This profile only contains the [`PHILOSOPHER`](#philosopher) subworkflow.
+
+### `prepare`
+This profile only contains the [`PREPARE`](#prepare) subworkflow.
+
+### `ribotish`
+This profile only contains the [`RIBOTISH`](#ribotish) subworkflow.
+
+### `genome_map`
+This profile contains the [`PREPARE`](#prepare), [`rRNA`](#rrna) and [`GENOME`](#genome) subworkflows.
+
+### `qc`
+This profile contains the [`PREPARE`](#prepare), [`rRNA`](#rrna), [`ANNOTATE`](#annotate), [`TRANSCRIPTOME`](#transcriptome) and [`QC`](#qc) subworkflows.
 
 ### `PREPARE`
+
+This subworkflow is made up of 5 [Nextflow](#third-party-software-used) processes.
+It takes the `.fastq.gz` files you've gotten back from your ribosome sequencing experiments as input and returns trimmed, clipped and filtered `.fasta` files.
+  
+#### `TRIM_FIRST_BASES`
+_"[cutadapt](#third-party-software-used) removes adapter sequences from high-throughput sequencing reads."_
+- **Input**
+  - Ribosome sequencing (`.fastq.gz`) files
+- **Parameters**
+  - `--cut`: _Remove bases from each read (first read only if paired). If LENGTH is positive, remove bases from the beginning._
+  - `--minimum_length`: _Discard reads shorter than LENGTH. Default: 0_
+- **Output**
+  - Ribosome sequencing files with first bases trimmed; used in [**CLIP_READS**](#clip_reads)
+
+#### `CLIP_READS`
+_"Removing sequencing adapters / linkers"_
+- **Input**
+  - riboseq files with first bases trimmed; from [**TRIM_FIRST_BASES**](#trim_first_bases)
+- **Parameters**
+  - `-v`: _Verbose - report number of sequences._
+  - `-n`: _discard sequences shorter than N nucleotides. default is 5._
+  - `-l`: _keep sequences with unknown (N) nucleotides. default is to discard such sequences._
+  - `-c`: _Discard non-clipped sequences (i.e. - keep only sequences which contained the adapter)._
+  - `-a`: _ADAPTER string. default is CCTTAAGG (dummy adapter)._
+- **Output**
+  - riboseq files with adapters removed; used in [**TRIM_READS**](#trim_reads)
+- **Non-configurable & non-default**
+  - `-z`: _Compress output with GZIP._
+
+#### `TRIM_READS`
+_"Trims (cuts) sequences based on quality"_
+- **Input**
+  - riboseq files with adapters removed; from [**CLIP_READS**](#clip_reads)
+- **Parameters**
+  - `-v`: _Verbose - report number of sequences._
+  - `-l`: _Minimum length - sequences shorter than this (after trimming) will be discarded. Default = 0 = no minimum length._
+  - `-t`: _Quality threshold - nucleotides with lower quality will be trimmed (from the end of the sequence)._
+- **Output**
+  - trimmed riboseq files with adapters removed; used in [**FILTER_READS**](#filter_reads)
+- **Non-configurable & non-default**
+  - `-z`: _Compress output with GZIP._
+  
+#### `FILTER_READS`
+_"Filters sequences based on quality"_
+- **Input**
+  - trimmed riboseq files with adapters removed; from [**TRIM_READS**](#trim_reads)
+- **Parameters
+  - `-v`: _Verbose - report number of sequences._
+  - `-q`: _Minimum quality score to keep._
+  - `-p`: _Minimum percent of bases that must have [-q] quality._
+- **Output**
+  - trimmed and filtered riboseq files with adapters removed; used in [**FASTQ_TO_FASTA**](#fastq_to_fasta)
+- **Non-configurable & non-default**
+  - `-z`: _Compress output with GZIP._
+
+#### `FASTQ_TO_FASTQ`
+_"Convert FASTQ files to FASTA files."_
+- **Input**
+  - trimmed and filtered riboseq files with adapters removed; from [**FILTER_READS**](#filter_reads)
+- **Parameters**
+  - `-v`: _Verbose - report number of sequences._
+  - `-n`: _keep sequences with unknown (N) nucleotides. Default is to discard such sequences._
+  - `-r`: _Rename sequence identifiers to numbers._
+- **Output**
+  - trimmed and filtered riboseq fasta files without adapters; used in [**rRNA**](#rrna), 
+  
 ### `rRNA`
+
 ### `GENOME`
-### `QC`
+
+### `ANNOTATE`
+  
 ### `TRANSCRIPTOME`
+  
+### `QC`
+
 ### `RIBOTISH`
+
 This subworfklow is made up of 6 nextflow processes.
 As inputs, it takes a gtf file, a fasta genome file and folders containing both an indexed+sorted bam file and its index (from [**GENOME**](#genome)).
 As output, the workflow returns a fasta file with the predicted peptides found by ribosome sequencing.
@@ -198,6 +285,7 @@ Create genome index using [**SAMtools**](#third-party-software-used).
   - Genome sequence file (`.fa`)
 - **Output**
   - Genome index file (`.fai`); used in [**GFFREAD**](#gffread)
+
 #### `RIBOTISH_QUALITY`
 Create the ribosome offsets to determine the proper position of the ribosome on the reads. Uses [**Ribo-TISH**](#third-party-software-used)
 - **Input**
@@ -207,6 +295,7 @@ Create the ribosome offsets to determine the proper position of the ribosome on 
   - `ribotish_quality_th`: _Threshold for quality (default: 0.5)_
 - **Output**
   - offsets; used in [**RIBOTISH_PREDICT**](#ribotish_predict)
+
 #### `RIBOTISH_PREDICT`
 Go from bam files of aligned ribosome sequencing reads to new, short peptides.
 - **Input**
@@ -218,6 +307,7 @@ Go from bam files of aligned ribosome sequencing reads to new, short peptides.
   - `ribotish_predict_mode`: _if `longest` chosen: Only report longest possible ORF results_
 - **Output**
   - predicted peptides in nucleotide fasta format; used in [**SORF_TO_PEPTIDE**](#sorf_to_peptide)
+
 #### `GFFREAD`
 Extract the transcriptome using [**GFFREAD**](#third-party-software-used)
 - **Input**
@@ -226,6 +316,7 @@ Extract the transcriptome using [**GFFREAD**](#third-party-software-used)
   - GTF file (`.gtf`)
 - **Output**
   - Extracted transcripts in tabular format; used in [**SORF_TO_PEPTIDE**](#sorf_to_peptide)
+
 #### `SORF_TO_PEPTIDE`
 Translates the short open reading frames into peptide sequences.
 - **Input**
@@ -234,6 +325,7 @@ Translates the short open reading frames into peptide sequences.
   - script for sorf to peptide translation
 - **Output**
   - predicted peptides in fasta aa format; used in [**COMBINE**](#combine)
+
 #### `COMBINE`
 Collect different files of predicted peptides into 1, using simple bash
 - **Input**
@@ -241,10 +333,11 @@ Collect different files of predicted peptides into 1, using simple bash
 - **Output**
   - combined predicted peptides in aa format: used in [**PHILOSOPHER**](#philosopher)
 
-### `PHILOSOPHER`
+### `PROTEOMICS`
 This subworfklow is made up of 10 nextflow processes.
 As inputs, it takes the predicted peptides in aa format (from [**COMBINE**](#combine)) and mzML proteomics spectra files.
 As output, the workflow returns a csv file containing the proteomics-validated small peptides initially found by ribosome sequencing.
+
 #### `WORKSPACE`
 Initializes a physical directory with a hidden folder which is needed for [**Philosopher**](#third-party-software-used) to work.
 - **Input**
@@ -253,6 +346,7 @@ Initializes a physical directory with a hidden folder which is needed for [**Phi
   - `workspace`: _path where you want [Philosopher](#third_party_software_used) to do its tasks_
 - **Output**
   - pseudo output; to be used in [**DATABASE**](#database)
+
 #### `DATABASE`
 Add decoys and contaminants to predicted peptides fasta file and format it for philosopher
 - **Input**
@@ -260,6 +354,7 @@ Add decoys and contaminants to predicted peptides fasta file and format it for p
   - predicted peptides; from [**COMBINE**](#combine)
 - **Output**
   - philosopher database fasta file (`.fas`); used in [**GENERATE_CHANGE_PARAMS**](#generate_change_params), [**MSFRAGGER**](#msfragger) and [**PEPTIDEPROPHET**](#peptideprophet)
+
 #### `GENERATE_CHANGE_PARAMS`
 Generate a parameter file necessary for [**MSFRAGGER**](#msfragger) and change some parameters using a python script
 - **Input**
@@ -269,6 +364,7 @@ Generate a parameter file necessary for [**MSFRAGGER**](#msfragger) and change s
   - msfragger parameter file with changed params; used in [**MSFRAGGER**](#msfragger)
 - **Non-configurable & non-default**
   - `calibrate_mass = 0`: _"[...] speed up the search even more."_
+
 #### `MSFRAGGER`
 Search fasta database against mzML spectra for peptides that appear in both ("hits").
 - **Input**
@@ -277,6 +373,7 @@ Search fasta database against mzML spectra for peptides that appear in both ("hi
   - mzML proteomics spectra files
 - **Output**
   - (`.pepXML`) file containing hits; used in [**PEPTIDEPROPHET**](#peptideprophet) and [**IONQUANT**](#ionquant)
+  
 #### `PEPTIDEPROPHET`
 Validates the peptide assignment
 - **Input**
@@ -292,7 +389,7 @@ Validates the peptide assignment
   - `--expectscore`: _use expectation value as the only contributor to the f-value for modeling_
   - `--decoyprobs`: _compute possible non-zero probabilities for decoy entries on the last iteration_
   - `--nonparam`: _use semi-parametric modeling, must be used in conjunction with --decoy option_
-
+  
 #### `PROTEINPROPHET`
 Performs protein inference (skipped for now in our case since we are only interested in peptides)
 - **Input**
