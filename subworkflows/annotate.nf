@@ -103,8 +103,8 @@ process CREATE_BED_CDS_FILE {
 
     script:
     """
-    tail -n+2 ${tsv} \
-		| awk '{print \$1 "\t" \$3-1 "\t" \$4 "\t" \$2 }' > CDS.bed \
+    (tail -n+2 ${tsv} \
+		| awk '{print \$1 "\t" \$3-1 "\t" \$4 "\t" \$2 }' > CDS.bed) \
 		&> create_bed_cds_file.log
 
     """
