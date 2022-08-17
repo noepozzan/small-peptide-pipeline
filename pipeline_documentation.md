@@ -254,7 +254,7 @@ _"Filters sequences based on quality"_
 - **Non-configurable & non-default**
   - `-z`: _Compress output with GZIP._
 
-#### `FASTQ_TO_FASTQ`
+#### `FASTQ_TO_FASTA`
 _"Convert FASTQ files to FASTA files."_
 - **Input**
   - trimmed and filtered riboseq files with adapters removed; from [**FILTER_READS**](#filter_reads)
@@ -263,8 +263,8 @@ _"Convert FASTQ files to FASTA files."_
   - `-n`: _keep sequences with unknown (N) nucleotides. Default is to discard such sequences._
   - `-r`: _Rename sequence identifiers to numbers._
 - **Output**
-  - trimmed and filtered riboseq fasta files without adapters; used in [**rRNA**](#rrna), 
-  
+  - trimmed and filtered riboseq fasta files without adapters; used in [**rRNA**](#rrna)
+
 ### `rRNA`
 This subworkflow is made up of 2 [Nextflow](#third-party-software-used) processes.  
 It takes the trimmed and filtered riboseq fasta file from [**PREPARE**](#prepare) as input and returns mapped and unmapped reads against a reference of rRNA.
@@ -288,7 +288,7 @@ Map prepared riboseq reads to rRNA reference
   - `--threads`: _start <n> threads (default:1)_
 - **Output**
   - Reads mapped to rRNA reference; used in [**QC**](#qc)
-  - Reads unmapped to rRNA reference; used in [**GENOME**](#genome), [`TRANSCRIPTOME`](#transcriptome)
+  - Reads unmapped to rRNA reference; used in [**GENOME**](#genome) and [**TRANSCRIPTOME**](#transcriptome)
 
 ### `GENOME`
 This subworkflow is made up of 3 [Nextflow](#third-party-software-used) processes.  
