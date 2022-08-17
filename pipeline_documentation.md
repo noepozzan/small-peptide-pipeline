@@ -200,7 +200,7 @@ Subworkflows are parts of the larger, complete workflow that do one of the tasks
 They may be considered as being a self-contained unit of the larger workflow and may thus be used independently of it.
   
 ### `PREPARE`
-This subworkflow is made up of 5 [Nextflow](#third-party-software-used) processes.
+This subworkflow is made up of 5 [Nextflow](#third-party-software-used) processes.  
 It takes the `.fastq.gz` files you've gotten back from your ribosome sequencing experiments as input and returns trimmed, clipped and filtered `.fasta` files.
   
 #### `TRIM_FIRST_BASES`
@@ -266,7 +266,7 @@ _"Convert FASTQ files to FASTA files."_
   - trimmed and filtered riboseq fasta files without adapters; used in [**rRNA**](#rrna), 
   
 ### `rRNA`
-This subworkflow is made up of 2 [Nextflow](#third-party-software-used) processes.
+This subworkflow is made up of 2 [Nextflow](#third-party-software-used) processes.  
 It takes the trimmed and filtered riboseq fasta file from [**PREPARE**](#prepare) as input and returns mapped and unmapped reads against a reference of rRNA.
 
 #### `SEGEMEHL_INDEX_rRNA`
@@ -287,12 +287,12 @@ Map prepared riboseq reads to rRNA reference
   - `--accuracy`: _min percentage of matches per read in semi-global alignment (default:90)_
   - `--threads`: _start <n> threads (default:1)_
 - **Output**
-  - Reads mapped to rRNA reference
-  - Reads unmapped to rRNA reference; used in [**GENOME**](#genome), [`TRANSCRIPTOME`](#transcriptome) and [`QC`](#qc)
+  - Reads mapped to rRNA reference; used in [**QC**](#qc)
+  - Reads unmapped to rRNA reference; used in [**GENOME**](#genome), [`TRANSCRIPTOME`](#transcriptome)
 
 ### `GENOME`
-This subworkflow is made up of 3 [Nextflow](#third-party-software-used) processes.
-It takes the unmapped reads from [**rRNA**](#rna), the reference genome and a genome annotation file as inputs and returns mapped and unmapped reads against the genome.
+This subworkflow is made up of 3 [Nextflow](#third-party-software-used) processes.  
+It takes the prepared reads that did not map to the rRNA reference (from [**rRNA**](#rrna)) and aligns them to the genome.
   
 #### `STAR_INDEX_GENOME`
 Index genome
@@ -326,7 +326,7 @@ Compress sam files to bam, then sort and index them and pack these sorted bam+in
   - sorted bam and its index in folder; used in [**RIBOTISH**](#ribotish)
 
 ### `ANNOTATE`
-This subworkflow is made up of 4 [Nextflow](#third-party-software-used) processes.
+This subworkflow is made up of 4 [Nextflow](#third-party-software-used) processes.  
 It takes the rRNA reference, the reference genome and a genome annotation file as inputs and returns a fasta file containing the longest transcripts and a tsv file containing "transcript id, gene id, CDS"(MERIC?)
   
 #### `SELECT_LONGEST_CODING_TRANSCRIPT`
@@ -362,7 +362,7 @@ Reorder above tsv file to be in `.bed` format
   - bed file containing transcript id, CDS, gene id
   
 ### `TRANSCRIPTOME`
-This subworkflow is made up of 4 [Nextflow](#third-party-software-used) processes.
+This subworkflow is made up of 4 [Nextflow](#third-party-software-used) processes.  
 It takes the fasta file containing the longest transcript per gene as its reference from [**ANNOTATE**](#annotate) and reads unmapped to the rRNA reference as inputs and returns uniquely mapped and unmapped reads against the transcriptome.
 
 #### `SEGEMEHL_INDEX_TRANSCRIPTOME`
@@ -401,12 +401,75 @@ Compress sam to bam files, index and sort
   - folder containing sorted+indexed bam file and its index; used in [**QC**](#qc)
   
 ### `QC`
+This subworfklow is made up of 7 [Nextflow](#third-party-software-used) processes.  
+It takes multiple files from upstream processes as inputs and performs quality control.
+
+#### `COUNT_OVERREPRESENTED_SEQUENCES_OTHER`
+Returns counts of reads mapped to rRNA reference
+- **Input**
+  - reads mapped to rRNA reference; from [**rRNA**](#rrna)
+  - python script
+- **Output**
+  - File containing read sequences and the number of times they have been sequenced
+
+#### `READ_LENGTH_HISTOGRAM`
+Returns pdf files of histograms to look at read length distribution of each sample
+- **Input**
+  - uniquely mapped reads to transcriptome; from [**TRANSCRIPTOME**](#transcriptome)
+- **Output**
+  - pyton script
+
+#### `DETERMINE_P_SITE_OFFSET`
+Returns file(s) containing dictionaries with the p site offset for each sequence length
+- **Input**
+  - folder(s) containing sorted+indexed bam file and its index; from [**TRANSCRIPTOME**](#transcriptome)
+  - tsv file containing "transcript id, gene id, CDS"(MERIC?); from [**ANNOTATE**](#annotate)
+  - python script
+- **Output**
+  - file(s) containing dictionaries with the p site offset for each sequence length; used in [**COUNT_READS**](#count_reads), [**CHECK_PERIODICITY**](#check_periodicity) and [**FILTER_LENGTHS_OFFSETS**](#filter_lenghts_offsets)
+
+#### `COUNT_READS`
+Counts reads of transcripts (in 5', CDS and 3') and shows cds length
+- **Input**
+  - folder(s) containing sorted+indexed bam file and its index; from [**TRANSCRIPTOME**](#transcriptome)
+  - file(s) containing dictionaries with the p site offset for each sequence length; from [**DETERMINE_P_SITE_OFFSET**](#determine_p_site_offsets)
+  - tsv file containing "transcript id, gene id, CDS"(MERIC?); from [**ANNOTATE**](#annotate)
+  - python script
+- **Output**
+  - tsv file(s) of counts of reads of transcripts (in 5', CDS and 3') and shows cds length
+
+#### `CHECK_PERIODICITY`
+Plots periodicity of your riboseq reads around start and stop site
+- **Input**
+  - folder(s) containing sorted+indexed bam file and its index; from [**TRANSCRIPTOME**](#transcriptome)
+  - file(s) containing dictionaries with the p site offset for each sequence length; from [**DETERMINE_P_SITE_OFFSET**](#determine_p_site_offsets)
+  - tsv file containing "transcript id, gene id, CDS"(MERIC?); from [**ANNOTATE**](#annotate)
+  - python script
+- **Output**
+  - file(s) indicating read quantity along riboseq reads
+  - plots for visual inspection of periodicity around start and stop site of translation
+
+#### `FILTER_LENGTHS_OFFSETS`
+Filter reads based on selected read lengths and offsets (Create a-site profile)
+- **Input**
+  - folder(s) containing sorted+indexed bam file and its index; from [**TRANSCRIPTOME**](#transcriptome)
+  - file(s) containing dictionaries with the p site offset for each sequence length; from [**DETERMINE_P_SITE_OFFSET**](#determine_p_site_offsets)
+  - python script
+- **Output**
+  - mapped (`.bam`) transcripts with unique a site profile (MERIC?); used in [**BAM_SORT_AND_INDEX**](#bam_sort_and_index)
+
+#### `BAM_SORT_AND_INDEX`
+Sort and index bam file
+- **Input**
+  - mapped (`.bam`) transcripts with unique a site profile (MERIC?); from [**FILTER_LENGTHS_OFFSETS**](#filter_lengths_offsets)
+- **Output**
+  - sorted+indexed and mapped transcripts with unique a site profile (MERIC?)
 
 ### `RIBOTISH`
-This subworfklow is made up of 6 nextflow processes.
+This subworfklow is made up of 6 [Nextflow](#third-party-software-used) processes.  
 As inputs, it takes a gtf file, a fasta genome file and folders containing both an indexed+sorted bam file and its index (from [**GENOME**](#genome)).
-As output, the workflow returns a fasta file with the predicted peptides found by ribosome sequencing.
-  
+As output, the workflow returns a fasta file with the predicted peptides found by ribosome sequencing.  
+**Additionally:**  
 If you have the right data and want to predict translation inititation sites (TIS), please select "TI" for the parameter `riboseq_mode`.  
 If you have regular ribosome sequencing data and want to predict open reading frames, please select "regular" for the parameter `riboseq_mode`.
 
@@ -465,7 +528,7 @@ Collect different files of predicted peptides into 1, using simple bash
   - combined predicted peptides in aa format: used in [**PHILOSOPHER**](#philosopher)
 
 ### `PHILOSOPHER`
-This subworfklow is made up of 10 nextflow processes.
+This subworfklow is made up of 10 [Nextflow](#third-party-software-used) processes.  
 As inputs, it takes the predicted peptides in aa format (from [**COMBINE**](#combine)) and mzML proteomics spectra files.
 As output, the workflow returns a csv file containing the proteomics-validated small peptides initially found by ribosome sequencing.
 
@@ -562,37 +625,11 @@ Quantification of MS1-precursor intensity
 - **Output**
   - `.csv` files containing quantified hits
 
-#### `map_genome_star`
-
-Align short reads to reference genome and/or transcriptome with
-[**STAR**](#third-party-software-used).
-
-- **Input**
-  - Reads file (`.fastq.gz`); from
-    [**remove_polya_cutadapt**](#remove_polya_cutadapt)
-  - Index; from [**create_index_star**](#create_index_star)
-- **Parameters**
-  - **rule_config.yaml**
-    - `--outFilterMultimapScoreRange=0`: the score range below the maximum score for multimapping alignments (default 1)
-    - `--outFilterType=BySJout`: reduces the number of ”spurious” junctions
-    - `--alignEndsType`: one of `Local` (standard local alignment with soft-clipping allowed) or `EndToEnd` (force end-to-end read alignment, do not soft-clip); specify in sample table column `soft_clip`
-    - `--twopassMode`: one of `None` (1-pass mapping) or `Basic` (basic 2-pass mapping, with all 1st-pass junctions inserted into the genome indices on the fly); specify in sample table column `pass_mode`
-    - `--outFilterMultimapNmax`: maximum number of multiple alignments allowed; if exceeded, read is considered unmapped; specify in sample table column `multimappers`
-- **Output**
-  - Aligned reads file (`.bam`); used in
-    [**sort_genomic_alignment_samtools**](#sort_genomic_alignment_samtools),
-  - STAR log file
-- **Non-configurable & non-default**
-  - `--outSAMattributes=All`: NH HI AS nM NM MD jM jI MC ch
-  - `--outStd=BAM_Unsorted`: which output will be directed to `STDOUT` (default 'Log')
-  - `--outSAMtype=BAM Unsorted`: type of SAM/BAM output (default SAM)
-  - `--outSAMattrRGline`: ID:rnaseq_pipeline SM: *sampleID*
-  
 ## FAQ
 
 If you get an error message that looks like gibberish to you, have a look at the frequently asked questions below:
   
-### gzip: unexpected end of file
+### Error message contains <gzip: unexpected end of file>
 If your workflow run fails with the the error message containing this bit, please just restart your workflow run.
 Nextflow seems to sometimes just be over-hasty and begin a process before having properly received the whole file to work on.
 
