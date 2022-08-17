@@ -14,15 +14,15 @@ on installation and usage please see [here](README.md).
     - [Input Files](#input-files)
     - [Parameter table](#parameter-table)
   - [Profiles](#profiles)
-    - [`full`](#full)
-    - [`test`](#test)
-    - [`proteomics`](#proteomics)
-    - [`prepare`](#prepare)
-    - [`genome_map`](#genome)
-    - [`qc`](#qc)
-    - [`ribotish`](#ribotish)
   - [Subworkflows](#subworkflows)
-    - [`PREPARE`](#PREPARE)
+    - [`PREPARE`](#prepare)
+    - [`rRNA`](#rrna)
+    - [`GENOME`](#genome)
+    - [`ANNOTATE`](#annotate)
+    - [`TRANSCRIPTOME`](#transcriptome)
+    - [`QC`](#qc)
+    - [`RIBOTISH`](#ribotish)
+    - [`PHILOSOPHER`](#philosopher)
 - [FAQ](#faq)
 
 ## Third-party software used
@@ -173,26 +173,26 @@ philosopher_filter_args | Required for [Philosopher](#third_party_software_used)
 
 Different combinations of subworkflows make up the profiles. Profiles are the units of the pipeline that are reasonable to run by themselves since they do some bioinformatic process of interest, such as preparing reads or performing quality control.
   
-### `full`
-This profile contains all of the subworkflows in the order they are listed, beginning from [`PREPARE`](#prepare).
+- `full`  
+This profile contains all of the subworkflows in the order they are listed, beginning from [**PREPARE**](#prepare).
 
-### `test`
-This profile contains all of the subworkflows in the order they are listed, beginning from [`PREPARE`](#prepare), but **WITHOUT** the [**RIBOTISH**](#ribotish) subworkflow, since this tool cannot be tested with small data.
+- `test`  
+This profile contains all of the subworkflows in the order they are listed, beginning from [**PREPARE**](#prepare), but **WITHOUT** the [**RIBOTISH**](#ribotish) subworkflow, since this tool cannot be tested with small data.
 
-### `proteomics`
-This profile only contains the [`PHILOSOPHER`](#philosopher) subworkflow.
+- `proteomics`  
+This profile only contains the [**PHILOSOPHER**](#philosopher) subworkflow.
 
-### `prepare`
-This profile only contains the [`PREPARE`](#prepare) subworkflow.
+- `prepare`  
+This profile only contains the [**PREPARE**](#prepare) subworkflow.
 
-### `ribotish`
-This profile only contains the [`RIBOTISH`](#ribotish) subworkflow.
+- `ribotish`  
+This profile only contains the [**RIBOTISH**](#ribotish) subworkflow.
 
-### `genome_map`
-This profile contains the [`PREPARE`](#prepare), [`rRNA`](#rrna) and [`GENOME`](#genome) subworkflows.
+- `genome_map`  
+This profile contains the [**PREPARE**](#prepare), [**rRNA**](#rrna) and [**GENOME**](#genome) subworkflows.
 
-### `qc`
-This profile contains the [`PREPARE`](#prepare), [`rRNA`](#rrna), [`ANNOTATE`](#annotate), [`TRANSCRIPTOME`](#transcriptome) and [`QC`](#qc) subworkflows.
+- `qc`  
+This profile contains the [**PREPARE**](#prepare), [**rRNA**](#rrna), [**ANNOTATE**](#annotate), [**TRANSCRIPTOME**](#transcriptome) and [**QC**](#qc) subworkflows.
 
 ## Subworkflows
 
@@ -362,11 +362,47 @@ Reorder above tsv file to be in `.bed` format
   - bed file containing transcript id, CDS, gene id
   
 ### `TRANSCRIPTOME`
+This subworkflow is made up of 4 [Nextflow](#third-party-software-used) processes.
+It takes the fasta file containing the longest transcript per gene as its reference from [**ANNOTATE**](#annotate) and reads unmapped to the rRNA reference as inputs and returns uniquely mapped and unmapped reads against the transcriptome.
+
+#### `SEGEMEHL_INDEX_TRANSCRIPTOME`
+Index transcriptome fasta file
+- **Input**
+  - transcriptome reference fasta file; from [**ANNOTATE**](#annotate)
+- **Output**
+  - transcriptome index; used in [**MAP_TRANSCRIPTOME_SEGEMEHL**](#map_transcriptome_segemehl)
+
+#### `MAP_TRANSCRIPTOME_SEGEMEHL`
+Map prepared riboseq reads to transcriptome
+- **Input**
+  - reads not mapped to rRNA reference; from [**rRNA**](#rrna)
+  - transcriptome index; from [**SEGEMEHL_INDEX_TRANSCRIPTOME**](#segemehl_index_transcriptome)
+  - transcriptome reference fasta file; from [**ANNOTATE**](#annotate)
+- **Parameters**
+  - `--silent`: _shut up!_
+  - `--accuracy`: _min percentage of matches per read in semi-global alignment (default:90)_
+  - `--threads`: _start <n> threads (default:1)_
+- **Output**
+  - Reads mapped to transcriptome (`.sam`); used in [**REMOVE_MULTIMAPPERS**](#remove_multimappers)
+  - Reads unmapped to transcriptome (`.fa`)
+
+#### `REMOVE_MULTIMAPPERS`
+Remove reads mapping to multiple loci in the transcriptome.
+- **Input**
+  - reads mapped to transcriptome; from [**MAP_TRANSCRIPTOME_SEGEMEHL**](#map_transcriptome_segemehl)
+- **Output**
+  - uniquely mapped reads; used in [**SAM_TO_BAM_SORT_AND_INDEX**](#sam_to_bam_sort_and_index) and [**QC**](#qc)
+
+#### `SAM_TO_BAM_SORT_AND_INDEX`
+Compress sam to bam files, index and sort
+- **Input**
+  - uniquely mapped reads; from [**REMOVE_MULTIMAPPERS**](#remove_multimappers)
+- **Output**
+  - folder containing sorted+indexed bam file and its index; used in [**QC**](#qc)
   
 ### `QC`
 
 ### `RIBOTISH`
-
 This subworfklow is made up of 6 nextflow processes.
 As inputs, it takes a gtf file, a fasta genome file and folders containing both an indexed+sorted bam file and its index (from [**GENOME**](#genome)).
 As output, the workflow returns a fasta file with the predicted peptides found by ribosome sequencing.
@@ -428,7 +464,7 @@ Collect different files of predicted peptides into 1, using simple bash
 - **Output**
   - combined predicted peptides in aa format: used in [**PHILOSOPHER**](#philosopher)
 
-### `PROTEOMICS`
+### `PHILOSOPHER`
 This subworfklow is made up of 10 nextflow processes.
 As inputs, it takes the predicted peptides in aa format (from [**COMBINE**](#combine)) and mzML proteomics spectra files.
 As output, the workflow returns a csv file containing the proteomics-validated small peptides initially found by ribosome sequencing.
@@ -556,7 +592,7 @@ Align short reads to reference genome and/or transcriptome with
 
 If you get an error message that looks like gibberish to you, have a look at the frequently asked questions below:
   
-#### gzip: unexpected end of file
+### gzip: unexpected end of file
 If your workflow run fails with the the error message containing this bit, please just restart your workflow run.
 Nextflow seems to sometimes just be over-hasty and begin a process before having properly received the whole file to work on.
 
