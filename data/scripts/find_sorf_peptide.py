@@ -130,6 +130,8 @@ def main():
             # just to check there are no duplicate entries
             continue
         all_small_peptides.append(peptide)
+        if not isinstance(row['Symbol'], str):
+            row['Symbol'] = 'No_Symbol'
         aa_seq_uorf = SeqRecord(Seq(peptide), id=row['Symbol']
                                 + '_' + transcript + '_Nuc_Pos:'
                                 + str(row['Start']) + '-' + str(row['Stop'])
