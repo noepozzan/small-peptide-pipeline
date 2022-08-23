@@ -22,7 +22,7 @@ process STAR_INDEX_GENOME {
     """
     mkdir starIndex
 
-    STAR --runThreadN ${params.index_threads} \
+    STAR --runThreadN ${params.star_threads} \
     	--runMode genomeGenerate \
         --genomeDir starIndex \
         --genomeFastaFiles ${sequence} \
@@ -59,7 +59,7 @@ process MAP_GENOME_STAR {
         input=\$(basename \$VAR)
         prefix=\$(echo \$input | cut -d '.' -f 1)
 
-		STAR --runThreadN ${params.star_map_threads} \
+		STAR --runThreadN ${params.star_threads} \
 			--genomeDir ${index} \
 			--sjdbGTFfile ${gtf} \
 			--outSAMattributes All \
