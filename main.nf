@@ -30,7 +30,7 @@ if ( params.run_mode == "proteomics" ) {
 if ( params.run_mode == "ribotish" ) {
     gtf_ch = channel.fromPath(params.gtf, checkIfExists: true)
     genome_ch = channel.fromPath(params.genome, checkIfExists: true)
-    bam_sort_index_folder_ch = channel.fromPath(params.bam_sort_index_folder, checkIfExists: true)
+    bam_sort_index_folder_ch = channel.fromPath(params.bam_sort_index_folder, checkIfExists: true, type: 'dir')
 }
 
 
