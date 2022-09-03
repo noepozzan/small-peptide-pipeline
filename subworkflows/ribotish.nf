@@ -208,6 +208,7 @@ process COMBINE {
 
     script:
     """
+    : '
 	WRITE_HEADER="true"
     for VAR in ${ribo_pred}
     do
@@ -217,7 +218,11 @@ process COMBINE {
 		fi
 		tail -n +2 -q \$VAR >> combined_speptide.fasta
     done
-	
+	'
+    for VAR in ${ribo_pred}
+    do
+        cat \$VAR >> combined_speptide.fasta
+    done
 	"""
 
 }
