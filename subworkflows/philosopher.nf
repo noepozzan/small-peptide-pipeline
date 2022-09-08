@@ -257,7 +257,7 @@ process REPORT {
 
     label "philosopher"
 
-    publishDir "${params.philosopher_dir}/report", mode: 'copy', pattern: 'msstats.csv'
+    publishDir "${params.philosopher_dir}/report", mode: 'copy', pattern: 'msstats.tsv'
 	publishDir "${params.philosopher_dir}/report", mode: 'copy', pattern: '*.tsv'
     publishDir "${params.log_dir}/report", mode: 'copy', pattern: '*.log'
 
@@ -265,7 +265,7 @@ process REPORT {
     val freequant
 
     output:
-    path 'msstats.csv', emit: msstats
+    path 'msstats.tsv', emit: msstats
 	path '*.tsv', emit: tsv
 	path '*.log', emit: log
  
@@ -281,7 +281,8 @@ process REPORT {
 		--decoys \
 		&> report.log
 
-	cp msstats.csv peptide.tsv psm.tsv ion.tsv report.log \$workd
+    mv msstats.csv msstats.tsv
+	cp msstats.tsv peptide.tsv psm.tsv ion.tsv report.log \$workd
 
 	"""
 
