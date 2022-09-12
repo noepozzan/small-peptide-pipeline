@@ -26,7 +26,7 @@ jobs:
         uses: conda-incubator/setup-miniconda@v2
         with:
           python-version: 3.7.4
-          miniconda-version: 4.13.0
+          miniconda-version: 4.12.0
           auto-update-conda: false
           environment-file: install/environment.yml
           activate-environment: small_peptides
