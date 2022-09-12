@@ -2,8 +2,6 @@ nextflow.enable.dsl=2
 
 process CONDITION {
 
-	echo true
-
 	label "philosopher"
 
 	input:

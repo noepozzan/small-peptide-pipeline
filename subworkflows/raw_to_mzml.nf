@@ -2,9 +2,6 @@ nextflow.enable.dsl=2
 
 process RAW_TO_MZML {
 
-	echo true
-	//label ".."
-
 	publishDir "${projectDir}/results/raw_to_mzML", mode: 'copy', pattern: '*.mzML'
 
 	input:

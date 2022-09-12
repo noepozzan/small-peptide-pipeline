@@ -400,10 +400,7 @@ workflow PHILOSOPHER {
 	//CLEAN_UP_WORKSPACE(REPORT.out.msstats)
 
     emit:
-	// set output channels from this workflow
-	// set output variables from this workflow
 	report = REPORT.out.msstats
-    //msfragger_params = GENERATE_CHANGE_PARAMS.out.params
     ionquant = IONQUANT.out.quant_csv
 
 }

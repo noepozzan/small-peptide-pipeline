@@ -79,8 +79,6 @@ process RIBOTISH_QUALITY {
 
 process RIBOTISH_PREDICT {
 
-	echo true
-
     label "ribotish"
 	label "predicting"
 

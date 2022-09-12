@@ -59,8 +59,6 @@ process EXTRACT_TRANSCRIPT_SEQUENCES {
 
 process CREATE_TAB_DELIMITED_CDS_FILE {
     
-    echo true
-
     label "htseq_biopython"
 
     publishDir "${params.annotate_dir}/create_tab_delimited_CDS_file", mode: 'copy', pattern: 'CDS.tsv'
