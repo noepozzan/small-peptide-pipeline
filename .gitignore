@@ -331,9 +331,10 @@ pip-selfcheck.json
 MSFragger*
 *.mzML
 *.raw
-work*
-results
-logs
+work/
+workspace/
+results/
+logs/
 .nextflow*
 .DS_Store
 .ipynb*

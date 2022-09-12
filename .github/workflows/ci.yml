@@ -36,6 +36,6 @@ jobs:
         run: conda env update -f install/environment.dev.yml 
 
       - name: Display all miniconda & env info
-          run: |
-            conda info -a
-            conda list
+        run: |
+          conda info -a
+          conda list
