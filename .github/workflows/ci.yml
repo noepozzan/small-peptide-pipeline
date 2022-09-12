@@ -1,0 +1,41 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - '*'
+  pull_request:
+    branches:
+      - main
+      - dev
+
+jobs:
+  integration-singularity:
+#   needs:
+#     - snakemake-graphs    
+    runs-on: ubuntu-20.04
+    defaults:
+      run:
+        shell: bash -l {0}
+    steps:
+
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Setup miniconda & small_peptides root env
+        uses: conda-incubator/setup-miniconda@v2
+        with:
+          python-version: 3.7.4
+          miniconda-version: 4.13.0
+          auto-update-conda: false
+          environment-file: install/environment.yml
+          activate-environment: small_peptides
+          auto-activate-base: false
+
+      - name: Update small_peptides env with dev. packages
+        run: conda env update -f install/environment.dev.yml 
+
+      - name: Display all miniconda & env info
+          run: |
+            conda info -a
+            conda list
