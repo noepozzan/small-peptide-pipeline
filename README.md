@@ -1,4 +1,4 @@
-[![ci](https://github.com/zavolanlab/zarp/workflows/CI/badge.svg?branch=dev)](https://github.com/zavolanlab/zarp/actions?query=workflow%3Aci)
+![ci](https://github.com/noepozzan/small-peptide-pipeline/actions/workflows/ci.yml/badge.svg)
 [![GitHub license](https://img.shields.io/github/license/zavolanlab/zarp?color=orange)](https://github.com/zavolanlab/zarp/blob/dev/LICENSE)
 
 <div align="left">
