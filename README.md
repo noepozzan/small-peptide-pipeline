@@ -1,5 +1,5 @@
 ![ci](https://github.com/noepozzan/small-peptide-pipeline/actions/workflows/ci.yml/badge.svg)
-[![GitHub license](https://img.shields.io/github/license/zavolanlab/zarp?color=orange)](https://github.com/zavolanlab/zarp/blob/dev/LICENSE)
+[![GitHub license](https://img.shields.io/github/license/noepozzan/small-peptide-pipeline?color=orange)](https://github.com/noepozzan/small-peptide-pipeline/blob/master/LICENSE)
 
 <div align="left">
     <img width="20%" align="left" src=images/esel.webp>
