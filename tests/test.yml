@@ -1,5 +1,5 @@
 - name: integration_test
-  command: nextflow run main.nf -profile test,slurm
+  command: nextflow run main.nf -profile test,slurm_offline
   files:
     - path: results/tests/annotate/create_tab_delimited_CDS_file/CDS.tsv
       md5sum: 98929735d886c215e88a28a20871dc1a
