@@ -56,5 +56,5 @@ jobs:
         run: nextflow -version
         
       - name: Pull singularity images
-        run: bash data/scripts/pull_containers.sh
+        run: singularity run docker://alpine cat /etc/os-release
 
