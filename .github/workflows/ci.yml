@@ -11,12 +11,12 @@ on:
 
 jobs:
 
-  conda_dependencies:   
+  test_linux:   
     runs-on: ${{ matrix.os }}
     
     strategy:
       matrix:
-        os: [macos-12, ubuntu-20.04]
+        os: [ubuntu-20.04]
     
     defaults:
       run:
@@ -56,5 +56,51 @@ jobs:
         run: nextflow -version
         
       - name: Pull singularity images
-        run: singularity run docker://alpine cat /etc/os-release
+        run: bash data/scripts/pull_containers.sh
+        
+        
+  test_macos:   
+    runs-on: ${{ matrix.os }}
+    
+    strategy:
+      matrix:
+        os: [macos-12]
+    
+    defaults:
+      run:
+        shell: bash -l {0}
+    steps:
+
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Setup miniconda & small_peptides root env
+        uses: conda-incubator/setup-miniconda@v2
+        with:
+          python-version: 3.7.4
+          miniconda-version: 4.7.12
+          auto-update-conda: false
+          environment-file: install/environment.yml
+          activate-environment: small_peptides
+          auto-activate-base: false
+          
+      - name: Install singularity
+        uses: eWaterCycle/setup-singularity@v7
+        with:
+          singularity-version: 3.8.3
+          
+      - name: Check for docker version
+        run: docker --version
+
+      - name: Update small_peptides env with dev. packages
+        run: conda env update -f install/environment.dev.yml
+
+      - name: Display all miniconda & env info
+        run: |
+          conda info -a
+          conda list
+          
+      - name: check for nextflow
+        run: nextflow -version
+        
 
