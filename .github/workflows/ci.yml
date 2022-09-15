@@ -50,7 +50,4 @@ jobs:
         run: |
           conda info -a
           conda list
-          
-  integration-singularity:
-    needs:
-      - conda_dependencies:
+
