@@ -150,20 +150,20 @@ Note that for this and other tests to complete successfully, be sure to have the
 * Test workflow with **Docker**:
 
     ```bash
-    nextflow run main.nf -profile test,docker
+    pytest --tag integration_test_docker --basetemp=${HOME}/test_runs
     ```
 
 * Test workflow with **Singularity (locally)**:
 
     ```bash
-    nextflow run main.nf -profile test,singularity_offline
+    pytest --tag integration_test_singularity --basetemp=${HOME}/test_runs
     ```
 
 Or on a [Slurm][slurm]-managed high-performance computing (HPC) cluster:
 * Test workflow with **Singularity & Slurm**:
 
     ```bash
-    nextflow run main.nf -profile test,slurm_offline
+    pytest --tag integration_test_slurm --basetemp=${HOME}/test_runs
     ```
 
 # Running the workflow on your own samples
