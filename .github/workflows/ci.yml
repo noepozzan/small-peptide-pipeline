@@ -10,10 +10,14 @@ on:
       - dev
 
 jobs:
-  integration-singularity:
-#   needs:
-#     - snakemake-graphs    
-    runs-on: ubuntu-20.04
+
+  conda_dependencies:   
+    runs-on: ${{ matrix.os }}
+    
+    strategy:
+      matrix:
+        os: [macos-latest, windows-latest, ubuntu-20.04]
+    
     defaults:
       run:
         shell: bash -l {0}
@@ -31,6 +35,13 @@ jobs:
           environment-file: install/environment.yml
           activate-environment: small_peptides
           auto-activate-base: false
+          
+      - name: Try running singularity
+        uses: eWaterCycle/setup-singularity@v7
+        with:
+          singularity-version: 3.8.3
+      - name: Check for singularity version
+        run: singularity --version
 
       - name: Update small_peptides env with dev. packages
         run: conda env update -f install/environment.dev.yml 
@@ -39,3 +50,7 @@ jobs:
         run: |
           conda info -a
           conda list
+          
+  integration-singularity:
+    needs:
+      - conda_dependencies:
