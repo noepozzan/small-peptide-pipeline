@@ -136,13 +136,8 @@ conda env update -f install/environment.dev.yml
 If you do not have `git lfs` installed, please [install it][git-lfs] and then run the commands shown below:
 
 ```bash
-cd ~
-git lfs install --skip-repo
 cd <main directory of this project>
-git clone https://github.com/noepozzan/small_peptide_pipeline_test_data.git
-mkdir -p data/tests/
-mv small_peptide_pipeline_test_data/* data/tests/
-rm -rf small_peptide_pipeline_test_data
+bash data/scripts/pull_test_data.sh
 ```
 
 This puts the test files in the right place for the tests to pass.  
