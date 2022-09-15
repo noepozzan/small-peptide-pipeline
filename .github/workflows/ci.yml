@@ -89,7 +89,10 @@ jobs:
         with:
           singularity-version: 3.8.3
           
-      - name: Check for docker version
+      - name: Install docker
+        uses: docker-practice/actions-setup-docker@master
+        
+      - name: check docker version
         run: docker --version
 
       - name: Update small_peptides env with dev. packages
