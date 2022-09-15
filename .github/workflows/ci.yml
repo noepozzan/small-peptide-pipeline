@@ -84,13 +84,18 @@ jobs:
           activate-environment: small_peptides
           auto-activate-base: false
           
-      - name: Install singularity
-        uses: eWaterCycle/setup-singularity@v7
-        with:
-          singularity-version: 3.8.3
-          
       - name: Install docker
-        uses: docker-practice/actions-setup-docker@master
+        run: |
+         mkdir -p ~/.docker/machine/cache
+         curl -Lo ~/.docker/machine/cache/boot2docker.iso https://github.com/boot2docker/boot2docker/releases/download/v19.03.12/boot2docker.iso
+         brew install docker docker-machine
+         
+      - name: Run container
+        run: |
+         eval "$(docker-machine env default)" 
+         docker pull minio/minio
+         docker container run --rm minio/minio minio --help
+         docker run $HOME:$HOME noepozzan/ribotish:0.1 ribotish predict --help
         
       - name: check docker version
         run: docker --version
