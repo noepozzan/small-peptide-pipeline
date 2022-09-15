@@ -3,11 +3,11 @@
 
 <div align="left">
     <img width="20%" align="left" src=images/esel.webp>
-</div> 
+</div>
 
-**Small Peptide Pipeline** ([Zavolan-Lab][zavolan-lab] whatever ... Pipeline) is a workflow that allows you
+**SMAPP** (Small Peptide Pipeline) is a workflow that allows you
 to analyze riboseq reads for the existence of small peptides and validating hits on peptidomics data.
-The workflow relies on publicly available bioinformatics tools and currently handles (MERIC?) single-end stranded bulk ribo-Seq and label-free peptidomics data.
+The workflow relies on publicly available bioinformatics tools and currently handles single-end stranded bulk ribo-Seq and label-free peptidomics data.
 The workflow is developed in [Nextflow][nextflow], a widely used workflow management system in the bioinformatics community.
 
 According to the current SMAPP implementation, reads are first pre-processed and then filtered against a library of rRNA.
