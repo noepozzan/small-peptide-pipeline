@@ -1,5 +1,25 @@
-- name: integration_test
+- name: integration_test_slurm
   command: nextflow run main.nf -profile test,slurm_offline
+  files:
+    - path: results/tests/annotate/create_tab_delimited_CDS_file/CDS.tsv
+      md5sum: 98929735d886c215e88a28a20871dc1a
+    - path: results/tests/prepare_reads/fastq_to_fasta/TEST_sample.pro_filtered_fasta
+      md5sum: 1ac2af6e0cbf8f5919de973f36fb396d
+    - path: results/tests/philosopher/report/msstats.tsv
+      md5sum: 4c4e78a59b562e15a3a48c8e8e710979
+
+- name: integration_test_singularity
+  command: nextflow run main.nf -profile test,singularity_offline
+  files:
+    - path: results/tests/annotate/create_tab_delimited_CDS_file/CDS.tsv
+      md5sum: 98929735d886c215e88a28a20871dc1a
+    - path: results/tests/prepare_reads/fastq_to_fasta/TEST_sample.pro_filtered_fasta
+      md5sum: 1ac2af6e0cbf8f5919de973f36fb396d
+    - path: results/tests/philosopher/report/msstats.tsv
+      md5sum: 4c4e78a59b562e15a3a48c8e8e710979
+
+- name: integration_test_docker
+  command: nextflow run main.nf -profile test,docker
   files:
     - path: results/tests/annotate/create_tab_delimited_CDS_file/CDS.tsv
       md5sum: 98929735d886c215e88a28a20871dc1a
