@@ -30,6 +30,21 @@ jobs:
         run: |
           ls -la .
           pwd
+          
+      - name: Install python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.8
+          
+      - name: Install dependencies via pip
+        run: |
+          pip install zenodo-get
+          
+      - name: Get data via zenodo
+        run: |
+          zenodo_get 7085656 -o data/tests/
+          ls -la
+          ls -la data/tests/
 
       - name: Setup miniconda & small_peptides root env
         uses: conda-incubator/setup-miniconda@v2
@@ -40,20 +55,6 @@ jobs:
           environment-file: install/environment.yml
           activate-environment: small_peptides
           auto-activate-base: false
-          
-      - name: Install python
-        uses: actions/setup-python@v2
-        with:
-          python-version: 3.8
-          
-      - name: Install dependencies via pip
-        run: |
-          pip install zenodo-get
-        
-      - name: Get data via zenodo
-        run: |
-          zenodo_get 7085656 -o zenodo/
-          ls -la zenodo/
           
       - name: Install singularity
         uses: eWaterCycle/setup-singularity@v7
@@ -96,6 +97,21 @@ jobs:
         run: |
           ls -la .
           pwd
+          
+      - name: Install python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.8
+          
+      - name: Install dependencies via pip
+        run: |
+          pip install zenodo-get
+          
+      - name: Get data via zenodo
+        run: |
+          zenodo_get 7085656 -o data/tests/
+          ls -la
+          ls -la data/tests/
 
       - name: Setup miniconda & small_peptides root env
         uses: conda-incubator/setup-miniconda@v2
@@ -106,20 +122,6 @@ jobs:
           environment-file: install/environment.yml
           activate-environment: small_peptides
           auto-activate-base: false
-        
-      - name: Install python
-        uses: actions/setup-python@v2
-        with:
-          python-version: 3.8
-          
-      - name: Install dependencies via pip
-        run: |
-          pip install zenodo-get
-        
-      - name: Get data via zenodo
-        run: |
-          zenodo_get 7085656 -o zenodo/
-          ls -la zenodo/
           
       - name: Install docker
         run: |
