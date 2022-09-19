@@ -42,9 +42,9 @@ jobs:
           
       - name: Get data via zenodo
         run: |
-          zenodo_get 7085656 -o data/tests/
+          zenodo_get 7085656 -o ${HOME}/data/tests/
           ls -la
-          ls -la data/tests/
+          ls -la ${HOME}/data/tests/
 
       - name: Setup miniconda & small_peptides root env
         uses: conda-incubator/setup-miniconda@v2
@@ -75,7 +75,9 @@ jobs:
         run: bash data/scripts/pull_containers.sh
         
       - name: run nextflow
-        run: nextflow run main.nf -profile test,slurm_offline
+        run: |
+          ls -la
+          nextflow run main.nf -profile test,slurm_offline
         
         
   test_macos:   
@@ -109,9 +111,9 @@ jobs:
           
       - name: Get data via zenodo
         run: |
-          zenodo_get 7085656 -o data/tests/
+          zenodo_get 7085656 -o ${HOME}/data/tests/
           ls -la
-          ls -la data/tests/
+          ls -la ${HOME}/data/tests/
 
       - name: Setup miniconda & small_peptides root env
         uses: conda-incubator/setup-miniconda@v2
@@ -145,5 +147,7 @@ jobs:
         run: bash data/scripts/pull_containers.sh
         
       - name: run nextflow
-        run: nextflow run main.nf -profile test,slurm_offline
+        run: |
+          ls -la
+          nextflow run main.nf -profile test,slurm_offline
 
