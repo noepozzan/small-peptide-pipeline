@@ -138,18 +138,15 @@ jobs:
       - name: Update small_peptides env with dev. packages
         run: conda env update -f install/environment.dev.yml
 
-      - name: Display all miniconda & env info
+      - name: Display info
         run: |
           docker --version
           nextflow -version
           conda info -a
           conda list
-
-      - name: Pull singularity images
-        run: bash data/scripts/pull_containers.sh
         
       - name: run nextflow
         run: |
           ls -la
-          nextflow run main.nf -profile test,slurm_offline
+          nextflow run main.nf -profile test,docker
 
