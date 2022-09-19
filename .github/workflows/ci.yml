@@ -77,7 +77,7 @@ jobs:
       - name: run nextflow
         run: |
           ls -la
-          nextflow run main.nf -profile test,slurm_offline
+          nextflow run main.nf -profile test,singularity_offline
         
         
   test_macos:   
@@ -107,7 +107,9 @@ jobs:
           
       - name: Install dependencies via pip
         run: |
-          pip install zenodo-get
+          which pip
+          which pip3
+          pip3 install zenodo-get
           
       - name: Get data via zenodo
         run: |
