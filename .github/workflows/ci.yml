@@ -1,8 +1,5 @@
 name: CI
 
-env:
-  RUN_LINUX: ${{ false }}
-
 on:
   push:
     branches:
@@ -15,7 +12,8 @@ on:
 jobs:
 
   test_linux:
-    if: ${{ env.RUN_LINUX == true }}
+    needs: test_macos
+    if: ${{ needs.test_macos.result == 'success' }}
     runs-on: ${{ matrix.os }}
     
     strategy:
