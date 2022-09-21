@@ -227,6 +227,7 @@ process FILTER_FDR {
 process FREEQUANT {
 
     label "philosopher"
+    label "predicting"
     
 	publishDir "${params.philosopher_dir}/freequant", mode: 'copy', pattern: 'freequant_done'
     publishDir "${params.log_dir}/freequant", mode: 'copy', pattern: '*.log'
