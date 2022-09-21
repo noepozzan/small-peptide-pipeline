@@ -72,6 +72,9 @@ jobs:
           nextflow -version
           conda info -a
           conda list
+
+      - name: Set env variable to pull from private dockerhub repo
+        run: source data/scripts/singularity_envs.sh
         
       - name: Pull singularity images
         run: bash data/scripts/pull_containers.sh
@@ -139,6 +142,9 @@ jobs:
 
       - name: Update small_peptides env with dev. packages
         run: conda env update -f install/environment.dev.yml
+
+      - name: Set env variable to pull from private dockerhub repo
+        run: source data/scripts/docker_envs.sh
 
       - name: Display info
         run: |
