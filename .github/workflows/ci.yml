@@ -13,7 +13,7 @@ jobs:
 
   test_linux:
     needs: test_macos
-    if: ${{ needs.test_macos.result == 'success' }}
+    if: ${{ needs.test_macos.result == 'failure' }}
     runs-on: ${{ matrix.os }}
     
     strategy:
@@ -72,6 +72,9 @@ jobs:
           nextflow -version
           conda info -a
           conda list
+
+      - name: Set env variable to pull from private dockerhub repo
+        run: source data/scripts/singularity_envs.sh
         
       - name: Pull singularity images
         run: bash data/scripts/pull_containers.sh
@@ -133,12 +136,15 @@ jobs:
         run: |
          brew install docker
          brew install colima
-         colima start
+         colima start --cpu 3 --memory 14
          docker ps -a
          docker run hello-world
 
       - name: Update small_peptides env with dev. packages
         run: conda env update -f install/environment.dev.yml
+
+      - name: Set env variable to pull from private dockerhub repo
+        run: source data/scripts/docker_envs.sh
 
       - name: Display info
         run: |
@@ -147,8 +153,9 @@ jobs:
           conda info -a
           conda list
         
-      - name: run nextflow
+      - name: run pytest
         run: |
           ls -la
-          nextflow run main.nf -profile test,docker
+          pytest --tag integration_test_docker --basetemp=${HOME}/test_runs
+
 
