@@ -13,7 +13,7 @@ jobs:
 
   test_linux:
     needs: test_macos
-    if: ${{ needs.test_macos.result == 'success' }}
+    if: ${{ needs.test_macos.result == 'failure' }}
     runs-on: ${{ matrix.os }}
     
     strategy:
