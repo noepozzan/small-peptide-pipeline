@@ -1,25 +1,38 @@
 ![ci](https://github.com/noepozzan/small-peptide-pipeline/actions/workflows/ci.yml/badge.svg)
 [![GitHub license](https://img.shields.io/github/license/noepozzan/small-peptide-pipeline?color=orange)](https://github.com/noepozzan/small-peptide-pipeline/blob/master/LICENSE)
 
-<div align="left">
-    <img width="20%" align="left" src=images/esel.webp>
-</div>
+# SMAPP
 
-**SMAPP** (Small Peptide Pipeline) is a workflow that allows you
-to analyze riboseq reads for the existence of small peptides and validating hits on peptidomics data.
-The workflow relies on publicly available bioinformatics tools and currently handles single-end stranded bulk ribo-Seq and label-free peptidomics data.
-The workflow is developed in [Nextflow][nextflow], a widely used workflow management system in the bioinformatics community.
+1. You have experimental data of ribosome profiling.
+2. You also have mass spectrometry data from the same samples.
+3. You are searching for novel (small) peptides.
 
-According to the current SMAPP implementation, reads are first pre-processed and then filtered against a library of rRNA.
-Quality control with state-of-the-art tools gives you meaningful initial insights into the quality and composition of your ribo-Seq library.
-After mapping of the ribo-Seq to your reference of choice, potential small peptides can be extracted, mainly using [Ribo-TISH][ribotish]. If you have experimental data that also comprises proteomics files, evaluation of your presumed small peptides is possible with [philosopher][philosopher].
+### => Then you are at the right address.  
+
+**SMAPP** (Small Peptide Pipeline) is a workflow that allows you to analyze data from ribosome profiling
+for the existence of small unannotated open reading frames (smORFs).
+If, in addition, you have matching mass spectrometry data, **SMAPP** uses the mass spectrometry data
+to validate your predicted smORFs.
+The workflow relies on publicly available bioinformatics tools and is developed in [Nextflow][nextflow],
+a widely used workflow management system in the bioinformatics community.
+
+According to the current **SMAPP** implementation, reads are first pre-processed and then filtered against a library of rRNA.
+Quality control with state-of-the-art tools gives you meaningful initial insights into the quality and
+composition of your ribo-Seq library.
+After mapping of the ribosome protected fragments (RPFs) to your reference of choice,
+the aligned reads are again quality checked and smORFs are predicted,
+mainly relying on the concept of [periodicity][periodicity].
+For the analysis of your mass spectra you need a database to search against.
+The predicted peptides in [fasta][fasta] format from upstream steps offer you an optimal database to choose,
+compared with searching against a database like [uniprot][uniprot] which contains too many proteins,
+augmenting the risk of false positives.
 Additional reports summarise the results of the individual steps and provide useful visualisations.
 
-<div align="center">
-    <img width="80%" src=images/flowchart.png>
-</div> 
-
-> **Note:** For a more detailed description of each step, please refer to the [workflow
+> **Note:**  
+> If you have either ribosome profiling data or mass spectrometry data,
+> you can still use the worklow.  
+> Please skip to the part about [profiles](#running-the-workflow-on-your-own-samples).  
+> For a more detailed description of each step, please refer to the [workflow
 > documentation](pipeline_documentation.md).
 
 # Requirements
@@ -189,8 +202,8 @@ You find these files under `conf/envs/`.
 - `test`: to only run the test pipeline with small files
 - `qc`: to only run the quality control part of the pipeline
 - `prepare`: to prepare the reads
-- `ribotish`: to only run [Ribo-TISH][ribotish]
-- `proteomics`: to quantify your proteomics (mzML) files
+- `ribotish`: to predict small peptides from your ribosome profiling data (if you don't have mass spec data)
+- `proteomics`: to search your mass spectra files (`.raw`, `.mzML`) against a database
   
 **IMPORTANT:** The profile you choose must match the `.config` file you adapt.
 So, if you choose the profile `full`, you have to specify the paths to your files in the `conf/params/full.config` configuration file.  
@@ -250,4 +263,7 @@ sbatch slurm.script
 [ribotish]: <https://bioinformatics.mdanderson.org/public-software/ribo-tish/>
 [slurm]: <https://slurm.schedmd.com/documentation.html>
 [zavolan-lab]: <https://www.biozentrum.unibas.ch/research/researchgroups/overview/unit/zavolan/research-group-mihaela-zavolan/>
+[periodicity]: <https://www.nature.com/articles/s41467-017-01981-8#Sec4>
+[fasta]: <https://en.wikipedia.org/wiki/FASTA_format>
+[uniprot]: <https://www.uniprot.org/]
 
