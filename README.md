@@ -248,6 +248,9 @@ which you'll find in the project's main directory.
 sbatch slurm.script
 ```
 
+### If you have come this far, you are very welcome (& encouraged) to contribute to this project.
+Please just open an issue or a pull request.
+
 [conda]: <https://docs.conda.io/projects/conda/en/latest/index.html>
 [profiles]: <https://www.nextflow.io/docs/latest/config.html#config-profiles>
 [miniconda-installation]: <https://docs.conda.io/en/latest/miniconda.html>
@@ -265,5 +268,5 @@ sbatch slurm.script
 [zavolan-lab]: <https://www.biozentrum.unibas.ch/research/researchgroups/overview/unit/zavolan/research-group-mihaela-zavolan/>
 [periodicity]: <https://www.nature.com/articles/s41467-017-01981-8#Sec4>
 [fasta]: <https://en.wikipedia.org/wiki/FASTA_format>
-[uniprot]: <https://www.uniprot.org/]
+[uniprot]: <https://www.uniprot.org/>
 
