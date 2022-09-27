@@ -28,9 +28,10 @@ compared with searching against a database like [uniprot][uniprot] which contain
 augmenting the risk of false positives.
 Additional reports summarise the results of the individual steps and provide useful visualisations.
 
-> **Note:**
+> **Note:**  
 > If you have either ribosome profiling data or mass spectrometry data,
-> you can still use the worklow. Please skip to the part about [profiles](#running-the-workflow-on-your-own-samples).
+> you can still use the worklow.  
+> Please skip to the part about [profiles](#running-the-workflow-on-your-own-samples).  
 > For a more detailed description of each step, please refer to the [workflow
 > documentation](pipeline_documentation.md).
 
