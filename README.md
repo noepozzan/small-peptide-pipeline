@@ -1,10 +1,13 @@
 ![ci](https://github.com/noepozzan/small-peptide-pipeline/actions/workflows/ci.yml/badge.svg)
 [![GitHub license](https://img.shields.io/github/license/noepozzan/small-peptide-pipeline?color=orange)](https://github.com/noepozzan/small-peptide-pipeline/blob/master/LICENSE)
 
+# SMAPP
+
 1. You have experimental data of ribosome profiling.
 2. You also have mass spectrometry data from the same samples.
 3. You are searching for novel (small) peptides.
-=> Then you are at the right address.
+
+### => Then you are at the right address.  
 
 **SMAPP** (Small Peptide Pipeline) is a workflow that allows you to analyze data from ribosome profiling
 for the existence of small unannotated open reading frames (smORFs).
@@ -198,8 +201,8 @@ You find these files under `conf/envs/`.
 - `test`: to only run the test pipeline with small files
 - `qc`: to only run the quality control part of the pipeline
 - `prepare`: to prepare the reads
-- `ribotish`: to only run [Ribo-TISH][ribotish]
-- `proteomics`: to quantify your proteomics (mzML) files
+- `ribotish`: to predict small peptides from your ribosome profiling data (if you don't have mass spec data)
+- `proteomics`: to search your mass spectra files (`.raw`, `.mzML`) against a database
   
 **IMPORTANT:** The profile you choose must match the `.config` file you adapt.
 So, if you choose the profile `full`, you have to specify the paths to your files in the `conf/params/full.config` configuration file.  
