@@ -107,8 +107,23 @@ def main():
 
     # for sam in options.ribo_pred:
     all_uorfs = pd.read_csv(options.ribo_pred, sep='\t')
-    utr_uorf = all_uorfs.loc[(all_uorfs['TisType'] == "5'UTR")
-                             | (all_uorfs['TisType'] == "3'UTR")]
+    utr_uorf = all_uorfs.loc[(all_uorfs['TisType'] == "3'UTR")
+                             | (all_uorfs['TisType'] == "Novel")
+                             | (all_uorfs['TisType'] == "Internal")
+                             | (all_uorfs['TisType'] == "Annotated")
+                             | (all_uorfs['TisType'] == "Novel:CDSFrameOverlap")
+                             | (all_uorfs['TisType'] == "Truncated")
+                             | (all_uorfs['TisType'] == "Novel:Known")
+                             | (all_uorfs['TisType'] == "3'UTR:CDSFrameOverlap")
+                             | (all_uorfs['TisType'] == "Extended")
+                             | (all_uorfs['TisType'] == "Truncated:Known")
+                             | (all_uorfs['TisType'] == "3'UTR:Known")
+                             | (all_uorfs['TisType'] == "5'UTR")
+                             | (all_uorfs['TisType'] == "Extended:Known")
+                             | (all_uorfs['TisType'] == "Internal:Known")
+                             | (all_uorfs['TisType'] == "5'UTR:Known")
+                             | (all_uorfs['TisType'] == "Extended:CDSFrameOverlap")
+                             | (all_uorfs['TisType'] == "5'UTR:CDSFrameOverlap")]
     for ind, row in utr_uorf.iterrows():
         transcript_all = row['Tid']
         transcript_all = transcript_all.split('.')
