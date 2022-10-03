@@ -77,7 +77,7 @@ After choosing the `profile` that fits your analysis needs, you need to do _2_ t
 - The third `params` part specifies the output paths of your results.
 - The last `params` part contains variables important for the workflow that you probably shouldn't change.
 
-https://github.com/noepozzan/small-peptide-pipeline/blob/4af1760caecbbdf82f1168000edad05b5a7b1003/conf/params/qc.config#L1-L30
+https://github.com/noepozzan/small-peptide-pipeline/blob/9ca609d6fdf84950c6699506486d14f7ddf3aa67/conf/params/qc.config#L1-L27
 
 #### The files under `conf/envs/` look like this:
 
@@ -86,7 +86,7 @@ https://github.com/noepozzan/small-peptide-pipeline/blob/4af1760caecbbdf82f11680
 - The first `process` part defines your system specifications of `memory` and `cpus`.
 - The second `process` part contains the specifications for the Docker images used. Please do **not** change this.
 
-https://github.com/noepozzan/small-peptide-pipeline/blob/4af1760caecbbdf82f1168000edad05b5a7b1003/conf/envs/docker.config#L1-L108
+https://github.com/noepozzan/small-peptide-pipeline/blob/9ca609d6fdf84950c6699506486d14f7ddf3aa67/conf/envs/docker.config#L1-L98
 
 ## Parameters
 
@@ -317,6 +317,12 @@ Map the reads that didn't map to any rRNA to the genome
   - `--outSAMattributes All`
   - `--quantMode GeneCounts`
   - `--outReadsUnmapped Fastx`
+  - `--outFilterMismatchNmax 2`
+  - `--alignEndsType EndToEnd`
+  - `--outFilterIntronMotifs RemoveNoncanonicalUnannotated`
+  - `--alignIntronMax 20000`
+  - `--outMultimapperOrder Random`
+  - `--outSAMmultNmax 1`
 
 #### `SAM_TO_BAM_SORT_AND_INDEX_STAR`
 Compress sam files to bam, then sort and index them and pack these sorted bam+index into folders for easier downstream handling
