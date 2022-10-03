@@ -37,9 +37,11 @@ process MAP_GENOME_STAR {
     label "star"
 	label 'mapping'
 
-    publishDir "${params.map_dir}/map_genome_star", mode: 'copy', pattern: "*.Aligned.out.sam"
-	publishDir "${params.map_dir}/map_genome_star", mode: 'copy', pattern: "*.Unmapped*"
+    publishDir "${params.map_dir}/map_genome_star/mapped", mode: 'copy', pattern: "*.Aligned.out.sam"
+    publishDir "${params.map_dir}/map_genome_star/read_counts", mode: 'copy', pattern: "*.tab"
+	publishDir "${params.map_dir}/map_genome_star/unmapped", mode: 'copy', pattern: "*.Unmapped*"
     publishDir "${params.log_dir}/map_genome_star", mode: 'copy', pattern: '*.log'
+    publishDir "${params.log_dir}/map_genome_star", mode: 'copy', pattern: '*.out'
 
     input:
     each(path(reads))
@@ -48,8 +50,10 @@ process MAP_GENOME_STAR {
 
     output:
     path '*.Aligned.out.sam', emit: aligned
+    path '*.tab', emit: counts
     path '*.Unmapped*', emit: unmapped
 	path '*.log', emit: log
+	path '*.out', emit: out
 
     script:
     """
@@ -66,19 +70,14 @@ process MAP_GENOME_STAR {
 			--quantMode GeneCounts \
 			--readFilesIn \$VAR \
 			--outReadsUnmapped Fastx \
-			--outFileNamePrefix \${prefix}. \
-			&> \${prefix}_map_genome_star.log
-
-	: '
-		--outFilterMismatchNmax 2 \
-		--alignEndsType EndToEnd \
-		--outFilterIntronMotifs RemoveNoncanonicalUnannotated \
-		--alignIntronMax 20000 \
-		--outMultimapperOrder Random \
-		--outSAMmultNmax 1
-
-	mv *.Unmapped.out.* \${prefix}.unmapped
-	'
+			--outFileNamePrefix \$prefix. \
+            --outFilterMismatchNmax 2 \
+            --alignEndsType EndToEnd \
+            --outFilterIntronMotifs RemoveNoncanonicalUnannotated \
+            --alignIntronMax 20000 \
+            --outMultimapperOrder Random \
+            --outSAMmultNmax 1 \
+            &> \${prefix}_map_genome_star.log
 
     done
 
