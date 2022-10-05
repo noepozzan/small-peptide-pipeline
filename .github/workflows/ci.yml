@@ -118,7 +118,7 @@ jobs:
           
       - name: Get data via zenodo
         run: |
-          zenodo_get 7085656 -o ${HOME}/data/tests/
+          zenodo_get -R 10 -p 10 7085656 -o ${HOME}/data/tests/
           ls -la
           ls -la ${HOME}/data/tests/
 
@@ -157,5 +157,6 @@ jobs:
         run: |
           ls -la
           pytest --tag integration_test_docker --basetemp=${HOME}/test_runs
+
 
 
