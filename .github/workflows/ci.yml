@@ -156,7 +156,13 @@ jobs:
       - name: run pytest
         run: |
           ls -la
-          pytest --tag integration_test_docker --basetemp=${HOME}/test_runs
+          pytest --tag integration_test_docker --kwd --basetemp=${HOME}/test_runs
+          
+      - name: check what went wrong again with that stupid ass pytest
+        if: always()
+        run: |
+          cat ${HOME}/test_runs/integration_test_docker/log.out
+          cat ${HOME}/test_runs/integration_test_docker/log.err
 
 
 
