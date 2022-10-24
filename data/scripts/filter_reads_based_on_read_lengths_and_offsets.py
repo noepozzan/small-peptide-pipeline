@@ -20,7 +20,7 @@ import json
 def main():
     """ Main function """
 
-    __doc__ = "Determine p-site offset"
+    __doc__ = "Filter reads based on selected read lengths and offsets (Create a-site profile)"
     __version__ = "0.1"
 
     parser = ArgumentParser(

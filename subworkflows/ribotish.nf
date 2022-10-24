@@ -200,6 +200,7 @@ process COMBINE {
 
     input:
     path ribo_pred
+    path swissprot
 
     output:
 	path 'combined_speptide*', emit: combined_prediction
@@ -221,6 +222,7 @@ process COMBINE {
     do
         cat \$VAR >> combined_speptide.fasta
     done
+    cat ${swissprot} >> combined_speptide.fasta
 	"""
 
 }
@@ -232,7 +234,8 @@ workflow RIBOTISH {
     gtf_ch
     bam_sort_index_folder_ch
 	genome_ch
-	
+	swissprot_ch
+
     main:
 
     FASTA_INDEX(
@@ -271,7 +274,8 @@ workflow RIBOTISH {
 	speptide = SORF_TO_PEPTIDE.out.prediction
 
 	COMBINE(
-		speptide.collect()
+		speptide.collect(),
+        swissprot_ch
 	)
 	speptide_combined = COMBINE.out.combined_prediction
 
