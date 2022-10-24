@@ -333,7 +333,7 @@ Compress sam files to bam, then sort and index them and pack these sorted bam+in
 
 ### `ANNOTATE`
 This subworkflow is made up of 4 [Nextflow](#third-party-software-used) processes.  
-It takes the rRNA reference, the reference genome and a genome annotation file as inputs and returns a fasta file containing the longest transcripts and a tsv file containing "transcript id, gene id, CDS"(MERIC?)
+It takes the rRNA reference, the reference genome and a genome annotation file as inputs and returns a fasta file containing the longest transcripts and a tsv file containing transcript id, gene id, CDS
   
 #### `SELECT_LONGEST_CODING_TRANSCRIPT`
 Python script that selects longest coding transcript per gene
@@ -429,7 +429,7 @@ Returns pdf files of histograms to look at read length distribution of each samp
 Returns file(s) containing dictionaries with the p site offset for each sequence length
 - **Input**
   - folder(s) containing sorted+indexed bam file and its index; from [**TRANSCRIPTOME**](#transcriptome)
-  - tsv file containing "transcript id, gene id, CDS"(MERIC?); from [**ANNOTATE**](#annotate)
+  - tsv file containing transcript id, gene id, CDS; from [**ANNOTATE**](#annotate)
   - python script
 - **Output**
   - file(s) containing dictionaries with the p site offset for each sequence length; used in [**COUNT_READS**](#count_reads), [**CHECK_PERIODICITY**](#check_periodicity) and [**FILTER_LENGTHS_OFFSETS**](#filter_lenghts_offsets)
@@ -439,7 +439,7 @@ Counts reads of transcripts (in 5', CDS and 3') and shows cds length
 - **Input**
   - folder(s) containing sorted+indexed bam file and its index; from [**TRANSCRIPTOME**](#transcriptome)
   - file(s) containing dictionaries with the p site offset for each sequence length; from [**DETERMINE_P_SITE_OFFSET**](#determine_p_site_offsets)
-  - tsv file containing "transcript id, gene id, CDS"(MERIC?); from [**ANNOTATE**](#annotate)
+  - tsv file containing transcript id, gene id, CDS; from [**ANNOTATE**](#annotate)
   - python script
 - **Output**
   - tsv file(s) of counts of reads of transcripts (in 5', CDS and 3') and shows cds length
@@ -449,7 +449,7 @@ Plots periodicity of your riboseq reads around start and stop site
 - **Input**
   - folder(s) containing sorted+indexed bam file and its index; from [**TRANSCRIPTOME**](#transcriptome)
   - file(s) containing dictionaries with the p site offset for each sequence length; from [**DETERMINE_P_SITE_OFFSET**](#determine_p_site_offsets)
-  - tsv file containing "transcript id, gene id, CDS"(MERIC?); from [**ANNOTATE**](#annotate)
+  - tsv file containing transcript id, gene id, CDS; from [**ANNOTATE**](#annotate)
   - python script
 - **Output**
   - file(s) indicating read quantity along riboseq reads
@@ -462,14 +462,14 @@ Filter reads based on selected read lengths and offsets (Create a-site profile)
   - file(s) containing dictionaries with the p site offset for each sequence length; from [**DETERMINE_P_SITE_OFFSET**](#determine_p_site_offsets)
   - python script
 - **Output**
-  - mapped (`.bam`) transcripts with unique a site profile (MERIC?); used in [**BAM_SORT_AND_INDEX**](#bam_sort_and_index)
+  - mapped (`.bam`) transcripts with unique a site profile; used in [**BAM_SORT_AND_INDEX**](#bam_sort_and_index)
 
 #### `BAM_SORT_AND_INDEX`
 Sort and index bam file
 - **Input**
-  - mapped (`.bam`) transcripts with unique a site profile (MERIC?); from [**FILTER_LENGTHS_OFFSETS**](#filter_lengths_offsets)
+  - mapped (`.bam`) transcripts with unique a site profile; from [**FILTER_LENGTHS_OFFSETS**](#filter_lengths_offsets)
 - **Output**
-  - sorted+indexed and mapped transcripts with unique a site profile (MERIC?)
+  - sorted+indexed and mapped transcripts with unique a site profile
 
 ### `RIBOTISH`
 This subworfklow is made up of 6 [Nextflow](#third-party-software-used) processes.  
