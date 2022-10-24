@@ -33,7 +33,7 @@ on installation and usage please see [here](README.md).
 | --- | --- | --- | --- |
 | **bedtools** | [GPLv2][license-gpl2] | _"[...] intersect, merge, count, complement, and shuffle genomic intervals from multiple files in widely-used genomic file formats such as BAM, BED, GFF/GTF, VCF"_ | [code][code-bedtools] / [manual][code-bedtools] |
 | **cutadapt** | [MIT][license-mit] | _"[...] finds and removes adapter sequences, primers, poly-A tails and other types of unwanted sequence from your high-throughput sequencing reads"_ | [code][code-cutadapt] / [manual][docs-cutadapt] / [publication][pub-cutadapt] |
-| **gffread** | [MIT][license-mit] | _"[...] validate, filter, convert and perform various other operations on GFF files"_ | [code][code-gffread] / [manual][docs-gffread] |
+| **gffread** | [MIT][license-mit] | _"[...] validate, filter, convert and perform various other operations on GFF files"_ | [code][code-gffread] / [manual][docs-gffread] / [publication][pub-gffread] |
 | **FastQC** | [GPLv3][license-gpl3] | _"A quality control analysis tool for high throughput sequencing data"_ | [code][code-fastqc] / [manual][docs-fastqc] |
 | **MultiQC** | [GPLv3][license-gpl3] | _"Aggregate results from bioinformatics analyses across many samples into a single report"_ | [code][code-multiqc] / [manual][docs-multiqc] / [publication][pub-multiqc] |
 | **SAMtools** | [MIT][license-mit] | _"[...] suite of programs for interacting with high-throughput sequencing data"_ | [code][code-samtools] / [manual][docs-samtools] / [publication][pub-samtools] |
@@ -674,6 +674,7 @@ Nextflow seems to sometimes just be over-hasty and begin a process before having
 
 [pub-cutadapt]: <https://doi.org/10.14806/ej.17.1.200>
 [pub-multiqc]: <https://doi.org/10.1093/bioinformatics/btw354>
+[pub-gffread]: <https://f1000research.com/articles/9-304/v1>
 [pub-samtools]: <https://doi.org/10.1093/bioinformatics/btp352>
 [pub-star]: <https://doi.org/10.1093/bioinformatics/bts635>
 [pub-ribotish]: <https://doi.org/10.1038/s41467-017-01981-8>
