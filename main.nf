@@ -9,9 +9,7 @@ include { GENOME } from './subworkflows/map_genome.nf'
 include { rRNA } from './subworkflows/map_rrna.nf'
 include { TRANSCRIPTOME } from './subworkflows/map_transcriptome.nf'
 include { QC } from './subworkflows/qc.nf'
-include { FIX_NAMES } from './subworkflows/fix_names.nf'
 include { PULL_FILES } from './subworkflows/pull_files.nf'
-include { RAWMZML } from './subworkflows/raw_to_mzml.nf'
 
 // check if files are present by converting params to channels
 if ( params.run_mode == "test" || params.run_mode == "full" ) {
@@ -20,6 +18,7 @@ if ( params.run_mode == "test" || params.run_mode == "full" ) {
     other_RNAs_sequence_ch = channel.fromPath(params.other_RNAs_sequence, checkIfExists: true)
     gtf_ch = channel.fromPath(params.gtf, checkIfExists: true)
     genome_ch = channel.fromPath(params.genome, checkIfExists: true)
+    swissprot_ch = channel.fromPath(params.swissprot, checkIfExists: true)
 }
 if ( params.run_mode == "test" || params.run_mode == "proteomics" ) {
     predicted_peptides = channel.fromPath(params.test_database, checkIfExists: true)
@@ -31,27 +30,7 @@ if ( params.run_mode == "ribotish" ) {
     gtf_ch = channel.fromPath(params.gtf, checkIfExists: true)
     genome_ch = channel.fromPath(params.genome, checkIfExists: true)
     bam_sort_index_folder_ch = channel.fromPath(params.bam_sort_index_folder, checkIfExists: true, type: 'dir')
-}
-
-
-// this should be replaced by Meric's image
-workflow RAW_TO_MZML {
-
-	RAWMZML()
-
-}
-
-// kind of unncecessary?
-workflow MAP_NAMES {
-
-	csv_file = channel.fromPath("${projectDir}/data/experimental_conditions.csv")
-	fix_script = channel.fromPath("${projectDir}/data/python_scripts/fix_names.py")
-
-	FIX_NAMES(
-		csv_file,
-		fix_script
-	)
-
+    swissprot_ch = channel.fromPath(params.swissprot, checkIfExists: true)
 }
 
 // main workflow that calls all processes in the subworkflows dir
@@ -108,7 +87,8 @@ workflow {
 		RIBOTISH(
 			gtf_ch,
 			bam_sort_index_folder_ch,
-			genome_ch
+			genome_ch,
+            swissprot_ch
 		)
 		predicted_peptides = RIBOTISH.out.speptide_combined
 	}
