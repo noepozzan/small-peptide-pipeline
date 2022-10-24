@@ -156,7 +156,9 @@ jobs:
       - name: run pytest
         run: |
           ls -la
-          pytest --tag integration_test_docker --basetemp=${HOME}/test_runs
+          pytest --tag integration_test_docker --kwd --basetemp=${HOME}/test_runs
+          cat ${HOME}/test_runs/integration_test_docker/log.out
+          cat ${HOME}/test_runs/integration_test_docker/log.err
 
 
 
