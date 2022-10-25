@@ -100,14 +100,4 @@ workflow {
         )
     }
     
-/*
-	PHILOSOPHER_PARALLEL(
-		//PHILOSOPHER.out.ionquant,
-		PHILOSOPHER.out.report,
-		PHILOSOPHER.out.msfragger_params,
-		predicted_speptides,
-        proteomics_reads_ch		
-	)
-*/
-
 }
