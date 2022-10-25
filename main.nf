@@ -1,7 +1,6 @@
 nextflow.enable.dsl=2
 
 include { PHILOSOPHER } from './subworkflows/philosopher.nf'
-include { PHILOSOPHER_PARALLEL } from './subworkflows/philosopher_parallel.nf'
 include { ANNOTATE } from './subworkflows/annotate.nf'
 include { RIBOTISH } from './subworkflows/ribotish.nf'
 include { PREPARE } from './subworkflows/prepare_reads.nf'
@@ -9,7 +8,6 @@ include { GENOME } from './subworkflows/map_genome.nf'
 include { rRNA } from './subworkflows/map_rrna.nf'
 include { TRANSCRIPTOME } from './subworkflows/map_transcriptome.nf'
 include { QC } from './subworkflows/qc.nf'
-include { PULL_FILES } from './subworkflows/pull_files.nf'
 
 // check if files are present by converting params to channels
 if ( params.run_mode == "test" || params.run_mode == "full" ) {
@@ -18,6 +16,8 @@ if ( params.run_mode == "test" || params.run_mode == "full" ) {
     other_RNAs_sequence_ch = channel.fromPath(params.other_RNAs_sequence, checkIfExists: true)
     gtf_ch = channel.fromPath(params.gtf, checkIfExists: true)
     genome_ch = channel.fromPath(params.genome, checkIfExists: true)
+}
+if ( params.run_mode == "full" ) {
     swissprot_ch = channel.fromPath(params.swissprot, checkIfExists: true)
 }
 if ( params.run_mode == "test" || params.run_mode == "proteomics" ) {
