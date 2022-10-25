@@ -194,74 +194,6 @@ process CHECK_PERIODICITY {
 
 }
 
-process FILTER_LENGTHS_OFFSETS {
-    
-    label "pysam"
-
-    publishDir "${params.qc_dir}/filter_lengths_offsets", mode: 'copy', pattern: '*.unique_a_site.bam'
-    publishDir "${params.log_dir}/filter_lengths_offsets", mode: 'copy', pattern: '*.log'
-
-    input:
-    each(path(bam_folder_offsets))
-    path script_py
-
-    output:
-    path '*.unique_a_site.bam', emit: unique, optional: true
-	path '*.log', emit: log
-
-    script:
-    """
-    workd=\$(pwd)
-    input=\$(basename ${bam_folder_offsets[0]})
-    prefix=\$(echo \$input | cut -d '.' -f 1)
-
-	cp ${bam_folder_offsets[0]}/* .
-
-	python ${script_py} \
-		--bam *.bam \
-		--p_site_offsets ${bam_folder_offsets[1]} \
-		--bam_out \${prefix}.unique_a_site.bam \
-		&> \${prefix}_filter_lengths_offsets.log
-	
-    """
-
-}
-
-process BAM_SORT_AND_INDEX {
-    
-    label "samtools"
-
-    publishDir "${params.qc_dir}/bam_sort_and_index", mode: 'copy', pattern: '*.bam'
-	publishDir "${params.qc_dir}/bam_sort_and_index", mode: 'copy', pattern: '*.bam.bai'
-	publishDir "${params.qc_dir}/bam_sort_and_index", mode: 'copy', pattern: '*.bam_sort_index'
-    publishDir "${params.log_dir}/bam_sort_and_index", mode: 'copy', pattern: '*.log'
-
-    input:
-    path bam
-
-    output:
-    path '*.bam', emit: bam
-    path '*.bam.bai', emit: bai
-    path '*.bam_sort_index', emit: folder
-	path '*.log', emit: log
-
-    script:
-    """
-    input=\$(basename ${bam})
-    prefix=\$(echo \$input | cut -d '.' -f 1)
-
-    samtools sort ${bam} \
-		> \${prefix}.unique_a_site_sorted.bam; \
-		samtools index \${prefix}.unique_a_site_sorted.bam; \
-		2> \${prefix}.bam_sort_and_index.log
-
-    mkdir \${prefix}.bam_sort_index
-    cp \${prefix}.unique* \${prefix}.bam_sort_index
-    """
-
-}
-
-
 workflow QC {
 
     take:
@@ -304,17 +236,6 @@ workflow QC {
 		transcript_id_gene_id_CDS,
 		params.check_periodicity_script
 	)
-
-	FILTER_LENGTHS_OFFSETS(
-		bam_folder_offsets,
-		params.filter_lengths_offsets_script
-	)
-    transcripts_mapped_unique_a_site_profile_bam = FILTER_LENGTHS_OFFSETS.out.unique
-
-	BAM_SORT_AND_INDEX(
-		transcripts_mapped_unique_a_site_profile_bam
-	)	
-
 
 }
 

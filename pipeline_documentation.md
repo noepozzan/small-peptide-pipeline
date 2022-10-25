@@ -358,15 +358,8 @@ Generate transcript id, gene id, CDS table
   - fasta file containing longest coding transcript for each gene; from [**EXTRACT_TRANSCRIPT_SEQUENCES**](#extract_transcript_sequences)
   - python script
 - **Output**
-  - tsv file containing transcript id, gene id, CDS; used in [**CREATE_BED_CDS_FILE**](#create_bed_cds_file) and [**QC**](#qc)
+  - tsv file containing transcript id, gene id, CDS; used in [**QC**](#qc)
 
-#### `CREATE_BED_CDS_FILE`
-Reorder above tsv file to be in `.bed` format
-- **Input**
-  - tsv file containing transcript id, gene id, CDS; from [**CREATE_TAB_DELIMITED_CDS_FILE**](#create_tab_delimited_cds_file)
-- **Output**
-  - bed file containing transcript id, CDS, gene id
-  
 ### `TRANSCRIPTOME`
 This subworkflow is made up of 4 [Nextflow](#third-party-software-used) processes.  
 It takes the fasta file containing the longest transcript per gene as its reference from [**ANNOTATE**](#annotate) and reads unmapped to the rRNA reference as inputs and returns uniquely mapped and unmapped reads against the transcriptome.

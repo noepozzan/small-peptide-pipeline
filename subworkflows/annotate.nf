@@ -85,31 +85,6 @@ process CREATE_TAB_DELIMITED_CDS_FILE {
 
 }
 
-process CREATE_BED_CDS_FILE {
-    
-    label "htseq_biopython"
-
-    publishDir "${params.annotate_dir}/create_bed_cds_file", mode: 'copy', pattern: 'CDS.bed'
-    publishDir "${params.log_dir}/create_bed_cds_file", mode: 'copy', pattern: '*.log'
-
-    input:
-    path tsv
-
-    output:
-    path 'CDS.bed', emit: bed
-	path '*.log', emit: log
-
-    script:
-    """
-    (tail -n+2 ${tsv} \
-		| awk '{print \$1 "\t" \$3-1 "\t" \$4 "\t" \$2 }' > CDS.bed) \
-		&> create_bed_cds_file.log
-
-    """
-
-}
-
-
 workflow ANNOTATE {
 
     take:
@@ -137,16 +112,10 @@ workflow ANNOTATE {
 	)
 	transcript_id_gene_id_CDS_tsv = CREATE_TAB_DELIMITED_CDS_FILE.out.tsv
 
-	CREATE_BED_CDS_FILE(
-		transcript_id_gene_id_CDS_tsv
-	)
-    transcript_id_gene_id_CDS_bed = CREATE_BED_CDS_FILE.out.bed
-
     emit:
     longest_pc_transcript_per_gene_gtf
     longest_pc_transcript_per_gene_fa
     transcript_id_gene_id_CDS_tsv
-    transcript_id_gene_id_CDS_bed
 
 }
 

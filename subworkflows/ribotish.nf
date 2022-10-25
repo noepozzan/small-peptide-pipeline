@@ -207,17 +207,6 @@ process COMBINE {
 
     script:
     """
-    : '
-	WRITE_HEADER="true"
-    for VAR in ${ribo_pred}
-    do
-		if [ "\$WRITE_HEADER" == "true" ]; then
-	    	head -1 \$VAR > combined_speptide.fasta
-	    	WRITE_HEADER="false"
-		fi
-		tail -n +2 -q \$VAR >> combined_speptide.fasta
-    done
-	'
     for VAR in ${ribo_pred}
     do
         cat \$VAR >> combined_speptide.fasta
