@@ -65,7 +65,7 @@ def main():
     if options.verbose:
         sys.stdout.write(
             "Parsing params file: {} {}".format(
-                options.in,
+                options.input,
                 os.linesep
             )
         )
