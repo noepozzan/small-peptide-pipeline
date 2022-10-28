@@ -83,28 +83,56 @@ process GENERATE_CHANGE_PARAMS {
 	path '*.log', emit: log
 
     script:
+    if (params.fragger_mode == "open")
     """
 	# generate MSFRAGGER parameter file
-    java -jar /MSFragger.jar --config closed
+    #java -jar /MSFragger.jar --config nonspecific
 
 	# python script to change some parameters
 	python ${change_file_script} \
 		--database ${db} \
-		--param closed_fragger.params \
+		--param "${projectDir}/data/open_fragger.params" \
 		--out msfragger.params \
 		&> generate_change_params.log
 
-	# copy params file to the working directory
-	# since this process took place in some subdirectory
     cp msfragger.params ${params.workspace}
-	
 	"""
+    else if (params.fragger_mode == "closed")
+    """
+	python ${change_file_script} \
+		--database ${db} \
+		--param "${projectDir}/data/open_fragger.params" \
+		--out msfragger.params \
+		&> generate_change_params.log
 
+    cp msfragger.params ${params.workspace}
+    """
+    else if (params.fragger_mode == "nonspecific")
+    """
+	python ${change_file_script} \
+		--database ${db} \
+		--param "${projectDir}/data/nonspecific_fragger.params" \
+		--out msfragger.params \
+		&> generate_change_params.log
+
+    cp msfragger.params ${params.workspace}
+    """
+    else if (params.fragger_mode == "glyco")
+    """
+	python ${change_file_script} \
+		--database ${db} \
+		--param "${projectDir}/data/Nglyco-HCD_fragger.params" \
+		--out msfragger.params \
+		&> generate_change_params.log
+
+    cp msfragger.params ${params.workspace}
+    """
 }
 
 process MSFRAGGER {
 
     label "msfragger"
+    label "fragger_heavy"
 
     publishDir "${params.philosopher_dir}/msfragger/", mode: 'copy'
     publishDir "${params.log_dir}/msfragger/", mode: 'copy', pattern: '*.log'
@@ -258,7 +286,6 @@ process REPORT {
 
     label "philosopher"
 
-    publishDir "${params.philosopher_dir}/report", mode: 'copy', pattern: 'msstats.tsv'
 	publishDir "${params.philosopher_dir}/report", mode: 'copy', pattern: '*.tsv'
     publishDir "${params.log_dir}/report", mode: 'copy', pattern: '*.log'
 
@@ -327,24 +354,6 @@ process IONQUANT {
 
 }
 
-process CLEAN_UP_WORKSPACE {
-
-	label "philosopher"
-
-	input:
-	path report
-
-	script:
-	"""
-
-	cd ${params.workspace}
-	cd ..
-	rm -rf ${params.workspace}
-
-	"""
-
-}
-
 workflow PHILOSOPHER {
 
     take:
@@ -397,8 +406,6 @@ workflow PHILOSOPHER {
         REPORT.out.msstats,
         MSFRAGGER.out.pepXML
     )
-
-	//CLEAN_UP_WORKSPACE(REPORT.out.msstats)
 
     emit:
 	report = REPORT.out.msstats

@@ -103,8 +103,9 @@ Parameter name | Description | Data type(s)
 riboseq_reads | Main ribosome sequencing fastq.gz files | `str`
 proteomics_reads | Main proteomics mzML files | `str`
 gtf | Main gene annotation file in gene transfer format | `str`
-other_RNAs_sequence | Fasta file of rRNA library to be used for filtering out riboseq noise | `str`
+other_RNAs_sequence | ribosomal DNA complete repeating unit | `str`
 genome | Fasta genome file to be used as your reference genome | `str`
+swissprot | Swissprot proteins in fasta format | `str`
 
 The rest of the parameters are either important for the logic of the workflow or are input parameters to tools run by the pipeline.
 These are the default parameters that are sure to work with the pipeline. The tools used for analying the data our way obviously contain way more parameters. If you are familiar with the tools, feel free to change these parameters or pass them other parameters, too!
@@ -520,11 +521,11 @@ Translates the short open reading frames into peptide sequences.
   - predicted peptides in fasta aa format; used in [**COMBINE**](#combine)
 
 #### `COMBINE`
-Collect different files of predicted peptides into 1, using simple bash
+Collect different files of predicted peptides into 1, then add swissprot proteins and finally filter duplicate entries
 - **Input**
   - predicted peptides in fasta aa format; from [**SORF_TO_PEPTIDE**](#sorf_to_peptide)
 - **Output**
-  - combined predicted peptides in aa format: used in [**PHILOSOPHER**](#philosopher)
+  - combined unique predicted peptides and swissprot proteins in aa format: used in [**PHILOSOPHER**](#philosopher)
 
 ### `PHILOSOPHER`
 This subworfklow is made up of 10 [Nextflow](#third-party-software-used) processes.  
@@ -564,6 +565,8 @@ Search fasta database against mzML spectra for peptides that appear in both ("hi
   - database fasta file; from [**DATABASE**](#database)
   - msfragger parameter file; from  [**GENERATE_CHANGE_PARAMS**](#generate_change_params)
   - mzML proteomics spectra files
+- **Parameters**
+  - `fragger_mode`: _one of: open/closed/nonspecific/glyco, you may edit the files before running in data/_
 - **Output**
   - (`.pepXML`) file containing hits; used in [**PEPTIDEPROPHET**](#peptideprophet) and [**IONQUANT**](#ionquant)
   
@@ -589,6 +592,7 @@ Performs protein inference (skipped for now in our case since we are only intere
   - `.xml` file containing validated peptides; from [**PEPTIDEPROPHET**](#peptideprophet)
 - **Output**
   - `.xml` file containing validated proteins; used in [**FILTER_FDR**](#filter_fdr)
+
 #### `FILTER_FDR`
 Filter the hits by specifying cutoff FDR value
 - **Input**
@@ -604,18 +608,21 @@ Filter the hits by specifying cutoff FDR value
 - **Non-configurable & non-default**
   - `--picked`: _apply the picked FDR algorithm before the protein scoring_
   - `--tag`: _decoy tag (default "rev\_")_
+
 #### `FREEQUANT`
 Quantification using MS1 peak intensities
 - **Input**
   - pseudo input; from [**FILTER_FDR**](#filter_fdr)
 - **Output**
   - pseudo output; used in [**REPORT**](#report)
+
 #### `REPORT`
 Inspect the results
 - **Input**
   - pseudo input; from [**FREEQUANT**](#freequant)
 - **Output**
   - result files of philosopher (*.tsv, msstats.csv, ..)
+
 #### `IONQUANT`
 Quantification of MS1-precursor intensity
 - **Input**

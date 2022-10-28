@@ -196,14 +196,14 @@ process COMBINE {
    
 	label "sorf_to_speptide"
 
-    publishDir "${params.ribotish_dir}/combine", mode: 'copy', pattern: 'combined_speptide*'
+    publishDir "${params.ribotish_dir}/combine", mode: 'copy', pattern: 'unique_combined_speptide.fasta'
 
     input:
     path ribo_pred
     path swissprot
 
     output:
-	path 'combined_speptide*', emit: combined_prediction
+	path 'unique_combined_speptide.fasta', emit: combined_prediction
 
     script:
     """
@@ -212,6 +212,11 @@ process COMBINE {
         cat \$VAR >> combined_speptide.fasta
     done
     cat ${swissprot} >> combined_speptide.fasta
+    
+    # filter duplicates
+    python3 ${params.remove_fasta_duplicates_script} \
+        --input combined_speptide.fasta \
+        --output unique_combined_speptide.fasta
 	"""
 
 }
