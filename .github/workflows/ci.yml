@@ -115,6 +115,7 @@ jobs:
           which pip
           which pip3
           pip3 install zenodo-get
+          zenodo_get --version
           
       - name: Get data via zenodo
         run: |
