@@ -194,6 +194,32 @@ process CHECK_PERIODICITY {
 
 }
 
+process MULTIQC {
+
+    label "multiqc"
+
+    publishDir "${params.qc_dir}/multiqc", mode: 'copy', pattern: '*.html'
+    publishDir "${params.log_dir}/multiqc", mode: 'copy', pattern: '*.html'
+
+    input:
+    path upstream_process_pseudo
+
+    output:
+    path '*.html', emit: multiqc, optional: true
+
+    script:
+    """
+    workd=\$(pwd)
+
+    cd ${projectDir}
+    multiqc . \
+        -n SMAPP_report.html
+
+    mv SMAPP_report_data SMAPP_report.html \$workd
+    """
+
+}
+
 workflow QC {
 
     take:
@@ -237,6 +263,9 @@ workflow QC {
 		params.check_periodicity_script
 	)
 
+    MULTIQC(
+        CHECK_PERIODICITY.out.start.collect()
+    )
 }
 
 
