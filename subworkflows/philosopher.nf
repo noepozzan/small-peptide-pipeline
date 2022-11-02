@@ -25,13 +25,46 @@ process WORKSPACE {
 	cp -R -n -p ${params.proteomics_reads} ${params.workspace}
 	cp ${ribotish_speptide} ${params.workspace}
 	
-	cd ${params.workspace}	
+	cd ${params.workspace}
+
+
 	philosopher workspace --clean
 	philosopher workspace --init
 	"""
 
 }
 
+process RAW_TO_MZML {
+
+    label "thermorawfileparser"
+
+    publishDir "${params.output_dir}/raw_to_mzml", mode: 'copy', pattern: '*.mzML'
+    publishDir "${params.log_dir}/raw_to_mzml", mode: 'copy', pattern: '*.log'
+
+    input:
+    val workspace
+
+    output:
+	val 'raw_to_mzml_done', emit: done
+    path '*.mzML*', emit: mzML, optional: true
+    path '*.log*', emit: log, optional: true
+
+    script:
+    """
+    workd=\$(pwd)
+    cd ${params.workspace}
+
+    count=`ls -1 *.raw *.RAW *.Raw 2>/dev/null | wc -l`
+    if [ \$count != 0 ]
+    then 
+        ThermoRawFileParser.sh \
+            --input_directory=./ \
+            &> thermorawfileparser.log
+    fi
+
+    cp *.mzML thermorawfileparser.log \${workd}
+    """
+}
 process DATABASE {
 
     label 'philosopher'
@@ -40,7 +73,7 @@ process DATABASE {
     publishDir "${params.log_dir}/database", mode: 'copy', pattern: '*.log'
 
     input:
-    val workspace
+    val raw_to_mzml
     path db
 
     output:
@@ -58,7 +91,7 @@ process DATABASE {
 	#philosopher workspace --init
 	philosopher database \
 		--custom ${db} \
-		--contam \	
+		--contam \
 		&> database.log
 	
     #cp -R -n -p *.fas database.log \$workd
@@ -138,7 +171,7 @@ process MSFRAGGER {
     publishDir "${params.log_dir}/msfragger/", mode: 'copy', pattern: '*.log'
 
     input:
-    path closed_fragger
+    path fragger_params
     path db_file
 	
     output:
@@ -153,7 +186,7 @@ process MSFRAGGER {
 	java \
 		-Xmx${params.fragger_ram}g \
 		-jar /MSFragger.jar \
-		${closed_fragger} \
+		${fragger_params} \
 		*.mzML \
 		&> msfragger.log
 
@@ -365,8 +398,12 @@ workflow PHILOSOPHER {
 		ribotish_predict_ch,
 	)
 
+    RAW_TO_MZML(
+        WORKSPACE.out.collect()
+    )
+
 	DATABASE(
-		WORKSPACE.out.collect(),
+		RAW_TO_MZML.out.done,
 		ribotish_predict_ch
 	)
 
