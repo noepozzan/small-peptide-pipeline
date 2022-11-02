@@ -101,7 +101,7 @@ The table below will hopefully give you some deeper understanding of all paramet
 Parameter name | Description | Data type(s)
 --- | --- | ---
 riboseq_reads | Main ribosome sequencing fastq.gz files | `str`
-proteomics_reads | Main proteomics mzML files | `str`
+proteomics_reads | Main proteomics raw or mzML files | `str`
 gtf | Main gene annotation file in gene transfer format | `str`
 other_RNAs_sequence | ribosomal DNA complete repeating unit | `str`
 genome | Fasta genome file to be used as your reference genome | `str`
@@ -401,7 +401,7 @@ Compress sam to bam files, index and sort
   - folder containing sorted+indexed bam file and its index; used in [**QC**](#qc)
   
 ### `QC`
-This subworfklow is made up of 7 [Nextflow](#third-party-software-used) processes.  
+This subworfklow is made up of 6 [Nextflow](#third-party-software-used) processes.  
 It takes multiple files from upstream processes as inputs and performs quality control.
 
 #### `COUNT_OVERREPRESENTED_SEQUENCES_OTHER`
@@ -449,21 +449,12 @@ Plots periodicity of your riboseq reads around start and stop site
   - file(s) indicating read quantity along riboseq reads
   - plots for visual inspection of periodicity around start and stop site of translation
 
-#### `FILTER_LENGTHS_OFFSETS`
-Filter reads based on selected read lengths and offsets (Create a-site profile)
+#### `MULTIQC`
+Run multiqc on output directories
 - **Input**
-  - folder(s) containing sorted+indexed bam file and its index; from [**TRANSCRIPTOME**](#transcriptome)
-  - file(s) containing dictionaries with the p site offset for each sequence length; from [**DETERMINE_P_SITE_OFFSET**](#determine_p_site_offsets)
-  - python script
+  - pseudo input to keep order from [**CHECK_PERIODICITY**](#check_periodicity)
 - **Output**
-  - mapped (`.bam`) transcripts with unique a site profile; used in [**BAM_SORT_AND_INDEX**](#bam_sort_and_index)
-
-#### `BAM_SORT_AND_INDEX`
-Sort and index bam file
-- **Input**
-  - mapped (`.bam`) transcripts with unique a site profile; from [**FILTER_LENGTHS_OFFSETS**](#filter_lengths_offsets)
-- **Output**
-  - sorted+indexed and mapped transcripts with unique a site profile
+  - multiq html report for convenient visualization in browser
 
 ### `RIBOTISH`
 This subworfklow is made up of 6 [Nextflow](#third-party-software-used) processes.  
@@ -529,7 +520,7 @@ Collect different files of predicted peptides into 1, then add swissprot protein
 
 ### `PHILOSOPHER`
 This subworfklow is made up of 10 [Nextflow](#third-party-software-used) processes.  
-As inputs, it takes the predicted peptides in aa format (from [**COMBINE**](#combine)) and mzML proteomics spectra files.
+As inputs, it takes the predicted peptides in aa format (from [**COMBINE**](#combine)) and proteomics spectra files.
 As output, the workflow returns a csv file containing the proteomics-validated small peptides initially found by ribosome sequencing.
 
 #### `WORKSPACE`
@@ -539,7 +530,14 @@ Initializes a physical directory with a hidden folder which is needed for [**Phi
 - **Parameters**
   - `workspace`: _path where you want [Philosopher](#third_party_software_used) to do its tasks_
 - **Output**
-  - pseudo output; to be used in [**DATABASE**](#database)
+  - pseudo output; used in [**RAW_TO_MZML**](#raw_to_mzml)
+
+#### `RAW_TO_MZML`
+If mass spectrometry files are in raw format, transform them to mzML.
+- **Input**
+  - pseudo upstream input; from [**WORKSPACE**](#workspace)
+- **Output**
+  - pseudo output; used in [**DATABASE**](#database)
 
 #### `DATABASE`
 Add decoys and contaminants to predicted peptides fasta file and format it for philosopher
