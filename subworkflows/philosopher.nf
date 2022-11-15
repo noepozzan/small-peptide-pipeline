@@ -60,9 +60,10 @@ process RAW_TO_MZML {
         ThermoRawFileParser.sh \
             --input_directory=./ \
             &> thermorawfileparser.log
+
+        cp *.mzML thermorawfileparser.log \${workd}
     fi
 
-    cp *.mzML thermorawfileparser.log \${workd}
     """
 }
 process DATABASE {
