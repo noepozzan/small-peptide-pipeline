@@ -38,7 +38,6 @@ process RAW_TO_MZML {
 
     label "thermorawfileparser"
 
-    publishDir "${params.output_dir}/raw_to_mzml", mode: 'copy', pattern: '*.mzML'
     publishDir "${params.log_dir}/raw_to_mzml", mode: 'copy', pattern: '*.log'
 
     input:
