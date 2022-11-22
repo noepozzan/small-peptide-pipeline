@@ -681,4 +681,4 @@ Nextflow seems to sometimes just be over-hasty and begin a process before having
 [pub-msfragger]: <https://doi.org/10.1038/nmeth.4256>
 [pub-fastx]: <not known>
 
-[rule-graph]: images/flowchart.png
+[rule-graph]: images/flowchart_mermaid.png
