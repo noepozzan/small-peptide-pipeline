@@ -8,7 +8,7 @@ on installation and usage please see [here](README.md).
 - [Table of Contents](#table-of-contents)
 - [Third-party software used](#third-party-software-used)
 - [Description of workflow steps](#description-of-workflow-steps)
-  - [Rule graph](#rule-graph)
+  - [Directed acyclic graph](#directed-acyclic-graph)
   - [Understanding the config files](#understanding-the-config-files)
   - [Parameters](#parameters)
     - [Input Files](#input-files)
@@ -49,14 +49,12 @@ on installation and usage please see [here](README.md).
 
 > The workflow consists of multiple Nextflow files: A main `Nextflow` and
 > individual subworkflow files for each configuration mode 
-> The `main.nf` file contains the general steps .... Individual steps of the workflow are described briefly, and
+> The `main.nf` file contains the general steps to execute the workflow.
+> Individual steps of the workflow are described briefly, and
 > links to the respective software manuals are given. Parameters that can be
-> modified by the user (via the samples table) are also described. Descriptions
-> for steps for which individual "rules" exist for single- and paired-end
-> sequencing libraries are combined, and only differences between the modes are
-> highlighted.
+> modified by the user (via the samples table) are also described.
 
-### Rule graph
+### Directed acyclic graph
 
 ![rule_graph][rule-graph]
 
@@ -681,4 +679,4 @@ Nextflow seems to sometimes just be over-hasty and begin a process before having
 [pub-msfragger]: <https://doi.org/10.1038/nmeth.4256>
 [pub-fastx]: <not known>
 
-[rule-graph]: images/flowchart_mermaid.png
+[rule-graph]: images/flowchart.png
