@@ -193,6 +193,9 @@ This profile contains the [**PREPARE**](#prepare), [**rRNA**](#rrna) and [**GENO
 - `qc`  
 This profile contains the [**PREPARE**](#prepare), [**rRNA**](#rrna), [**ANNOTATE**](#annotate), [**TRANSCRIPTOME**](#transcriptome) and [**QC**](#qc) subworkflows.
 
+- `fasta`
+This profile contains all processses except [**PREPARE**](#prepare).
+
 ## Subworkflows
 
 Subworkflows are parts of the larger, complete workflow that do one of the tasks of the larger worfklow.

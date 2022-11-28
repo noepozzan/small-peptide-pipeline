@@ -204,6 +204,7 @@ You find these files under `conf/envs/`.
 - `prepare`: to prepare the reads
 - `ribotish`: to predict small peptides from your ribosome profiling data (if you don't have mass spec data)
 - `proteomics`: to search your mass spectra files (`.raw`, `.mzML`) against a database
+- `fasta`: to run the workflow if you already have preprocessed files (comes in handy sometimes..)
   
 **IMPORTANT:** The profile you choose must match the `.config` file you adapt.
 So, if you choose the profile `full`, you have to specify the paths to your files in the `conf/params/full.config` configuration file.  
