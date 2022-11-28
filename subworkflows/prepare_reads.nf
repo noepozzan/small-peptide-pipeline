@@ -2,61 +2,18 @@
 
 nextflow.enable.dsl=2
 
-process TRIM_FIRST_BASES {
-
-    label "cutadapt"
-
-    publishDir "${params.reads_dir}/trim_first_bases", mode: 'copy', pattern: '*.trimmed_first_bases'
-    publishDir "${params.log_dir}/trim_first_bases", mode: 'copy', pattern: '*.log'
-
-    input:
-    path reads
-
-    output:
-    path '*.trimmed_first_bases', emit: trimmed_first_bases
-	path '*.log', emit: log
-
-    script:
-    if (params.local_run == "docker")
-    """
-    input=\$(basename ${reads})
-    prefix=\$(echo \$input | cut -d '.' -f 1)
-
-    sleep 10
-    (cutadapt \
-		--cut ${params.cut} \
-		--minimum-length ${params.minimum_length} \
-		${reads} | gzip > \
-		\${prefix}.trimmed_first_bases) \
-		&> \${prefix}_trim_first_bases.log
-    sleep 10
-    """
-    else
-    """
-    input=\$(basename ${reads})
-    prefix=\$(echo \$input | cut -d '.' -f 1)
-
-    (cutadapt \
-        --cut ${params.cut} \
-        --minimum-length ${params.minimum_length} \
-        ${reads} | gzip > \
-        \${prefix}.trimmed_first_bases) \
-        &> \${prefix}_trim_first_bases.log
-    """
-}
-
 process CLIP_READS {
     
     label "fastx"
 
-    publishDir "${params.reads_dir}/clip_reads", mode: 'copy', pattern: '*.pro_clipped'
+    publishDir "${params.reads_dir}/clip_reads", mode: 'copy', pattern: '*.pro_clipped*'
     publishDir "${params.log_dir}/clip_reads", mode: 'copy', pattern: '*.log'
 
     input:
     path reads
 
     output:
-    path '*.pro_clipped', emit: pro_clipped
+    path '*.pro_clipped*', emit: pro_clipped
 	path '*.log', emit: log
 
     script:
@@ -69,7 +26,7 @@ process CLIP_READS {
     fastx_clipper \
 		${params.clip_reads_args} \
 		-i <(zcat ${reads}) \
-		-o \${prefix}.pro_clipped \
+		-o \${prefix}.pro_clipped.fastq.gz \
 		&> \${prefix}_clip_reads.log
     sleep 10
     """
@@ -81,11 +38,53 @@ process CLIP_READS {
     fastx_clipper \
         ${params.clip_reads_args} \
         -i <(zcat ${reads}) \
-        -o \${prefix}.pro_clipped \
+        -o \${prefix}.pro_clipped.fastq.gz \
         &> \${prefix}_clip_reads.log
     """
 }
 
+process TRIM_FIRST_BASES {
+
+    label "cutadapt"
+
+    publishDir "${params.reads_dir}/trim_first_bases", mode: 'copy', pattern: '*.trimmed_first_bases*'
+    publishDir "${params.log_dir}/trim_first_bases", mode: 'copy', pattern: '*.log'
+
+    input:
+    path reads
+
+    output:
+    path '*.trimmed_first_bases*', emit: trimmed_first_bases
+	path '*.log', emit: log
+
+    script:
+    if (params.local_run == "docker")
+    """
+    input=\$(basename ${reads})
+    prefix=\$(echo \$input | cut -d '.' -f 1)
+
+    sleep 10
+    (cutadapt \
+        --cut ${params.cut} \
+		--minimum-length ${params.minimum_length} \
+		${reads} | gzip > \
+		\${prefix}.trimmed_first_bases.fastq.gz) \
+		&> \${prefix}_trim_first_bases.log
+    sleep 10
+    """
+    else
+    """
+    input=\$(basename ${reads})
+    prefix=\$(echo \$input | cut -d '.' -f 1)
+
+    (cutadapt \
+        --cut ${params.cut} \
+        --minimum-length ${params.minimum_length} \
+        ${reads} | gzip > \
+        \${prefix}.trimmed_first_bases.fastq.gz) \
+        &> \${prefix}_trim_first_bases.log
+    """
+}
 
 process TRIM_READS {
     
@@ -230,16 +229,17 @@ workflow PREPARE {
 
     main:   
 	// prepare riboseq reads
-	TRIM_FIRST_BASES(
-		riboseq_reads_ch
-	)
 	
 	CLIP_READS(
-		TRIM_FIRST_BASES.out.trimmed_first_bases
+        riboseq_reads_ch
+	)
+
+	TRIM_FIRST_BASES(
+		CLIP_READS.out.pro_clipped
 	)
 	
 	TRIM_READS(
-		CLIP_READS.out.pro_clipped
+		TRIM_FIRST_BASES.out.trimmed_first_bases
 	)
 	
 	FILTER_READS(

@@ -193,6 +193,9 @@ This profile contains the [**PREPARE**](#prepare), [**rRNA**](#rrna) and [**GENO
 - `qc`  
 This profile contains the [**PREPARE**](#prepare), [**rRNA**](#rrna), [**ANNOTATE**](#annotate), [**TRANSCRIPTOME**](#transcriptome) and [**QC**](#qc) subworkflows.
 
+- `fasta`
+This profile contains all processses except [**PREPARE**](#prepare).
+
 ## Subworkflows
 
 Subworkflows are parts of the larger, complete workflow that do one of the tasks of the larger worfklow.
@@ -202,20 +205,10 @@ They may be considered as being a self-contained unit of the larger workflow and
 This subworkflow is made up of 5 [Nextflow](#third-party-software-used) processes.  
 It takes the `.fastq.gz` files you've gotten back from your ribosome sequencing experiments as input and returns trimmed, clipped and filtered `.fasta` files.
   
-#### `TRIM_FIRST_BASES`
-_"[cutadapt](#third-party-software-used) removes adapter sequences from high-throughput sequencing reads."_
-- **Input**
-  - Ribosome sequencing (`.fastq.gz`) files
-- **Parameters**
-  - `--cut`: _Remove bases from each read (first read only if paired). If LENGTH is positive, remove bases from the beginning._
-  - `--minimum_length`: _Discard reads shorter than LENGTH. Default: 0_
-- **Output**
-  - Ribosome sequencing files with first bases trimmed; used in [**CLIP_READS**](#clip_reads)
-
 #### `CLIP_READS`
 _"Removing sequencing adapters / linkers"_
 - **Input**
-  - riboseq files with first bases trimmed; from [**TRIM_FIRST_BASES**](#trim_first_bases)
+  - Raw ribosome profiling (`.fastq.gz`) files
 - **Parameters**
   - `-v`: _Verbose - report number of sequences._
   - `-n`: _discard sequences shorter than N nucleotides. default is 5._
@@ -227,10 +220,20 @@ _"Removing sequencing adapters / linkers"_
 - **Non-configurable & non-default**
   - `-z`: _Compress output with GZIP._
 
+#### `TRIM_FIRST_BASES`
+_"[cutadapt](#third-party-software-used) removes adapter sequences from high-throughput sequencing reads."_
+- **Input**
+  - riboseq files with adapters removed; from [**CLIP_READS**](#clip_reads)
+- **Parameters**
+  - `--cut`: _Remove bases from each read (first read only if paired). If LENGTH is positive, remove bases from the beginning._
+  - `--minimum_length`: _Discard reads shorter than LENGTH. Default: 0_
+- **Output**
+  - Ribosome sequencing files with first bases trimmed; used in [**CLIP_READS**](#clip_reads)
+
 #### `TRIM_READS`
 _"Trims (cuts) sequences based on quality"_
 - **Input**
-  - riboseq files with adapters removed; from [**CLIP_READS**](#clip_reads)
+  - riboseq files with first bases trimmed; from [**TRIM_FIRST_BASES**](#trim_first_bases)
 - **Parameters**
   - `-v`: _Verbose - report number of sequences._
   - `-l`: _Minimum length - sequences shorter than this (after trimming) will be discarded. Default = 0 = no minimum length._
