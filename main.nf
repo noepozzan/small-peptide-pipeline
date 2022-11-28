@@ -39,6 +39,9 @@ if ( params.run_mode == "fasta" ) {
     genome_ch = channel.fromPath(params.genome, checkIfExists: true)
     prepared_out = channel.fromPath(params.prepared_fasta, checkIfExists: true)
 }
+if ( params.run_mode == "prepare" ) {
+    riboseq_reads_ch = channel.fromPath(params.riboseq_reads, checkIfExists: true)
+}
 
 // main workflow that calls all processes in the subworkflows dir
 workflow {
