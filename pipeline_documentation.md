@@ -148,9 +148,8 @@ segemehl_args | Required for [segemehl](#third_party_software_used), contains pa
 --threads | Required for [segemehl](#third_party_software_used), _start <n> threads (default:1)_ | from `MAP_TRANSCRIPTOME_SEGEMEHL` process in `subworkflows/map_transcriptome.nf` and `MAP_rRNA_SEGEMEHL` in `subworkflows/map_rrna.nf` | `int`
 star_map_threads | Required for [STAR](#third_party_software_used), _int: number of threads to run STAR_ | from `MAP_GENOME_STAR` process in `subworkflows/map_genome.nf` | `int`
 check_peridocitiy_codnum | Required for [python script](#third_party_software_used), _Input codon coverage_ | from `CHECK_PERIODICITY` process in `subworkflows/qc.nf` | `int`
-riboseq_mode | Required for [Ribo-TISH](#third_party_software_used), _choose `regular` if you have ordinary riboseq bam files, choose `TI` if you have TIS enriched riboseq bam files_ | from `RIBOTISH_QUALITY` and `RIBOTISH_PREDICT` in `subworkflows/ribotish.nf` | `str`
-ribotish_quality_th | Required for [Ribo-TISH](#third_party_software_used), _Threshold for quality (default: 0.5)_ | from `RIBOTISH_QUALITY` in `subworkflows/ribotish.nf` | `float`
-ribotish_predict_mode | Required for [Ribo-TISH](#third_party_software_used), _if `longest` chosen: Only report longest possible ORF results_ | from `RIBOTISH_PREDICT` in `subworkflows/ribotish.nf` | `str`
+ribotish_quality_args | Required for [Ribo-TISH](#third_party_software_used), may contain multiple arguments as described in `ribotish quality` | from `RIBOTISH_QUALITY` in `subworkflows/ribotish.nf` | `multiple`
+ribotish_predict_args | Required for [Ribo-TISH](#third_party_software_used), may contain multiple arguments as described in `ribotish predict` | from `RIBOTISH_PREDICT` in `subworkflows/ribotish.nf` | `multiple`
 workspace | Required for [Philosopher](#third_party_software_used), _path where you want [Philosopher](#third_party_software_used) to do its tasks_ | from multiple processes in `subworkflows/ribotish.nf` | `str`
 peptideprophet_args | Required for [Philosopher](#third_party_software_used), contains parameters described right below (tool used: philosopher peptideprophet) | from `PEPTIDEPROPHET` process in `subworkflows/philosopher.nf` | `multiple`
 --combine | Required for [Philosopher](#third_party_software_used), _combine the results from PeptideProphet into a single result file_ | from `PEPTIDEPROPHET` process in `subworkflows/philosopher.nf` | `none`
@@ -462,8 +461,7 @@ This subworfklow is made up of 6 [Nextflow](#third-party-software-used) processe
 As inputs, it takes a gtf file, a fasta genome file and folders containing both an indexed+sorted bam file and its index (from [**GENOME**](#genome)).
 As output, the workflow returns a fasta file with the predicted peptides found by ribosome sequencing.  
 **Additionally:**  
-If you have the right data and want to predict translation inititation sites (TIS), please select "TI" for the parameter `riboseq_mode`.  
-If you have regular ribosome sequencing data and want to predict open reading frames, please select "regular" for the parameter `riboseq_mode`.
+Please have a look at [ribo-TISH's docs][docs-ribotish] if you don't want to run the standard ORF identifaction workflow. The tool allows multiple different workflows to run and has many helpful non-default options.
 
 #### `FASTA_INDEX`
 Create genome index using [**SAMtools**](#third-party-software-used).
@@ -478,7 +476,7 @@ Create the ribosome offsets to determine the proper position of the ribosome on 
   - Folders containing both an indexed+sorted bam file and its index; from [**GENOME**](#genome)
   - GTF file (`.gtf`)
 - **Parameters**
-  - `ribotish_quality_th`: _Threshold for quality (default: 0.5)_
+  - `ribotish_quality_args`: allows passing of arguments such as `--th`: _Threshold for quality (default: 0.5)_
 - **Output**
   - offsets; used in [**RIBOTISH_PREDICT**](#ribotish_predict)
 
@@ -490,7 +488,7 @@ Go from bam files of aligned ribosome sequencing reads to new, short peptides.
   - GTF file (`.gtf`)
   - Genome sequence file (`.fa`)
 - **Parameters**
-  - `ribotish_predict_mode`: _if `longest` chosen: Only report longest possible ORF results_
+  - `ribotish_predict_args`: allows passing of arguments such as `--longest`: _if `longest` chosen: Only report longest possible ORF results_
 - **Output**
   - predicted peptides in nucleotide fasta format; used in [**SORF_TO_PEPTIDE**](#sorf_to_peptide)
 

@@ -46,7 +46,6 @@ process RIBOTISH_QUALITY {
 	path '*.log', emit: log
 
     script:
-    if( params.riboseq_mode == "regular" )
 	"""
     input=\$(basename ${bam_sort_index_folder})
     prefix=\$(echo \$input | cut -d '.' -f 1)
@@ -56,25 +55,10 @@ process RIBOTISH_QUALITY {
     ribotish quality \
 		-b \${prefix}.*.bam \
 		-g ${gtf_file} \
-		--th ${params.ribotish_quality_th} \
+		${params.ribotish_quality_args} \
 		&> \${prefix}_ribotish_quality.log
 
     """
-	else if( params.riboseq_mode == "TI" )
-	"""
-	input=\$(basename ${bam_sort_index_folder})
-    prefix=\$(echo \$input | cut -d '.' -f 1)
-
-    cp ${bam_sort_index_folder}/* .
-
-	ribotish quality -t \
-        -b \${prefix}.*.bam \
-        -g ${gtf_file} \
-        --th ${params.ribotish_quality_th} \
-		&> \${prefix}_ribotish_quality.log
-
-	"""
-
 }
 
 process RIBOTISH_PREDICT {
@@ -83,6 +67,8 @@ process RIBOTISH_PREDICT {
 	label "predicting"
 
     publishDir "${params.ribotish_dir}/ribotish_predict", mode: 'copy', pattern: "*ribotish_pred_all.txt"
+    publishDir "${params.ribotish_dir}/ribotish_predict", mode: 'copy', pattern: "*ribotish_pred.txt"
+    publishDir "${params.ribotish_dir}/ribotish_predict", mode: 'copy', pattern: "TRANSPROFILE"
     publishDir "${params.log_dir}/ribotish_predict", mode: 'copy', pattern: "*.log"
 
     input:
@@ -91,11 +77,12 @@ process RIBOTISH_PREDICT {
 	path genome
  
     output:
-    path '*.ribotish_pred_all.txt', emit: ribo_pred
+    path '*.ribotish_pred_all.txt', emit: ribo_pred_all
+    path '*.ribotish_pred.txt', emit: ribo_pred
+    path 'TRANSPROFILE', emit: transprofile, optional: true
 	path '*.log', emit: log
 
     script:
-	if( params.riboseq_mode == "regular" )
     """
 	input=\$(basename ${bam_folder_offsets[0]})
     prefix=\$(echo \$input | cut -d '.' -f 1)
@@ -107,29 +94,13 @@ process RIBOTISH_PREDICT {
 		-g ${gtf} \
 		-f ${genome} \
 		--ribopara ${bam_folder_offsets[1]} \
-		${params.ribotish_predict_mode} \
+		${params.ribotish_predict_args} \
 		-o \${prefix}.ribotish_pred.txt \
 		&> \${prefix}_ribotish_predict.log
 
+    echo "work directory: " >> \${prefix}_ribotish_predict.log
+    echo \$(pwd) >> \${prefix}_ribotish_predict.log
 	"""
-	else if( params.riboseq_mode == "TI" )
-	"""
-    input=\$(basename ${bam_folder_offsets[0]})
-    prefix=\$(echo \$input | cut -d '.' -f 1)
-
-    cp ${bam_folder_offsets[0]}/* .
-
-    ribotish predict \
-        -t *.bam \
-        -g ${gtf} \
-        -f ${genome} \
-        --ribopara ${bam_folder_offsets[1]} \
-        ${params.ribotish_predict_mode} \
-        -o \${prefix}.ribotish_pred.txt \
-        &> \${prefix}_ribotish_predict.log
-
-    """
-
 }
 
 process GFFREAD {
