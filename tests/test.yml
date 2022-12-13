@@ -6,7 +6,7 @@
     - path: results/tests/prepare_reads/fastq_to_fasta/TEST_sample.pro_filtered_fasta
       md5sum: 1ac2af6e0cbf8f5919de973f36fb396d
     - path: results/tests/philosopher/report/msstats.tsv
-      md5sum: 4c4e78a59b562e15a3a48c8e8e710979
+      md5sum: 3dcef914669fb7f422a310dde7dd2196
 
 - name: integration_test_singularity
   command: nextflow run main.nf -profile test,singularity_offline
@@ -16,7 +16,7 @@
     - path: results/tests/prepare_reads/fastq_to_fasta/TEST_sample.pro_filtered_fasta
       md5sum: 1ac2af6e0cbf8f5919de973f36fb396d
     - path: results/tests/philosopher/report/msstats.tsv
-      md5sum: 4c4e78a59b562e15a3a48c8e8e710979
+      md5sum: 3dcef914669fb7f422a310dde7dd2196
 
 - name: integration_test_docker
   command: nextflow run main.nf -profile test,docker
@@ -26,7 +26,7 @@
     - path: results/tests/prepare_reads/fastq_to_fasta/TEST_sample.pro_filtered_fasta
       md5sum: 1ac2af6e0cbf8f5919de973f36fb396d
     - path: results/tests/philosopher/report/msstats.tsv
-      md5sum: 48f3b9bacba9b72df984700d0613a6a2
+      md5sum: 3dcef914669fb7f422a310dde7dd2196
 
 #- name: proteomics
 #  command: nextflow run main.nf -profile proteomics,slurm
