@@ -17,6 +17,12 @@ if ( params.run_mode == "test" || params.run_mode == "full" ) {
     gtf_ch = channel.fromPath(params.gtf, checkIfExists: true)
     genome_ch = channel.fromPath(params.genome, checkIfExists: true)
 }
+if ( params.run_mode == "map to genome" || params.run_mode == "qc" ) {
+    riboseq_reads_ch = channel.fromPath(params.riboseq_reads, checkIfExists: true)
+    other_RNAs_sequence_ch = channel.fromPath(params.other_RNAs_sequence, checkIfExists: true)
+    gtf_ch = channel.fromPath(params.gtf, checkIfExists: true)
+    genome_ch = channel.fromPath(params.genome, checkIfExists: true)
+}
 if ( params.run_mode == "full" || params.run_mode == "fasta" ) {
     swissprot_ch = channel.fromPath(params.swissprot, checkIfExists: true)
 }
