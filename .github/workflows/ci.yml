@@ -44,9 +44,9 @@ jobs:
           
       - name: Get data via zenodo
         run: |
-          zenodo_get 7258274 -o ${HOME}/data/tests/
+          zenodo_get 7258274 -o "./data/tests/"
           ls -la
-          ls -la ${HOME}/data/tests/
+          ls -la "./data/tests/"
 
       - name: Setup miniconda & small_peptides root env
         uses: conda-incubator/setup-miniconda@v2
@@ -119,9 +119,9 @@ jobs:
           
       - name: Get data via zenodo
         run: |
-          zenodo_get -R 10 -p 10 7258274 -o ${HOME}/data/tests/
+          zenodo_get -R 10 -p 10 7258274 -o ./data/tests/
           ls -la
-          ls -la ${HOME}/data/tests/
+          ls -la ./data/tests/
 
       - name: Setup miniconda & small_peptides root env
         uses: conda-incubator/setup-miniconda@v2
