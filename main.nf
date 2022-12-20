@@ -10,7 +10,7 @@ include { TRANSCRIPTOME } from './subworkflows/map_transcriptome.nf'
 include { QC } from './subworkflows/qc.nf'
 
 // check if files are present by converting params to channels
-if ( params.run_mode == "test" || params.run_mode == "full" ) {
+if ( params.run_mode == "full" ) {
     riboseq_reads_ch = channel.fromPath(params.riboseq_reads, checkIfExists: true)
     proteomics_reads_ch = channel.fromPath(params.proteomics_reads, checkIfExists: true)
     other_RNAs_sequence_ch = channel.fromPath(params.other_RNAs_sequence, checkIfExists: true)
@@ -26,7 +26,7 @@ if ( params.run_mode == "map to genome" || params.run_mode == "qc" ) {
 if ( params.run_mode == "full" || params.run_mode == "fasta" ) {
     swissprot_ch = channel.fromPath(params.swissprot, checkIfExists: true)
 }
-if ( params.run_mode == "test" || params.run_mode == "proteomics" ) {
+if ( params.special_run_mode == "test" || params.run_mode == "proteomics" ) {
     predicted_peptides = channel.fromPath(params.test_database, checkIfExists: true)
 }
 if ( params.run_mode == "proteomics" ) {
@@ -56,14 +56,14 @@ workflow {
             PULL_FILES()
     }
 
-    if ( params.run_mode == "full" || params.run_mode == "test" || params.run_mode == "prepare" || params.run_mode == "qc" || params.run_mode == "map to genome") {
+    if ( params.run_mode == "full" || params.run_mode == "prepare" || params.run_mode == "qc" || params.run_mode == "map to genome") {
         PREPARE(
             riboseq_reads_ch
         )
         prepared_out = PREPARE.out
     }
 
-    if ( params.run_mode == "full" || params.run_mode == "test" || params.run_mode == "qc" || params.run_mode == "map to genome" || params.run_mode == "fasta" ) {
+    if ( params.run_mode == "full" || params.run_mode == "qc" || params.run_mode == "map to genome" || params.run_mode == "fasta" ) {
         rRNA(
             genome_ch,
             other_RNAs_sequence_ch,
@@ -71,7 +71,7 @@ workflow {
         )
     }
 
-    if ( params.run_mode == "full" || params.run_mode == "test" || params.run_mode == "map to genome" || params.run_mode == "fasta" ) {
+    if ( params.run_mode == "full" || params.run_mode == "map to genome" || params.run_mode == "fasta" ) {
         GENOME(
             genome_ch,
             gtf_ch,
@@ -80,7 +80,7 @@ workflow {
         bam_sort_index_folder_ch = GENOME.out.bam_sort_index_folder
     }
 
-	if ( params.run_mode == "full" || params.run_mode == "test" || params.run_mode == "qc" || params.run_mode == "fasta" ) {
+	if ( params.run_mode == "full" || params.run_mode == "qc" || params.run_mode == "fasta" ) {
 		ANNOTATE(
 			gtf_ch,
 			other_RNAs_sequence_ch,
@@ -101,16 +101,18 @@ workflow {
 	}
 
 	if ( params.run_mode == "full" || params.run_mode == "ribotish" || params.run_mode == "fasta" ) {
-		RIBOTISH(
-			gtf_ch,
-			bam_sort_index_folder_ch,
-			genome_ch,
-            swissprot_ch
-		)
-		predicted_peptides = RIBOTISH.out.speptide_combined
-	}
+        if ( params.special_run_mode != "test" ) {
+            RIBOTISH(
+                gtf_ch,
+                bam_sort_index_folder_ch,
+                genome_ch,
+                swissprot_ch
+            )
+            predicted_peptides = RIBOTISH.out.speptide_combined
+	    }
+    }
     
-    if ( params.run_mode == "full" || params.run_mode == "test" || params.run_mode == "proteomics" || params.run_mode == "fasta" ) {
+    if ( params.run_mode == "full" || params.run_mode == "proteomics" || params.run_mode == "fasta" ) {
         PHILOSOPHER(
             predicted_peptides,
             proteomics_reads_ch

@@ -39,16 +39,6 @@ def main():
     )
 
     parser.add_argument(
-        "--bins",
-        dest="bins",
-        nargs="*",
-        type=int,
-        help="Parameter for bin size",
-        default=30,
-        required=False
-    )
-
-    parser.add_argument(
         "--outdir",
         dest="outdir",
         help="Output directory",
@@ -100,13 +90,14 @@ def main():
             if line[0] != "@" and len(line.split("\t")[9]) < 50:
                 lengths.append(len(line.split("\t")[9]))
 
-    plt.figure(1)
-    df = pd.DataFrame({'freq': lengths})
-    df.groupby('freq', as_index=False).size().plot(kind='bar', facecolor='b')
-    plt.xlabel('Length')
-    plt.ylabel('Number of cases')
-    plt.savefig(os.path.join(options.outdir, "read_length_histogram.pdf"))
-
+    if lengths:
+        plt.figure(1)
+        df = pd.DataFrame({'freq': lengths})
+        df.groupby('freq', as_index=False).size().plot(kind='bar',
+                                                       facecolor='b')
+        plt.xlabel('Length')
+        plt.ylabel('Number of cases')
+        plt.savefig(os.path.join(options.outdir, "read_length_histogram.pdf"))
 
 # _____________________________________________________________________________
 # -----------------------------------------------------------------------------
