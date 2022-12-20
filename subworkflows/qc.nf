@@ -182,7 +182,7 @@ process CHECK_PERIODICITY {
       	--tsv ${transcript_id_gene_id_CDS} \
        	--json ${bam_folder_offsets[1]} \
        	--outdir \${prefix}.check_periodicity \
-       	--codnum ${params.check_peridocitiy_codnum} \
+       	--codnum ${params.check_periodicity_codnum} \
         &> \${prefix}_check_periodicity.log
 
     	cp \${prefix}.check_periodicity/* .

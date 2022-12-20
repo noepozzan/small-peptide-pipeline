@@ -158,5 +158,6 @@ jobs:
         run: |
           ls -la
           pytest --tag integration_test_docker --kwd --basetemp=${HOME}/test_runs
+          pytest --tag qc_test_docker --kwd --basetemp=${HOME}/test_runs
           
 

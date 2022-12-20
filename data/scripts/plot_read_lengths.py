@@ -11,11 +11,13 @@ import os
 import matplotlib as mpl
 mpl.use('Agg')
 import matplotlib.pyplot as plt
+import pandas as pd
 
 # _____________________________________________________________________________
 # -----------------------------------------------------------------------------
 # Main function
 # -----------------------------------------------------------------------------
+
 
 def main():
     """ Main function """
@@ -73,7 +75,8 @@ def main():
         sys.exit(1)
 
     if options.verbose:
-        sys.stdout.write("Creating output directory: {} {}".format(options.outdir, os.linesep))
+        sys.stdout.write("Creating output directory: {} {}"
+                         .format(options.outdir, os.linesep))
 
     if not os.path.exists(options.outdir):
         os.mkdir(options.outdir)
@@ -84,17 +87,17 @@ def main():
     lengths = []
     with open(options.sam) as sam:
         for line in sam:
-            if line[0] != "@":
+            if line[0] != "@" and len(line.split("\t")[9]) < 50:
                 lengths.append(len(line.split("\t")[9]))
 
-    fig = plt.figure()
-    plt.hist(lengths, bins=30)
-    plt.xlabel('Length')
-    plt.ylabel('Number of cases')
-    # plt.axis([0, 20000, None, None])
-    plt.savefig(os.path.join(options.outdir, "read_length_histogram.pdf"))
-
-
+    if lengths:
+        plt.figure(1)
+        df = pd.DataFrame({'freq': lengths})
+        df.groupby('freq', as_index=False).size().plot(kind='bar',
+                                                       facecolor='b')
+        plt.xlabel('Length')
+        plt.ylabel('Number of cases')
+        plt.savefig(os.path.join(options.outdir, "read_length_histogram.pdf"))
 
 # _____________________________________________________________________________
 # -----------------------------------------------------------------------------
